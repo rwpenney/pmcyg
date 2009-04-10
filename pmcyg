@@ -1,0 +1,113 @@
+#!/usr/bin/python
+# Partially mirror 'cygwin' distribution
+# $Revision: 1.1 $, $Date: 2009-04-10 12:49:13 $
+# RW Penney, April 2009
+
+import re
+try: set
+except NameError: from sets import Set as set, ImmutableSet as frozenset
+
+
+def ParseIniFile(fname):
+    """Ingest original 'setup.ini' file defining available cygwin packages"""
+
+    re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
+    re_comment = re.compile(r'#(.*)$')
+    re_blank = re.compile(r'^$')
+    re_package = re.compile(r'^@\s+(\S+)$')
+    re_epoch = re.compile(r'^\[([a-z]+)\]$')
+    re_field = re.compile(r'^([a-z]+):\s+(.*)$')
+    re_other = re.compile(r'^(.+)$')
+    all_regexps = [ re_setup, re_comment, re_blank,
+                    re_package, re_epoch, re_field, re_other ]
+
+    header = {}
+    packages = {}
+
+    fp = open(fname, "rt")
+    lineno = 0
+    (pkgname, pkgtxt, pkgdict, epoch) = (None, [], {}, None)
+    for line in fp:
+        lineno += 1
+        matches = None
+        for regexp in all_regexps:
+            matches = regexp.match(line)
+            if matches: break
+        if not matches:
+            raise SyntaxError, "unrecognized content on line %d" % ( lineno )
+
+        if regexp == re_setup:
+            header[matches.group(1)] = matches.group(2)
+        elif regexp == re_comment:
+            pass
+        elif regexp == re_blank:
+            if pkgname:
+                pkgdict['TEXT'] = "".join(pkgtxt)
+                packages[pkgname] = pkgdict
+                pkgname = None
+        elif regexp == re_package:
+            pkgname = matches.group(1)
+            pkgtxt = []
+            pkgdict = {}
+            epoch = 'curr'
+        elif regexp == re_epoch:
+            epoch = matches.group(1)
+        elif regexp == re_field:
+            pkgdict[matches.group(1) + '_' + epoch] = matches.group(2)
+        elif regexp == re_other:
+            pass
+
+        if pkgname:
+            pkgtxt.append(line)
+    if pkgname:
+        pkgdict['TEXT'] = "".join(pkgtxt)
+        packages[pkgname] = pkgdict
+
+    return (header, packages)
+
+
+def ResolveDependencies(pkgdict, packages=['bash'], epochs=['curr']):
+    """Constuct list of packages, including all their dependencies"""
+
+    additions = set(packages)
+    packages = set()
+
+    while additions:
+        pkg = additions.pop()
+        packages.add(pkg)
+
+        try:
+            pkginfo = pkgdict[pkg]
+        except:
+            print 'Bad package %s' % pkg
+            break
+
+        # Find dependencies of current package & add to stack:
+        for epoch in epochs:
+            try:
+                reqlist = pkginfo['requires' + '_' + epoch].split()
+                for r in reqlist:
+                    if not r in packages:
+                        additions.add(r)
+            except:
+                print 'cannot find epoch %s for %s' % (epoch, pkg)
+                pass
+
+    packages = list(packages)
+    packages.sort()
+
+    return packages
+
+
+
+def main():
+    (header, pkgdict) = ParseIniFile("/home/morgue/setup.ini")
+    packages = ResolveDependencies(pkgdict, ['bash', 'gcc', 'xterm'])
+    print packages
+
+
+
+if __name__ == "__main__":
+    main()
+
+# vim: set ts=4 sw=4 et:
