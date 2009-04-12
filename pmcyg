@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Partially mirror 'cygwin' distribution
-# $Revision: 1.3 $, $Date: 2009-04-11 12:16:41 $
+# $Revision: 1.4 $, $Date: 2009-04-12 09:06:38 $
 # RW Penney, April 2009
 
 import bz2, md5, optparse, os, os.path, re, time, urllib, urlparse
@@ -9,13 +9,13 @@ except NameError: from sets import Set as set, ImmutableSet as frozenset
 
 
 # Directory into which to assemble local mirror:
-TGT_DIR = '/home/morgue/cyg-mirror'
+TGT_DIR = '.'
 # URL of Cygwin package database file:
-INIURL = ''
+INIURL = 'ftp://cygwin.com/pub/cygwin/setup.ini'
 # URL of source of Cygwin installation program 'setup.exe':
 EXESRC = 'http://sourceware.redhat.com/cygwin/setup.exe'
 # URL of Cygwin mirror site, hosting available packages:
-MIRROR = 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
+MIRROR = 'ftp://cygwin.com/pub/cygwin/'
 # Set of package age descriptors:
 EPOCHS = ['curr']
 
@@ -96,8 +96,16 @@ def ParseIniFile(iniurl):
     return (header, packages)
 
 
-def ResolveDependencies(pkgdict, usrpkgs=['bash', 'bzip2', 'coreutils', 'gzip', 'tar']):
+def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
     """Constuct list of packages, including all their dependencies"""
+
+    if usrpkgs == None:
+        # Setup minimalistic set of packages
+        usrpkgs = ['bash', 'bzip2', 'coreutils', 'gzip', 'tar', 'unzip', 'zip' ]
+
+    if include_all:
+        usrpkgs = [ pkg for pkg in pkgdict.iterkeys()
+                            if not pkg.startswith('_') ]
 
     additions = set(usrpkgs)
     packages = set()
@@ -136,21 +144,21 @@ def BuildDownload(pkgdict, packages):
         pkginfo = pkgdict[pkg]
 
         for epoch in EPOCHS:
-            flds = pkginfo['install' + '_' + epoch].split()
-            pkgref = flds[0]
-            pkgsize = int(flds[1])
-            pkghash = flds[2]
-            downloads.append((pkgref, pkgsize, pkghash))
-            totsize += pkgsize
+            try:
+                flds = pkginfo['install' + '_' + epoch].split()
+                pkgref = flds[0]
+                pkgsize = int(flds[1])
+                pkghash = flds[2]
+                downloads.append((pkgref, pkgsize, pkghash))
+                totsize += pkgsize
+            except KeyError:
+                pass
 
     return downloads, totsize
 
 
-def BuildMirror(header, pkgdict, packages):
-    """Download files from Cygwin mirror to create local partial copy"""
-
-    if not os.path.isdir(TGT_DIR):
-        os.path.makedirs(TGT_DIR)
+def BuildSetupFiles(header, pkgdict, packages):
+    """Create top-level configuration files in local mirror"""
 
     # Split package list into normal + specials:
     spkgs = [pkg for pkg in packages if pkg.startswith('_')]
@@ -177,10 +185,24 @@ def BuildMirror(header, pkgdict, packages):
 
     # Create other top-level artefacts:
     urllib.urlretrieve(EXESRC, os.path.join(TGT_DIR, 'setup.exe'))
+    hp = open(os.path.join(TGT_DIR, 'md5.sum'), 'wt')
     for fl in ['setup.ini', 'setup.bz2', 'setup.exe']:
         hshr = md5.new()
-        # FIXME - more here
+        fp = open(os.path.join(TGT_DIR, fl), 'rb')
+        hshr.update(fp.read())
+        fp.close()
+        hp.write('%s  %s\n' % ( hshr.hexdigest(), fl ))
+    hp.close()
 
+
+
+def BuildMirror(header, pkgdict, packages):
+    """Download files from Cygwin mirror to create local partial copy"""
+
+    if not os.path.isdir(TGT_DIR):
+        os.makedirs(TGT_DIR)
+
+    BuildSetupFiles(header, pkgdict, packages)
 
     (downloads, totsize) = BuildDownload(pkgdict, packages)
     print 'Download size: %.1fMB' % ( totsize / (1024.0 * 1024.0) )
@@ -199,13 +221,62 @@ def BuildMirror(header, pkgdict, packages):
 
 
 
+def ReadPackageLists(filenames):
+    """Read a set of user-supplied package names for local mirroring"""
+
+    usrpkgs = []
+
+    for fn in filenames:
+        fp = open(fn, 'rt')
+
+        for line in fp:
+            idx = line.find('#')
+            if idx >= 0:
+                line = line[0:idx]
+            line = line.strip()
+
+            if line:
+                usrpkgs.append(line)
+
+        fp.close()
+
+    return usrpkgs
+
+
 def main():
-    global MIRROR
+    global INIURL, EPOCHS, EXESRC, MIRROR, TGT_DIR
 
+    # Process command-line options:
+    parser = optparse.OptionParser()
+    parser.add_option('--directory', '-d', type='string', default='.',
+            help='where to build local mirror')
+    parser.add_option('--exeurl', '-x', type='string',
+            default='http://sourceware.redhat.com/cygwin/setup.exe',
+            help='URL of "setup.exe" Cygwin installer')
+    parser.add_option('--iniurl', '-i', type='string', default=None,
+            help='URL of "setup.ini" Cygwin database')
+    parser.add_option('--mirror', '-m', type='string',
+            default='ftp://cygwin.com/pub/cygwin/',
+            help='URL of Cygwin archive or mirror site')
+    parser.add_option('--epochs', '-e', type='string', default='curr',
+            help='comma-separated list of epochs, e.g. "curr,prev"')
+    parser.add_option('--all', '-a', action='store_true',
+            help='include all available Cygwin packages')
+    opts, remargs = parser.parse_args()
+
+    TGT_DIR = opts.directory
+    MIRROR = opts.mirror
     if not MIRROR.endswith('/'): MIRROR += '/'
+    if opts.iniurl: INIURL = opts.iniurl
+    else: INIURL = urlparse.urljoin(MIRROR, 'setup.ini')
+    EPOCHS = opts.epochs.split(',')
 
-    (header, pkgdict) = ParseIniFile("file:/home/morgue/setup.ini")
-    packages = ResolveDependencies(pkgdict)
+    usrpkgs = None
+    if remargs:
+        usrpkgs = ReadPackageLists(remargs)
+
+    (header, pkgdict) = ParseIniFile(INIURL)
+    packages = ResolveDependencies(pkgdict, usrpkgs, include_all=opts.all)
 
     BuildMirror(header, pkgdict, packages)
 
