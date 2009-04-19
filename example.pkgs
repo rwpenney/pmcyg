@@ -1,0 +1,67 @@
+# Example package listing for pmcyg (Cygwin Partial Mirror)
+# RW Penney, April 2009
+
+# This file contains listings of cygwin package names, one per line.
+# Lines starting with '#' denote comments, with blank lines being ignored.
+# The dependencies of any package listed here should be automatically
+# included in the mirror by pmcyg.
+
+
+#
+# Base packages:
+#
+bash
+bzip2
+coreutils
+cygutils
+cygwin
+cygwin-doc
+cygwin-x-doc
+gzip
+less
+man
+patch
+perl
+procps
+python
+sed
+tar
+tcsh
+texinfo
+util-linux
+unzip
+zip
+
+#
+# Development packages:
+#
+autoconf
+automake
+gcc
+gdb
+git
+make
+
+#
+# Graphics packages:
+#
+gv
+psutils
+
+#
+# Maths/Scientific packages:
+#
+gnuplot
+octave
+
+#
+# X11 packages:
+#
+X-start-menu-icons
+xinit
+xorg-cf-files
+xorg-docs
+xorg-scripts
+xorg-server
+xpdf
+xterm

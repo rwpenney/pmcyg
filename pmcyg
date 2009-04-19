@@ -1,7 +1,11 @@
 #!/usr/bin/python
 # Partially mirror 'cygwin' distribution
-# $Revision: 1.4 $, $Date: 2009-04-12 09:06:38 $
-# RW Penney, April 2009
+# (C)Copyright 2009, RW Penney
+
+# This file is (C)Copyright 2009, RW Penney
+# and is released under the Python-2.4.2 license
+# (see http://www.python.org/psf/license),
+# it therefore comes with NO WARRANTY, and NO CLAIMS OF FITNESS FOR ANY PURPOSE.
 
 import bz2, md5, optparse, os, os.path, re, time, urllib, urlparse
 try: set
@@ -205,7 +209,8 @@ def BuildMirror(header, pkgdict, packages):
     BuildSetupFiles(header, pkgdict, packages)
 
     (downloads, totsize) = BuildDownload(pkgdict, packages)
-    print 'Download size: %.1fMB' % ( totsize / (1024.0 * 1024.0) )
+    print 'Download size: %.1fMB from %s' \
+            % ( totsize / (1024.0 * 1024.0), MIRROR)
 
     for (pkgfile, pkgsize, pkghash) in downloads:
         if os.path.isabs(pkgfile):
@@ -216,8 +221,9 @@ def BuildMirror(header, pkgdict, packages):
             os.makedirs(tgtdir)
         mirpath = urlparse.urljoin(MIRROR, pkgfile)
         if not os.path.isfile(tgtpath) or os.path.getsize(tgtpath) != pkgsize:
-            print '%s -> %s' % ( mirpath, tgtdir)
+            print '  %s ...' % ( os.path.basename(pkgfile) ),
             urllib.urlretrieve(mirpath, tgtpath)
+            print ' done'
 
 
 
