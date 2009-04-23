@@ -1,0 +1,4 @@
+Improve error-checking
+Add download progress indicator
+Add dry-run option
+Add GUI

@@ -11,8 +11,8 @@ and only download those packages from a user-selected Cygwin mirror site.
 It will then assemble a set of configuration files that all the Cygwin
 installer to operate from the locally created repository.
 
-All files are released under the Python PSF License
-(see http://www.python.org/psf/license)
+All files are released under the GNU General Public License (v3)
+(see http://www.gnu.org/licenses)
 and are Copyright 2009 RW Penney.
 
 

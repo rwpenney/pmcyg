@@ -4,11 +4,26 @@
 PKGNAME = pmcyg
 VERSION = 0.0.1
 DISTFILES = pmcyg example.pkgs \
-	LICENSE README.txt
+	LICENSE README.txt ToDo.txt
+
+FQNAME = ${PKGNAME}-${VERSION}
+
 
 .PHONY:
-dist-gzip:
-	mkdir ${PKGNAME}-${VERSION} || true
-	cp -p ${DISTFILES} ${PKGNAME}-${VERSION}/
-	tar -zcf ${PKGNAME}-${VERSION}.tgz ./${PKGNAME}-${VERSION}
-	rm -rf ${PKGNAME}-${VERSION}
+dist-gzip:	dist-dir
+	tar -zcf ${FQNAME}.tgz ./${FQNAME}
+	rm -rf ${FQNAME}
+
+.PHONY:
+dist-zip:	dist-dir
+	zip -r ${FQNAME}.zip ./${FQNAME}
+	rm -rf ${FQNAME}
+
+.PHONY:
+dist-dir:
+	test -d ${FQNAME} || mkdir ${FQNAME}
+	cp -p ${DISTFILES} ${FQNAME}/
+
+.PHONY:
+clean:
+	rm -f ${FQNAME}.tgz ${FQNAME}.zip
