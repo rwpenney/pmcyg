@@ -22,14 +22,33 @@ except NameError: from sets import Set as set, ImmutableSet as frozenset
 
 # Directory into which to assemble local mirror:
 TGT_DIR = '.'
-# URL of Cygwin package database file:
-INIURL = 'ftp://cygwin.com/pub/cygwin/setup.ini'
 # URL of source of Cygwin installation program 'setup.exe':
 EXESRC = 'http://sourceware.redhat.com/cygwin/setup.exe'
 # URL of Cygwin mirror site, hosting available packages:
 MIRROR = 'ftp://cygwin.com/pub/cygwin/'
+# URL of Cygwin package database file (derived from MIRROR if 'None'):
+INIURL = None
 # Set of package age descriptors:
 EPOCHS = ['curr']
+
+
+class PMCygException(Exception):
+    """Wrapper for internally generated exceptions"""
+
+    def __init__(self, *args):
+        Exception.__init__(self, *args)
+
+
+def CheckMirrorIni(mirror, iniurl):
+    """Basic sanity checks on mirror URL and location or 'setup.ini' file"""
+
+    if not mirror.endswith('/'):
+        mirror += '/'
+
+    if not iniurl:
+        iniurl = urlparse.urljoin(mirror, 'setup.ini')
+
+    return mirror, iniurl
 
 
 def mergelines(pkgtxt):
@@ -60,7 +79,11 @@ def ParseIniFile(iniurl):
     header = {}
     packages = {}
 
-    fp = urllib.urlopen(iniurl)
+    try:
+        fp = urllib.urlopen(iniurl)
+    except Exception, ex:
+        raise PMCygException, "Failed to open %s\n - %s" % ( iniurl, str(ex) )
+
     lineno = 0
     (pkgname, pkgtxt, pkgdict, epoch) = (None, [], {}, None)
     for line in fp:
@@ -121,6 +144,7 @@ def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
 
     additions = set(usrpkgs)
     packages = set()
+    badpkgnames = []
 
     while additions:
         pkg = additions.pop()
@@ -129,8 +153,8 @@ def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
         try:
             pkginfo = pkgdict[pkg]
         except:
-            print 'Bad package %s' % pkg
-            break
+            badpkgnames.append(pkg)
+            continue
 
         # Find dependencies of current package & add to stack:
         for epoch in EPOCHS:
@@ -140,8 +164,13 @@ def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
                     if not r in packages:
                         additions.add(r)
             except:
-                print 'cannot find epoch %s for %s' % (epoch, pkg)
-                pass
+                print 'Cannot find epoch %s for %s' % (epoch, pkg)
+
+    if badpkgnames:
+        badpkgnames.sort()
+        raise PMCygException, \
+            "The following package names where not recognized:\n\t%s\n" \
+            % ( '\n\t'.join(badpkgnames) )
 
     return list(packages)
 
@@ -196,7 +225,11 @@ def BuildSetupFiles(header, pkgdict, packages):
     fp.close()
 
     # Create other top-level artefacts:
-    urllib.urlretrieve(EXESRC, os.path.join(TGT_DIR, 'setup.exe'))
+    try:
+        urllib.urlretrieve(EXESRC, os.path.join(TGT_DIR, 'setup.exe'))
+    except Exception, ex:
+        raise PMCygException, "Failed to retrieve %s\n - %s" % ( EXESRC, str(ex) )
+
     hp = open(os.path.join(TGT_DIR, 'md5.sum'), 'wt')
     for fl in ['setup.ini', 'setup.bz2', 'setup.exe']:
         hshr = md5.new()
@@ -262,37 +295,35 @@ def main():
 
     # Process command-line options:
     parser = optparse.OptionParser()
-    parser.add_option('--directory', '-d', type='string', default='.',
+    parser.add_option('--directory', '-d', type='string', default='cygwin',
             help='where to build local mirror')
-    parser.add_option('--exeurl', '-x', type='string',
-            default='http://sourceware.redhat.com/cygwin/setup.exe',
+    parser.add_option('--exeurl', '-x', type='string', default=EXESRC,
             help='URL of "setup.exe" Cygwin installer')
     parser.add_option('--iniurl', '-i', type='string', default=None,
             help='URL of "setup.ini" Cygwin database')
-    parser.add_option('--mirror', '-m', type='string',
-            default='ftp://cygwin.com/pub/cygwin/',
+    parser.add_option('--mirror', '-m', type='string', default=MIRROR,
             help='URL of Cygwin archive or mirror site')
-    parser.add_option('--epochs', '-e', type='string', default='curr',
+    parser.add_option('--epochs', '-e', type='string', default=','.join(EPOCHS),
             help='comma-separated list of epochs, e.g. "curr,prev"')
     parser.add_option('--all', '-a', action='store_true',
             help='include all available Cygwin packages')
     opts, remargs = parser.parse_args()
 
     TGT_DIR = opts.directory
-    MIRROR = opts.mirror
-    if not MIRROR.endswith('/'): MIRROR += '/'
-    if opts.iniurl: INIURL = opts.iniurl
-    else: INIURL = urlparse.urljoin(MIRROR, 'setup.ini')
+    MIRROR, INIURL = CheckMirrorIni(opts.mirror, opts.iniurl)
     EPOCHS = opts.epochs.split(',')
 
     usrpkgs = None
     if remargs:
         usrpkgs = ReadPackageLists(remargs)
 
-    (header, pkgdict) = ParseIniFile(INIURL)
-    packages = ResolveDependencies(pkgdict, usrpkgs, include_all=opts.all)
+    try:
+        (header, pkgdict) = ParseIniFile(INIURL)
+        packages = ResolveDependencies(pkgdict, usrpkgs, include_all=opts.all)
 
-    BuildMirror(header, pkgdict, packages)
+        BuildMirror(header, pkgdict, packages)
+    except Exception, ex:
+        print 'Failed to build mirror\n - %s' % ( str(ex) )
 
 
 
