@@ -84,6 +84,7 @@ subversion-devel
 subversion-perl
 subversion-python
 subversion-ruby
+tailor
 zlib
 zlib-devel
 

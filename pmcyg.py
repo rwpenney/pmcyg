@@ -68,13 +68,12 @@ def ParseIniFile(iniurl):
 
     re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
     re_comment = re.compile(r'#(.*)$')
-    re_blank = re.compile(r'^$')
     re_package = re.compile(r'^@\s+(\S+)$')
     re_epoch = re.compile(r'^\[([a-z]+)\]$')
     re_field = re.compile(r'^([a-z]+):\s+(.*)$')
-    re_other = re.compile(r'^(.+)$')
-    all_regexps = [ re_setup, re_comment, re_blank,
-                    re_package, re_epoch, re_field, re_other ]
+    re_other = re.compile(r'^(.*)$')
+    all_regexps = [ re_setup, re_comment, re_package,
+                    re_epoch, re_field, re_other ]
 
     header = {}
     packages = {}
@@ -85,7 +84,7 @@ def ParseIniFile(iniurl):
         raise PMCygException, "Failed to open %s\n - %s" % ( iniurl, str(ex) )
 
     lineno = 0
-    (pkgname, pkgtxt, pkgdict, epoch) = (None, [], {}, None)
+    (pkgname, pkgtxt, pkgdict, epoch, fieldname) = (None, [], {}, None, None)
     for line in fp:
         lineno += 1
 
@@ -95,13 +94,11 @@ def ParseIniFile(iniurl):
             matches = regexp.match(line)
             if matches: break
         if not matches:
-            raise SyntaxError, "unrecognized content on line %d" % ( lineno )
+            raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
 
         if regexp == re_setup:
             header[matches.group(1)] = matches.group(2)
         elif regexp == re_comment:
-            pass
-        elif regexp == re_blank:
             pass
         elif regexp == re_package:
             if pkgname:
@@ -112,13 +109,16 @@ def ParseIniFile(iniurl):
             pkgtxt = []
             pkgdict = {}
             epoch = 'curr'
+            fieldname = None
         elif regexp == re_epoch:
             epoch = matches.group(1)
         elif regexp == re_field:
-            pkgdict[matches.group(1) + '_' + epoch] = matches.group(2)
+            fieldname = matches.group(1) + '_' + epoch
+            pkgdict[fieldname] = matches.group(2)
         elif regexp == re_other:
-            # This doesn't handle multi-line fields fully yet...
-            pass
+            if fieldname and matches.group(1):
+                # (Inefficiently) append continuation lines to field value:
+                pkgdict[fieldname] += '\n' + matches.group(1)
 
         if pkgname:
             pkgtxt.append(line)
@@ -193,7 +193,7 @@ def BuildDownload(pkgdict, packages):
                 downloads.append((pkgref, pkgsize, pkghash))
                 totsize += pkgsize
             except KeyError:
-                pass
+                print 'Cannot find package filename for %s in epoch %s' % (pkg, epoch)
 
     return downloads, totsize
 

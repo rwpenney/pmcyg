@@ -3,7 +3,7 @@
 
 PKGNAME = pmcyg
 VERSION = 0.0.2
-DISTFILES = pmcyg example.pkgs \
+DISTFILES = pmcyg.py example.pkgs \
 	LICENSE README.txt ToDo.txt
 
 FQNAME = ${PKGNAME}-${VERSION}
