@@ -18,6 +18,8 @@
 import bz2, md5, optparse, os, os.path, re, time, urllib, urlparse
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
+try: import Tkinter as Tk; hasgui = True
+except: hasgui = False
 
 
 # Directory into which to assemble local mirror:
@@ -63,6 +65,18 @@ def mergelines(pkgtxt):
     return "".join(pkgtxt)
 
 
+def prettyfsize(size):
+    """Pretty-print file size, autoscaling units"""
+    divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
+
+    for div, unit in divisors:
+        qsize = float(size) / div
+        if qsize > 0.9:
+            return '%.1f%s' % ( qsize, unit )
+
+    return '%dB' % ( size )
+
+
 def ParseIniFile(iniurl):
     """Ingest original 'setup.ini' file defining available cygwin packages"""
 
@@ -71,9 +85,9 @@ def ParseIniFile(iniurl):
     re_package = re.compile(r'^@\s+(\S+)$')
     re_epoch = re.compile(r'^\[([a-z]+)\]$')
     re_field = re.compile(r'^([a-z]+):\s+(.*)$')
-    re_other = re.compile(r'^(.*)$')
-    all_regexps = [ re_setup, re_comment, re_package,
-                    re_epoch, re_field, re_other ]
+    re_blank = re.compile(r'^\s*$')
+    all_regexps = [ re_setup, re_comment, re_blank,
+                    re_package, re_epoch, re_field ]
 
     header = {}
     packages = {}
@@ -84,41 +98,57 @@ def ParseIniFile(iniurl):
         raise PMCygException, "Failed to open %s\n - %s" % ( iniurl, str(ex) )
 
     lineno = 0
-    (pkgname, pkgtxt, pkgdict, epoch, fieldname) = (None, [], {}, None, None)
+    (pkgname, pkgtxt, pkgdict, epoch) = (None, [], {}, None)
+    (fieldname, fieldlines) = (None, None)
+    inquote = False
     for line in fp:
         lineno += 1
 
-        # Classify current line as package definition/field etc:
-        matches = None
-        for regexp in all_regexps:
-            matches = regexp.match(line)
-            if matches: break
-        if not matches:
-            raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
+        if inquote and fieldname:
+            trline = line.rstrip()
+            if trline.endswith('"'):
+                fieldlines.append(trline[0:-1])
+                pkgdict[fieldname] = '\n'.join(fieldlines)
+                fieldname = None
+                inquote = False
+            else:
+                fieldlines.append(line)
+        else:
+            # Classify current line as package definition/field etc:
+            matches = None
+            for regexp in all_regexps:
+                matches = regexp.match(line)
+                if matches: break
+            if not matches:
+                raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
 
-        if regexp == re_setup:
-            header[matches.group(1)] = matches.group(2)
-        elif regexp == re_comment:
-            pass
-        elif regexp == re_package:
-            if pkgname:
-                pkgdict['TEXT'] = mergelines(pkgtxt)
-                packages[pkgname] = pkgdict
-                pkgname = None
-            pkgname = matches.group(1)
-            pkgtxt = []
-            pkgdict = {}
-            epoch = 'curr'
-            fieldname = None
-        elif regexp == re_epoch:
-            epoch = matches.group(1)
-        elif regexp == re_field:
-            fieldname = matches.group(1) + '_' + epoch
-            pkgdict[fieldname] = matches.group(2)
-        elif regexp == re_other:
-            if fieldname and matches.group(1):
-                # (Inefficiently) append continuation lines to field value:
-                pkgdict[fieldname] += '\n' + matches.group(1)
+            if regexp == re_setup:
+                header[matches.group(1)] = matches.group(2)
+            elif regexp == re_comment:
+                pass
+            elif regexp == re_package:
+                if pkgname:
+                    pkgdict['TEXT'] = mergelines(pkgtxt)
+                    packages[pkgname] = pkgdict
+                    pkgname = None
+                pkgname = matches.group(1)
+                pkgtxt = []
+                pkgdict = {}
+                epoch = 'curr'
+                fieldname = None
+            elif regexp == re_epoch:
+                epoch = matches.group(1)
+            elif regexp == re_field:
+                fieldname = matches.group(1) + '_' + epoch
+                fieldtext = matches.group(2)
+                if fieldtext.startswith('"'):
+                    if fieldtext[1:].endswith('"'):
+                        pkgdict[fieldname] = fieldtext[1:-1]
+                    else:
+                        fieldlines = [ line[1:] ]
+                        inquote = True
+                else:
+                    pkgdict[fieldname] = fieldtext
 
         if pkgname:
             pkgtxt.append(line)
@@ -172,7 +202,10 @@ def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
             "The following package names where not recognized:\n\t%s\n" \
             % ( '\n\t'.join(badpkgnames) )
 
-    return list(packages)
+    packages = list(packages)
+    packages.sort()
+
+    return packages
 
 
 def BuildDownload(pkgdict, packages):
@@ -250,8 +283,7 @@ def BuildMirror(header, pkgdict, packages):
     BuildSetupFiles(header, pkgdict, packages)
 
     (downloads, totsize) = BuildDownload(pkgdict, packages)
-    print 'Download size: %.1fMB from %s' \
-            % ( totsize / (1024.0 * 1024.0), MIRROR)
+    print 'Download size: %s from %s' % ( prettyfsize(totsize), MIRROR)
 
     for (pkgfile, pkgsize, pkghash) in downloads:
         if os.path.isabs(pkgfile):
@@ -262,9 +294,17 @@ def BuildMirror(header, pkgdict, packages):
             os.makedirs(tgtdir)
         mirpath = urlparse.urljoin(MIRROR, pkgfile)
         if not os.path.isfile(tgtpath) or os.path.getsize(tgtpath) != pkgsize:
-            print '  %s ...' % ( os.path.basename(pkgfile) ),
-            urllib.urlretrieve(mirpath, tgtpath)
-            print ' done'
+            print '  %s (%s)...' % ( os.path.basename(pkgfile),
+                                    prettyfsize(pkgsize) ),
+            dlsize = 0
+            try:
+                urllib.urlretrieve(mirpath, tgtpath)
+                dlsize = os.path.getsize(tgtpath)
+                if dlsize != pkgsize:
+                    raise IOError
+                print ' done'
+            except:
+                print ' FAILED (deficit=%s)' % ( prettyfsize(pkgsize-dlsize) )
 
 
 
@@ -295,8 +335,11 @@ def main():
 
     # Process command-line options:
     parser = optparse.OptionParser()
-    parser.add_option('--directory', '-d', type='string', default='cygwin',
+    parser.add_option('--directory', '-d', type='string',
+            default=os.path.join(os.getcwd(), 'cygwin'),
             help='where to build local mirror')
+    parser.add_option('--dummy', '-z', action='store_true', default=False,
+            help='avoid actually downloading packages')
     parser.add_option('--exeurl', '-x', type='string', default=EXESRC,
             help='URL of "setup.exe" Cygwin installer')
     parser.add_option('--iniurl', '-i', type='string', default=None,
@@ -305,7 +348,7 @@ def main():
             help='URL of Cygwin archive or mirror site')
     parser.add_option('--epochs', '-e', type='string', default=','.join(EPOCHS),
             help='comma-separated list of epochs, e.g. "curr,prev"')
-    parser.add_option('--all', '-a', action='store_true',
+    parser.add_option('--all', '-a', action='store_true', default=False,
             help='include all available Cygwin packages')
     opts, remargs = parser.parse_args()
 
@@ -321,7 +364,13 @@ def main():
         (header, pkgdict) = ParseIniFile(INIURL)
         packages = ResolveDependencies(pkgdict, usrpkgs, include_all=opts.all)
 
-        BuildMirror(header, pkgdict, packages)
+        if opts.dummy:
+            (downloads, totsize) = BuildDownload(pkgdict, packages)
+            print 'Download size: %s from %s' \
+                    % ( prettyfsize(totsize), MIRROR)
+            print 'Packages: %s' % ( ', '.join(packages) )
+        else:
+            BuildMirror(header, pkgdict, packages)
     except Exception, ex:
         print 'Failed to build mirror\n - %s' % ( str(ex) )
 
