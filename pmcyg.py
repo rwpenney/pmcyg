@@ -71,8 +71,8 @@ def prettyfsize(size):
 
     for div, unit in divisors:
         qsize = float(size) / div
-        if qsize > 0.9:
-            return '%.1f%s' % ( qsize, unit )
+        if qsize > 0.8:
+            return '%.2g%s' % ( qsize, unit )
 
     return '%dB' % ( size )
 
@@ -159,6 +159,26 @@ def ParseIniFile(iniurl):
         packages[pkgname] = pkgdict
 
     return (header, packages)
+
+
+def MakeCategories(pkgdict):
+    """Construct lists of packages grouped into categories"""
+
+    allpkgs = []
+    catlists = {}
+
+    for pkg, pkginfo in pkgdict.items():
+        allpkgs.append(pkg)
+
+        cats = pkginfo.get('category_curr', '').split()
+        for ctg in cats:
+            catlists.setdefault(ctg, []).append(pkg)
+
+    catlists['All'] = allpkgs
+    for cats in catlists.values():
+        cats.sort()
+
+    return catlists
 
 
 def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
@@ -273,6 +293,27 @@ def BuildSetupFiles(header, pkgdict, packages):
     hp.close()
 
 
+def HashCheck(tgtpath, pkghash):
+    """Check md5 hash-code of downloaded package"""
+    blksize = 1 << 14
+
+    hasher = md5.new()
+
+    try:
+        fp = open(tgtpath, 'rb')
+        while True:
+            chunk = fp.read(blksize)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    except:
+        return False
+
+    dlhash = hasher.hexdigest().lower()
+    pkghash = pkghash.lower()
+
+    return True
+
 
 def BuildMirror(header, pkgdict, packages):
     """Download files from Cygwin mirror to create local partial copy"""
@@ -301,10 +342,13 @@ def BuildMirror(header, pkgdict, packages):
                 urllib.urlretrieve(mirpath, tgtpath)
                 dlsize = os.path.getsize(tgtpath)
                 if dlsize != pkgsize:
-                    raise IOError
+                    raise IOError, 'Mismatched package size (deficit=%s)' \
+                                    % ( prettyfsize(pkgsize - dlsize) )
+                if not HashCheck(tgtpath, pkghash):
+                    raise IOError, 'Mismatched checksum'
                 print ' done'
-            except:
-                print ' FAILED (deficit=%s)' % ( prettyfsize(pkgsize-dlsize) )
+            except Exception, ex:
+                print ' FAILED\n  -- %s' % ( str(ex) )
 
 
 
