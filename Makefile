@@ -1,13 +1,17 @@
 # Makefile for packaging 'pmcyg'
 # RW Penney, April 2009
 
+PREFIX=/usr/local
 PKGNAME = pmcyg
-VERSION = 0.0.2
+VERSION = 0.0.3
 DISTFILES = pmcyg.py example.pkgs \
-	LICENSE README.txt ToDo.txt
+	LICENSE Makefile README.txt ToDo.txt
 
 FQNAME = ${PKGNAME}-${VERSION}
 
+.PHONY:
+install:	pmcyg.py
+	install -m 755 pmcyg.py ${PREFIX}/bin/pmcyg
 
 .PHONY:
 dist-gzip:	dist-dir

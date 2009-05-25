@@ -18,8 +18,8 @@
 import bz2, md5, optparse, os, os.path, re, time, urllib, urlparse
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
-try: import Tkinter as Tk; hasgui = True
-except: hasgui = False
+try: import Tkinter as Tk; import tkFileDialog; HASGUI = True
+except: HASGUI = False
 
 
 # Directory into which to assemble local mirror:
@@ -374,8 +374,117 @@ def ReadPackageLists(filenames):
     return usrpkgs
 
 
-def main():
+
+class TKgui(object):
+    """Manage graphical user-interface based on Tk toolkit"""
+
+    urllist = [
+        'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
+    ]
+
+    def __init__(self):
+        global TGT_DIR, EXESRC, MIRROR
+        margin = 4
+        entwidth = 40
+
+        rootwin = Tk.Tk()
+        rootwin.minsize(300, 120)
+        rootwin.title('pmcyg - Cygwin(TM) partial mirror')
+
+        parampanel = Tk.Frame(rootwin)
+        idx = 0
+        Tk.Label(parampanel, text='Mirror URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        self.mirror_entry = Tk.Entry(parampanel, width=entwidth)
+        self.mirror_entry.insert(0, MIRROR)
+        self.mirror_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
+        mirror_btn = Tk.Menubutton(parampanel, text='Mirror list', relief=Tk.RAISED)
+        mirror_menu = self.mkMirrorMenu(mirror_btn)
+        mirror_btn['menu'] = mirror_menu
+        mirror_btn.grid(row=idx+1, column=1, sticky=Tk.W)
+        idx += 2
+        Tk.Label(parampanel, text='Local cache:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        self.cache_entry = Tk.Entry(parampanel, width=entwidth)
+        self.cache_entry.insert(0, TGT_DIR)
+        self.cache_entry.grid(row=idx, column=1, stick=Tk.W+Tk.E)
+        cache_btn = Tk.Button(parampanel, text='Browse')
+        cache_btn.grid(row=idx+1, column=1, stick=Tk.W)
+        idx += 2
+        Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        self.setup_entry = Tk.Entry(parampanel, width=entwidth)
+        self.setup_entry.insert(0, EXESRC)
+        self.setup_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
+        idx += 1
+        parampanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
+
+        btnpanel = Tk.Frame(rootwin)
+        build_btn = Tk.Button(btnpanel, text='Build',
+                        command=self.doBuildMirror)
+        build_btn.pack(side=Tk.RIGHT)
+        btnpanel.pack(expand=True, fill=Tk.X, side=Tk.BOTTOM)
+
+    def Run(self):
+        Tk.mainloop()
+
+
+    def setMirror(self, mirror):
+        print 'setting mirror=%s' % mirror
+        self.mirror_entry.delete(0, Tk.END)
+        self.mirror_entry.insert(0, mirror)
+
+    def mirrorCallback(self):
+        print 'Menu event'
+
+    def mkMirrorMenu(self, parent):
+        menu = Tk.Menu(parent, tearoff=0)
+        for url in self.urllist:
+            menu.add_command(label=url,
+                            command=lambda url=url:self.setMirror(url))
+        return menu
+
+    def doBuildMirror(self):
+        # FIXME - this should run in own thread
+        mirror, iniurl = CheckMirrorIni(self.mirror_entry.get(), None)
+        print 'Building mirror from %s...' % iniurl
+        (header, pkgdict) = ParseIniFile(iniurl)
+        BuildMirror(header, pkgdict)
+
+
+
+def PlainMain(pkgfiles, allpkgs=False, dummy=False):
+    """Subsidiary program entry-point if used as command-line application"""
+
     global INIURL, EPOCHS, EXESRC, MIRROR, TGT_DIR
+
+    usrpkgs = None
+    if pkgfiles:
+        usrpkgs = ReadPackageLists(pkgfiles)
+
+    try:
+        (header, pkgdict) = ParseIniFile(INIURL)
+        packages = ResolveDependencies(pkgdict, usrpkgs, include_all=allpkgs)
+
+        if dummy:
+            (downloads, totsize) = BuildDownload(pkgdict, packages)
+            print 'Download size: %s from %s' \
+                    % ( prettyfsize(totsize), MIRROR)
+            print 'Packages: %s' % ( ', '.join(packages) )
+        else:
+            BuildMirror(header, pkgdict, packages)
+    except Exception, ex:
+        print 'Failed to build mirror\n - %s' % ( str(ex) )
+
+
+
+def GUImain():
+    """Subsidiary program entry-point if used as GUI application"""
+
+    gui = TKgui()
+    gui.Run()
+
+
+
+def main():
+    global INIURL, EPOCHS, EXESRC, MIRROR, TGT_DIR, HASGUI
 
     # Process command-line options:
     parser = optparse.OptionParser()
@@ -383,7 +492,7 @@ def main():
             default=os.path.join(os.getcwd(), 'cygwin'),
             help='where to build local mirror')
     parser.add_option('--dummy', '-z', action='store_true', default=False,
-            help='avoid actually downloading packages')
+            help='do not actually download packages')
     parser.add_option('--exeurl', '-x', type='string', default=EXESRC,
             help='URL of "setup.exe" Cygwin installer')
     parser.add_option('--iniurl', '-i', type='string', default=None,
@@ -394,30 +503,18 @@ def main():
             help='comma-separated list of epochs, e.g. "curr,prev"')
     parser.add_option('--all', '-a', action='store_true', default=False,
             help='include all available Cygwin packages')
+    parser.add_option('--nogui', '-c', action='store_true', default=False,
+            help='do not startup graphical user interface (if available)')
     opts, remargs = parser.parse_args()
 
     TGT_DIR = opts.directory
     MIRROR, INIURL = CheckMirrorIni(opts.mirror, opts.iniurl)
     EPOCHS = opts.epochs.split(',')
 
-    usrpkgs = None
-    if remargs:
-        usrpkgs = ReadPackageLists(remargs)
-
-    try:
-        (header, pkgdict) = ParseIniFile(INIURL)
-        packages = ResolveDependencies(pkgdict, usrpkgs, include_all=opts.all)
-
-        if opts.dummy:
-            (downloads, totsize) = BuildDownload(pkgdict, packages)
-            print 'Download size: %s from %s' \
-                    % ( prettyfsize(totsize), MIRROR)
-            print 'Packages: %s' % ( ', '.join(packages) )
-        else:
-            BuildMirror(header, pkgdict, packages)
-    except Exception, ex:
-        print 'Failed to build mirror\n - %s' % ( str(ex) )
-
+    if HASGUI and not opts.nogui:
+        GUImain()
+    else:
+        PlainMain(remargs, opts.all, opts.dummy)
 
 
 if __name__ == "__main__":
