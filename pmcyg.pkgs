@@ -1,16 +1,29 @@
 #
 # Admininstrative packages:
 #
+cdrecord
+e2fsimage
+e2fsprogs
 grub
+hdparm
+mkisofs
 openssh
 openssl
 openssl-devel
+p7zip
 
 #
 # Base packages:
 #
 bash
+bzip2
+cabextract
 coreutils
+cpio
+findutils
+gawk
+grep
+groff
 gzip
 less
 man
@@ -19,6 +32,7 @@ perl
 procps
 python
 sed
+sharutils
 tar
 tcsh
 util-linux
@@ -37,6 +51,8 @@ boost
 boost-devel
 bzr
 cmake
+cvs
+cvs2svn
 doxygen
 gcc
 gcc-ada
@@ -74,9 +90,11 @@ git-completion
 git-gui
 git-oodiff
 gitk
+gperf
 m4
 make
 makedepend
+mercurial
 rcs
 subversion
 subversion-apache2
@@ -85,6 +103,9 @@ subversion-perl
 subversion-python
 subversion-ruby
 tailor
+tcltk
+time
+w32api
 zlib
 zlib-devel
 
@@ -105,11 +126,13 @@ xfig-lib
 #
 # Maths/Scientific packages:
 #
+bc
 gnuplot
 octave
 octave-devel
 octave-doc
 octave-forge
+python-numpy
 
 #
 # Miscellaneous packages:
@@ -148,22 +171,14 @@ xterm
 
 
 # unsorted:
-bc
-bzip2
-cabextract
 cdda2wav
-cdrecord
 colordiff
 colorgcc
-coreutils
-cpio
 cppunit
 cron
 ctags
 curl
 curl-devel
-cvs
-cvs2svn
 cvsps
 cvsutils
 cygport
@@ -177,8 +192,6 @@ deroff
 desktop-file-utils
 diffutils
 distcc
-e2fsimage
-e2fsprogs
 ed
 emacs
 emacs-X11
@@ -188,7 +201,6 @@ expat
 expect
 fetchmail
 file
-findutils
 flac
 flac-devel
 flawfinder
@@ -204,7 +216,6 @@ fontconfig
 fortune
 freeglut
 freetype2
-gawk
 gccmakedep
 gettext
 gettext-devel
@@ -215,9 +226,6 @@ glib2-doc
 gnutls
 gnutls-devel
 gnutls-doc
-gperf
-grep
-groff
 gsl
 gsl-apps
 gsl-devel
@@ -236,7 +244,6 @@ guile-devel
 guile-doc
 guilt
 hdf5
-hdparm
 help2man
 hicolor-icon-theme
 hp2xx
@@ -299,7 +306,6 @@ links
 listres
 lndir
 login
-mercurial
 mesa
 mingw-bzip2
 mingw-libbz2-devel
@@ -312,7 +318,6 @@ mkcfm
 mkcomposecache
 mkfontdir
 mkfontscale
-mkisofs
 mlcscope
 mmv
 monotone
@@ -333,7 +338,6 @@ opengl
 openldap
 openldap-devel
 openssl097
-p7zip
 pango
 pango-devel
 pango-doc
@@ -380,7 +384,6 @@ python-gamin
 python-lcms
 python-libxml2
 python-libxslt
-python-numpy
 python-paramiko
 python-pyrex
 qt3
@@ -398,7 +401,6 @@ rxvt
 rxvt-unicode-X
 rxvt-unicode-common
 screen
-sharutils
 shutdown
 singular-base
 singular-help
@@ -424,7 +426,6 @@ swig
 sxpm
 syslog-ng
 sysvinit
-tcltk
 termcap
 terminfo
 terminfo-extra
@@ -443,12 +444,10 @@ texinfo
 tiff
 tiff-doc
 tiff-opengl
-time
 units
 untex
 urlgrabber
 vorbis-tools
-w32api
 wdiff
 wget
 which
@@ -494,7 +493,6 @@ xsetroot
 xsm
 xsri
 xstdcmap
-xterm
 xtrans
 xwd
 xwininfo

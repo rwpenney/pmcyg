@@ -15,10 +15,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import bz2, md5, optparse, os, os.path, re, time, urllib, urlparse
+import bz2, optparse, os, os.path, re, sys, time, urllib, urlparse
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
-try: import Tkinter as Tk; import tkFileDialog; HASGUI = True
+try: import hashlib; md5hasher = hashlib.md5
+except ImportError: import md5; md5hasher = md5.new
+try: import Tkinter as Tk; import ScrolledText, tkFileDialog; HASGUI = True
 except: HASGUI = False
 
 
@@ -285,7 +287,7 @@ def BuildSetupFiles(header, pkgdict, packages):
 
     hp = open(os.path.join(TGT_DIR, 'md5.sum'), 'wt')
     for fl in ['setup.ini', 'setup.bz2', 'setup.exe']:
-        hshr = md5.new()
+        hshr = md5hasher()
         fp = open(os.path.join(TGT_DIR, fl), 'rb')
         hshr.update(fp.read())
         fp.close()
@@ -297,7 +299,7 @@ def HashCheck(tgtpath, pkghash):
     """Check md5 hash-code of downloaded package"""
     blksize = 1 << 14
 
-    hasher = md5.new()
+    hasher = md5hasher()
 
     try:
         fp = open(tgtpath, 'rb')
@@ -375,10 +377,25 @@ def ReadPackageLists(filenames):
 
 
 
+##
+## GUI-related classes
+##
+
 class TKgui(object):
     """Manage graphical user-interface based on Tk toolkit"""
 
     urllist = [
+        'ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin',
+        'ftp://mirror.cpsc.ucalgary.ca/cygwin.com',
+        'ftp://mirror.switch.ch/mirror/cygwin',
+        'ftp://ftp.iitm.ac.in/cygwin',
+        'ftp://mirror.nyi.net/cygwin',
+        'ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin'
+        'http://mirror.aarnet.edu.au/pub/sourceware/cygwin',
+        'http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com',
+        'http://mirror.mcs.anl.gov/cygwin',
+        'http://ftp.iitm.ac.in/cygwin',
+        'http://mirror.nyi.net/cygwin',
         'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
     ]
 
@@ -392,6 +409,7 @@ class TKgui(object):
         rootwin.title('pmcyg - Cygwin(TM) partial mirror')
 
         parampanel = Tk.Frame(rootwin)
+        parampanel.grid_columnconfigure(1,weight=1)
         idx = 0
         Tk.Label(parampanel, text='Mirror URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
         self.mirror_entry = Tk.Entry(parampanel, width=entwidth)
@@ -406,7 +424,7 @@ class TKgui(object):
         self.cache_entry = Tk.Entry(parampanel, width=entwidth)
         self.cache_entry.insert(0, TGT_DIR)
         self.cache_entry.grid(row=idx, column=1, stick=Tk.W+Tk.E)
-        cache_btn = Tk.Button(parampanel, text='Browse')
+        cache_btn = Tk.Button(parampanel, text='Browse', command=self.cacheSelect)
         cache_btn.grid(row=idx+1, column=1, stick=Tk.W)
         idx += 2
         Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
@@ -415,6 +433,12 @@ class TKgui(object):
         self.setup_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
         idx += 1
         parampanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
+
+        self.status_txt = ScrolledText.ScrolledText(rootwin)
+        self.status_txt.pack(expand=True, fill=Tk.BOTH, pady=8)
+        self.status_pos = '1.0'
+        sys.stdout = GUIstream(self)
+        sys.stderr = GUIstream(self, highlight=True)
 
         btnpanel = Tk.Frame(rootwin)
         build_btn = Tk.Button(btnpanel, text='Build',
@@ -425,14 +449,16 @@ class TKgui(object):
     def Run(self):
         Tk.mainloop()
 
-
     def setMirror(self, mirror):
-        print 'setting mirror=%s' % mirror
         self.mirror_entry.delete(0, Tk.END)
         self.mirror_entry.insert(0, mirror)
 
-    def mirrorCallback(self):
-        print 'Menu event'
+    def cacheSelect(self):
+        dirname = tkFileDialog.askdirectory(initialdir=self.cache_entry.get(),
+                                mustexist=False, title='pmcyg cache directory')
+        if dirname:
+            self.cache_entry.delete(0, Tk.END)
+            self.cache_entry.insert(0, dirname)
 
     def mkMirrorMenu(self, parent):
         menu = Tk.Menu(parent, tearoff=0)
@@ -446,9 +472,37 @@ class TKgui(object):
         mirror, iniurl = CheckMirrorIni(self.mirror_entry.get(), None)
         print 'Building mirror from %s...' % iniurl
         (header, pkgdict) = ParseIniFile(iniurl)
-        BuildMirror(header, pkgdict)
+        packages = ResolveDependencies(pkgdict)
+        #BuildMirror(header, pkgdict, packages)
+        print >>sys.stderr, 'Packages: %s' % ( ', '.join(packages) )
 
 
+class GUIstream:
+    """Wrapper for I/O stream for use in GUI"""
+
+    def __init__(self, parent, highlight=False):
+        self.parent = parent
+        self.highlight = highlight
+
+    def write(self, string):
+        txtctrl = self.parent.status_txt
+        oldpos = self.parent.status_pos
+        txtctrl.config(state=Tk.NORMAL)
+        txtctrl.insert(Tk.END, string)
+        newpos = txtctrl.index(Tk.INSERT)
+        #print >>sys.__stdout__, oldpos, newpos, self.highlight, string
+        if self.highlight and oldpos != newpos:
+            txtctrl.tag_add('_highlight_', oldpos, newpos)
+            txtctrl.tag_config('_highlight_',
+                            background='grey75', foreground='red')
+        self.parent.status_pos = newpos
+        txtctrl.config(state=Tk.DISABLED)
+
+
+
+##
+## Application entry-points
+##
 
 def PlainMain(pkgfiles, allpkgs=False, dummy=False):
     """Subsidiary program entry-point if used as command-line application"""
