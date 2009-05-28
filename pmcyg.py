@@ -20,8 +20,12 @@ try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
 try: import hashlib; md5hasher = hashlib.md5
 except ImportError: import md5; md5hasher = md5.new
-try: import Tkinter as Tk; import ScrolledText, tkFileDialog; HASGUI = True
-except: HASGUI = False
+try:
+    import Tkinter as Tk;
+    import Queue, ScrolledText, threading, tkFileDialog;
+    HASGUI = True
+except:
+    HASGUI = False
 
 
 # Directory into which to assemble local mirror:
@@ -216,7 +220,7 @@ def ResolveDependencies(pkgdict, usrpkgs=None, include_all=False):
                     if not r in packages:
                         additions.add(r)
             except:
-                print 'Cannot find epoch %s for %s' % (epoch, pkg)
+                print >>sys.stderr, 'Cannot find epoch \'%s\' for %s' % (epoch, pkg)
 
     if badpkgnames:
         badpkgnames.sort()
@@ -248,7 +252,7 @@ def BuildDownload(pkgdict, packages):
                 downloads.append((pkgref, pkgsize, pkghash))
                 totsize += pkgsize
             except KeyError:
-                print 'Cannot find package filename for %s in epoch %s' % (pkg, epoch)
+                print >>sys.stderr, 'Cannot find package filename for %s in epoch \'%s\'' % (pkg, epoch)
 
     return downloads, totsize
 
@@ -385,6 +389,7 @@ class TKgui(object):
     """Manage graphical user-interface based on Tk toolkit"""
 
     urllist = [
+        'file:/var/tmp',
         'ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin',
         'ftp://mirror.cpsc.ucalgary.ca/cygwin.com',
         'ftp://mirror.switch.ch/mirror/cygwin',
@@ -399,18 +404,60 @@ class TKgui(object):
         'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
     ]
 
-    def __init__(self):
-        global TGT_DIR, EXESRC, MIRROR
-        margin = 4
-        entwidth = 40
+    def __init__(self, pkgfiles=[]):
+        self.pkgfiles = pkgfiles
 
         rootwin = Tk.Tk()
         rootwin.minsize(300, 120)
         rootwin.title('pmcyg - Cygwin(TM) partial mirror')
 
+        parampanel = self.mkParamPanel(rootwin)
+        parampanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
+
+        self.status_txt = ScrolledText.ScrolledText(rootwin)
+        self.status_txt.pack(expand=True, fill=Tk.BOTH, padx=4, pady=8, side=Tk.TOP)
+        self.status_pos = '1.0'
+        sys.stdout = GUIstream(self)
+        sys.stderr = GUIstream(self, highlight=True)
+        self.message_queue = Queue.Queue()
+
+        btnpanel = Tk.Frame(rootwin)
+        build_btn = Tk.Button(btnpanel, text='Build',
+                        command=self.doBuildMirror)
+        build_btn.pack(side=Tk.RIGHT)
+        btnpanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
+
+    def Run(self):
+        def tick():
+            #print >> sys.__stdout__, '.'
+            self.processMessages()
+            self.status_txt.after(200, tick)
+        tick()
+        Tk.mainloop()
+
+    def mkParamPanel(self, rootwin):
+        """Construct GUI components for entering user parameters (e.g. mirror URL)"""
+        global TGT_DIR, EXESRC, MIRROR
+        margin = 4
+        entwidth = 30
+
         parampanel = Tk.Frame(rootwin)
-        parampanel.grid_columnconfigure(1,weight=1)
+        parampanel.grid_columnconfigure(1, weight=1)
         idx = 0
+
+        Tk.Label(parampanel, text='Package list:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        self.pkgs_entry = Tk.Entry(parampanel, width=entwidth)
+        self.pkgs_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
+        pkgs_btn = Tk.Button(parampanel, text='Browse', command=self.pkgsSelect)
+        pkgs_btn.grid(row=idx+1, column=1, stick=Tk.W)
+        idx += 2
+
+        Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        self.setup_entry = Tk.Entry(parampanel, width=entwidth)
+        self.setup_entry.insert(0, EXESRC)
+        self.setup_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
+        idx += 1
+
         Tk.Label(parampanel, text='Mirror URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
         self.mirror_entry = Tk.Entry(parampanel, width=entwidth)
         self.mirror_entry.insert(0, MIRROR)
@@ -420,6 +467,7 @@ class TKgui(object):
         mirror_btn['menu'] = mirror_menu
         mirror_btn.grid(row=idx+1, column=1, sticky=Tk.W)
         idx += 2
+
         Tk.Label(parampanel, text='Local cache:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
         self.cache_entry = Tk.Entry(parampanel, width=entwidth)
         self.cache_entry.insert(0, TGT_DIR)
@@ -427,33 +475,23 @@ class TKgui(object):
         cache_btn = Tk.Button(parampanel, text='Browse', command=self.cacheSelect)
         cache_btn.grid(row=idx+1, column=1, stick=Tk.W)
         idx += 2
-        Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
-        self.setup_entry = Tk.Entry(parampanel, width=entwidth)
-        self.setup_entry.insert(0, EXESRC)
-        self.setup_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
-        idx += 1
-        parampanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
 
-        self.status_txt = ScrolledText.ScrolledText(rootwin)
-        self.status_txt.pack(expand=True, fill=Tk.BOTH, pady=8)
-        self.status_pos = '1.0'
-        sys.stdout = GUIstream(self)
-        sys.stderr = GUIstream(self, highlight=True)
-
-        btnpanel = Tk.Frame(rootwin)
-        build_btn = Tk.Button(btnpanel, text='Build',
-                        command=self.doBuildMirror)
-        build_btn.pack(side=Tk.RIGHT)
-        btnpanel.pack(expand=True, fill=Tk.X, side=Tk.BOTTOM)
-
-    def Run(self):
-        Tk.mainloop()
+        return parampanel
 
     def setMirror(self, mirror):
         self.mirror_entry.delete(0, Tk.END)
         self.mirror_entry.insert(0, mirror)
 
+    def pkgsSelect(self):
+        """Callback for selecting set of user-supplied listing of packages"""
+        pkgfiles = tkFileDialog.askopenfilenames(title='pmcyg user-package lists')
+        if pkgfiles:
+            self.pkgfiles = pkgfiles
+            self.pkgs_entry.delete(0, Tk.END)
+            self.pkgs_entry.insert(0, '; '.join(pkgfiles))
+
     def cacheSelect(self):
+        """Callback for selecting directory into which to download packages"""
         dirname = tkFileDialog.askdirectory(initialdir=self.cache_entry.get(),
                                 mustexist=False, title='pmcyg cache directory')
         if dirname:
@@ -468,13 +506,35 @@ class TKgui(object):
         return menu
 
     def doBuildMirror(self):
-        # FIXME - this should run in own thread
-        mirror, iniurl = CheckMirrorIni(self.mirror_entry.get(), None)
-        print 'Building mirror from %s...' % iniurl
-        (header, pkgdict) = ParseIniFile(iniurl)
-        packages = ResolveDependencies(pkgdict)
-        #BuildMirror(header, pkgdict, packages)
-        print >>sys.stderr, 'Packages: %s' % ( ', '.join(packages) )
+        global TGT_DIR, EXESRC, MIRROR
+
+        TGT_DIR = self.cache_entry.get()
+        EXESRC = self.setup_entry.get()
+        MIRROR = self.mirror_entry.get()
+
+        builder = GUIthread(self)
+        builder.setDaemon(True)
+        builder.start()
+
+    def processMessages(self):
+        """Ingest messages from queue and add to status window"""
+        empty = False
+        while not empty:
+            try:
+                msg, hlt = self.message_queue.get_nowait()
+                oldpos = self.status_pos
+                self.status_txt.config(state=Tk.NORMAL)
+                self.status_txt.insert(oldpos, msg)
+                newpos = self.status_txt.index(Tk.INSERT)
+                #print >>sys.__stdout__, oldpos, newpos, hlt, msg
+                if hlt and oldpos != newpos:
+                    self.status_txt.tag_add('_highlight_', oldpos, newpos)
+                    self.status_txt.tag_config('_highlight_',
+                                    background='grey75', foreground='red')
+                self.status_pos = newpos
+                self.status_txt.config(state=Tk.DISABLED)
+            except Queue.Empty:
+                empty = True
 
 
 class GUIstream:
@@ -485,18 +545,25 @@ class GUIstream:
         self.highlight = highlight
 
     def write(self, string):
-        txtctrl = self.parent.status_txt
-        oldpos = self.parent.status_pos
-        txtctrl.config(state=Tk.NORMAL)
-        txtctrl.insert(Tk.END, string)
-        newpos = txtctrl.index(Tk.INSERT)
-        #print >>sys.__stdout__, oldpos, newpos, self.highlight, string
-        if self.highlight and oldpos != newpos:
-            txtctrl.tag_add('_highlight_', oldpos, newpos)
-            txtctrl.tag_config('_highlight_',
-                            background='grey75', foreground='red')
-        self.parent.status_pos = newpos
-        txtctrl.config(state=Tk.DISABLED)
+        self.parent.message_queue.put_nowait((string, self.highlight))
+
+
+class GUIthread(threading.Thread):
+    """Asynchronous downloading for GUI"""
+    def __init__(self, parent):
+        threading.Thread.__init__(self, target=self.download)
+        self.parent = parent
+
+    def download(self):
+        usrpkgs = None
+        if self.parent.pkgfiles:
+            usrpkgs = ReadPackageLists(self.parent.pkgfiles)
+        mirror, iniurl = CheckMirrorIni(self.parent.mirror_entry.get(), None)
+        print 'Building mirror from %s...' % iniurl
+        (header, pkgdict) = ParseIniFile(iniurl)
+        packages = ResolveDependencies(pkgdict, usrpkgs)
+        BuildMirror(header, pkgdict, packages)
+        #print 'Packages: %s' % ( ', '.join(packages) )
 
 
 
@@ -525,14 +592,14 @@ def PlainMain(pkgfiles, allpkgs=False, dummy=False):
         else:
             BuildMirror(header, pkgdict, packages)
     except Exception, ex:
-        print 'Failed to build mirror\n - %s' % ( str(ex) )
+        print >>sys.stderr, 'Failed to build mirror\n - %s' % ( str(ex) )
 
 
 
-def GUImain():
+def GUImain(pkgfiles):
     """Subsidiary program entry-point if used as GUI application"""
 
-    gui = TKgui()
+    gui = TKgui(pkgfiles=pkgfiles)
     gui.Run()
 
 
@@ -566,7 +633,7 @@ def main():
     EPOCHS = opts.epochs.split(',')
 
     if HASGUI and not opts.nogui:
-        GUImain()
+        GUImain(remargs)
     else:
         PlainMain(remargs, opts.all, opts.dummy)
 
