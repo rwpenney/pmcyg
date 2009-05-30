@@ -5,7 +5,7 @@ PREFIX=/usr/local
 PKGNAME = pmcyg
 VERSION = 0.0.3
 DISTFILES = pmcyg.py example.pkgs \
-	LICENSE Makefile README.txt ToDo.txt
+	ChangeLog.txt LICENSE Makefile README.txt ToDo.txt
 
 FQNAME = ${PKGNAME}-${VERSION}
 

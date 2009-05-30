@@ -1,3 +1,4 @@
 Improve error-checking
 Add download progress indicator
-Add GUI
+GUI:
+    Add 'cancel' mechanism

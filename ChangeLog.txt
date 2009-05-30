@@ -1,0 +1,42 @@
+## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
+## (C)Copyright 2009, RW Penney
+
+30May09 **** pmcyg-0.0.3 released ****
+
+30May09
+    Added support for 'dry-run' downloading in GUI
+
+29May09
+    Refactored mirror-building functions into new PMbuilder class
+
+28May09
+    Added thread-based downloading mechanism to GUI
+
+26May09
+    Added text pane to GUI for capturing status information
+    Replaced md5 module with hashlib as default hash generator
+
+25May09
+    Added beginnings of Tkinter GUI for managing downloads
+
+13May09 **** pmcyg-0.0.2 released ****
+
+13May09
+    Added md5 checksum on downloaded packages
+
+05May09
+    Improved handling of multi-line fields in setup.ini file
+    Added support for dummy downloading
+
+03May09
+    Renamed main application to preserve '.py' suffix to improve MSW support
+
+23Apr09 **** pmcyg-0.0.1 released ****
+
+19Apr09
+    Added basic documentation & package-building system
+
+12Apr09
+    Added support for command-line options
+
+# vim: set ts=4 sw=4 et:

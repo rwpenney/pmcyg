@@ -23,8 +23,8 @@ GNU/Linux systems, or from http://www.python.org
 After installation, to use, try one of the following:
 
 pmcyg --help
-pmcyg --mirror http://NearbyMirrorLocation/pub/cygwin --directory MyBuildDirectory packagelist.txt
-pmcyg --all
+pmcyg --nogui --mirror http://NearbyMirrorLocation/pub/cygwin --directory MyBuildDirectory packagelist.txt
+pmcyg --nogui --all
 
 
 A list of Cygwin mirror sites is available at http://cygwin.com/mirrors.html
