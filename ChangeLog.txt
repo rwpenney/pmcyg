@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+04Jun09
+    Added beginnings of menu-bar to top-level window
+
+01Jun09
+    Improved resizing behaving in GUI using .grid() in place of .pack()
+
 30May09 **** pmcyg-0.0.3 released ****
 
 30May09

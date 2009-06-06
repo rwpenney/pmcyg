@@ -1,6 +1,7 @@
 #!/usr/bin/python
-# Partially mirror 'cygwin' distribution
-# (C)Copyright 2009, RW Penney
+# -*- coding: iso-8859-15
+# Partially mirror 'Cygwin' distribution
+# (C)Copyright 2009, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -404,7 +405,9 @@ class PMbuilder(object):
         print 'Download size: %s from %s' % ( self._prettyfsize(totsize), self._mirror)
 
         if dummy:
-            print 'Packages: %s' % ( ', '.join(packages) )
+            for (pkgfile, pkgsize, pkghash) in downloads:
+                print '  %s (%s)' % ( os.path.basename(pkgfile),
+                                    self._prettyfsize(pkgsize) )
             return
 
         successes = 0
@@ -472,16 +475,24 @@ class TKgui(object):
         rootwin = Tk.Tk()
         rootwin.minsize(300, 120)
         rootwin.title('pmcyg - Cygwin(TM) partial mirror')
+        rootwin.grid_columnconfigure(0, weight=1)
+        row = 0
+
+        menubar = self.mkMenuBar(rootwin)
+        rootwin.config(menu=menubar)
 
         parampanel = self.mkParamPanel(rootwin)
-        parampanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
+        parampanel.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.W)
+        row += 1
 
-        self.status_txt = ScrolledText.ScrolledText(rootwin)
-        self.status_txt.pack(expand=True, fill=Tk.BOTH, padx=4, pady=8, side=Tk.TOP)
+        self.status_txt = ScrolledText.ScrolledText(rootwin, height=16)
+        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=8)
+        rootwin.grid_rowconfigure(row, weight=1)
         self.status_pos = '1.0'
         sys.stdout = GUIstream(self)
         sys.stderr = GUIstream(self, highlight=True)
         self.message_queue = Queue.Queue()
+        row += 1
 
         btnpanel = Tk.Frame(rootwin)
         self.build_btn = Tk.Button(btnpanel, text='Build',
@@ -493,7 +504,8 @@ class TKgui(object):
         dummy_btn = Tk.Checkbutton(btnpanel, text='Dry-run',
                         variable=self.dummy_var)
         dummy_btn.pack(padx=4, side=Tk.RIGHT)
-        btnpanel.pack(expand=True, fill=Tk.X, side=Tk.TOP)
+        btnpanel.grid(row=row, column=0, sticky=Tk.E+Tk.S+Tk.W)
+        row += 1
 
     def Run(self):
         def tick():
@@ -506,6 +518,7 @@ class TKgui(object):
                     flag = True
                 else:
                     self.buildthread = None
+                    print '\n'
                 self.build_btn.config(state=state)
                 self.building = flag
 
@@ -513,6 +526,23 @@ class TKgui(object):
             self.status_txt.after(200, tick)
         tick()
         Tk.mainloop()
+
+    def mkMenuBar(self, rootwin):
+        """Construct menu-bar for top-level window"""
+        menubar = Tk.Menu()
+
+        filemenu = Tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label='Quit', command=rootwin.quit)
+        menubar.add_cascade(label='File', menu=filemenu)
+
+        #editmenu = Tk.Menu(menubar, tearoff=0)
+        #menubar.add_cascade(label='Edit', menu=editmenu)
+
+        helpmenu = Tk.Menu(menubar, tearoff=0, name='help')
+        helpmenu.add_command(label='About', command=self.mkAbout)
+        menubar.add_cascade(label='Help', menu=helpmenu)
+
+        return menubar
 
     def mkParamPanel(self, rootwin):
         """Construct GUI components for entering user parameters (e.g. mirror URL)"""
@@ -562,6 +592,13 @@ class TKgui(object):
         idx += 2
 
         return parampanel
+
+    def mkAbout(self):
+        win = Tk.Toplevel()
+        win.title('About pmcyg')
+        msg = Tk.Message(win, justify=Tk.CENTER, aspect=400, border=2,
+                    text="pmcyg\n- a tool for creating Cygwin(TM) partial mirrors\n\nCopyright © 2009 RW Penney\n\nThis program comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).")
+        msg.pack(side=Tk.TOP, fill=Tk.X, padx=2, pady=2)
 
     def setMirror(self, mirror):
         self.mirror_entry.delete(0, Tk.END)
