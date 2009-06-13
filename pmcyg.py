@@ -16,18 +16,20 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import bz2, optparse, os, os.path, re, sys, time, urllib, urlparse
+import bz2, optparse, os, os.path, re, sys, threading, time, urllib, urlparse
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
 try: import hashlib; md5hasher = hashlib.md5
 except ImportError: import md5; md5hasher = md5.new
 try:
     import Tkinter as Tk;
-    import Queue, ScrolledText, threading, tkFileDialog;
+    import Queue, ScrolledText, tkFileDialog;
     HASGUI = True
 except:
     HASGUI = False
 
+
+PMCYG_VERSION = '0.0.4'
 
 
 class PMCygException(Exception):
@@ -55,6 +57,8 @@ class PMbuilder(object):
 
         # Set of package age descriptors:
         self._epochs = ['curr']
+
+        self._cancelling = False
 
     def GetTargetDir(self):
         return self._tgtdir
@@ -119,13 +123,18 @@ class PMbuilder(object):
     def BuildMirror(self, userpackages, include_all=False, dummy=False):
         """Download and configure packages into local directory"""
 
+        self._cancelling = False
+        print 'Scanning mirror index at %s...' % self._iniurl
+
         (header, pkgdict) = self._parseIniFile()
         packages = self._resolveDependencies(pkgdict, userpackages,
                                             include_all=include_all)
 
         self._doDownloading(header, pkgdict, packages, dummy=dummy)
 
-
+    def Cancel(self, flag=True):
+        """Signal that downloading should be terminated"""
+        self._cancelling = flag
 
     def _prettyfsize(self, size):
         """Pretty-print file size, autoscaling units"""
@@ -413,6 +422,10 @@ class PMbuilder(object):
         successes = 0
         failures = 0
         for (pkgfile, pkgsize, pkghash) in downloads:
+            if self._cancelling:
+                print '** Downloading cancelled **'
+                break
+
             if os.path.isabs(pkgfile):
                 raise SyntaxError, '%s is an absolute path' % ( pkgfile )
             tgtpath = os.path.join(self._tgtdir, pkgfile)
@@ -420,9 +433,10 @@ class PMbuilder(object):
             if not os.path.isdir(tgtdir):
                 os.makedirs(tgtdir)
             mirpath = urlparse.urljoin(self._mirror, pkgfile)
+
+            print '  %s (%s)...' % ( os.path.basename(pkgfile),
+                                    self._prettyfsize(pkgsize) ),
             if not os.path.isfile(tgtpath) or os.path.getsize(tgtpath) != pkgsize:
-                print '  %s (%s)...' % ( os.path.basename(pkgfile),
-                                        self._prettyfsize(pkgsize) ),
                 dlsize = 0
                 try:
                     urllib.urlretrieve(mirpath, tgtpath)
@@ -437,6 +451,8 @@ class PMbuilder(object):
                 except Exception, ex:
                     print ' FAILED\n  -- %s' % ( str(ex) )
                     failures += 1
+            else:
+                print '  already present'
 
         if not failures:
             print 'Downloaded %d package(s) successfully' % ( successes )
@@ -478,6 +494,10 @@ class TKgui(object):
         rootwin.grid_columnconfigure(0, weight=1)
         row = 0
 
+        self.buildthread = None
+        self.building = False
+        self.dummy_var = Tk.IntVar()
+
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
 
@@ -494,19 +514,6 @@ class TKgui(object):
         self.message_queue = Queue.Queue()
         row += 1
 
-        btnpanel = Tk.Frame(rootwin)
-        self.build_btn = Tk.Button(btnpanel, text='Build',
-                        command=self.doBuildMirror)
-        self.buildthread = None
-        self.building = False
-        self.build_btn.pack(side=Tk.RIGHT)
-        self.dummy_var = Tk.IntVar()
-        dummy_btn = Tk.Checkbutton(btnpanel, text='Dry-run',
-                        variable=self.dummy_var)
-        dummy_btn.pack(padx=4, side=Tk.RIGHT)
-        btnpanel.grid(row=row, column=0, sticky=Tk.E+Tk.S+Tk.W)
-        row += 1
-
     def Run(self):
         def tick():
             if self.buildthread and self.buildthread.isAlive() != self.building:
@@ -519,7 +526,8 @@ class TKgui(object):
                 else:
                     self.buildthread = None
                     print '\n'
-                self.build_btn.config(state=state)
+                self.buildmenu.entryconfig(self.buildmenu.index('Start'),
+                                            state=state)
                 self.building = flag
 
             self.processMessages()
@@ -535,8 +543,12 @@ class TKgui(object):
         filemenu.add_command(label='Quit', command=rootwin.quit)
         menubar.add_cascade(label='File', menu=filemenu)
 
-        #editmenu = Tk.Menu(menubar, tearoff=0)
-        #menubar.add_cascade(label='Edit', menu=editmenu)
+        self.buildmenu = Tk.Menu(menubar, tearoff=0)
+        self.buildmenu.add_checkbutton(label='Dry-run', variable=self.dummy_var)
+        self.buildmenu.add_separator()
+        self.buildmenu.add_command(label='Start', command=self.doBuildMirror)
+        self.buildmenu.add_command(label='Cancel', command=self.doCancel)
+        menubar.add_cascade(label='Build', menu=self.buildmenu)
 
         helpmenu = Tk.Menu(menubar, tearoff=0, name='help')
         helpmenu.add_command(label='About', command=self.mkAbout)
@@ -596,8 +608,16 @@ class TKgui(object):
     def mkAbout(self):
         win = Tk.Toplevel()
         win.title('About pmcyg')
-        msg = Tk.Message(win, justify=Tk.CENTER, aspect=400, border=2,
-                    text="pmcyg\n- a tool for creating Cygwin(TM) partial mirrors\n\nCopyright © 2009 RW Penney\n\nThis program comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).")
+        msg = Tk.Message(win, name='pmcyg_about', justify=Tk.CENTER,
+                    aspect=300, border=2, relief=Tk.GROOVE, text= \
+"""pmcyg
+- a tool for creating Cygwin(TM) partial mirrors
+Version %s
+
+Copyright © 2009 RW Penney
+
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
         msg.pack(side=Tk.TOP, fill=Tk.X, padx=2, pady=2)
 
     def setMirror(self, mirror):
@@ -635,11 +655,15 @@ class TKgui(object):
         self.builder.SetMirrorURL(self.mirror_entry.get())
 
         if not self.buildthread:
-            self.build_btn.config(state=Tk.DISABLED)
+            self.buildmenu.entryconfigure(self.buildmenu.index('Start'),
+                                        state=Tk.DISABLED)
             self.building = True
             self.buildthread = GUIthread(self)
             self.buildthread.setDaemon(True)
             self.buildthread.start()
+
+    def doCancel(self):
+        self.builder.Cancel(True)
 
     def processMessages(self):
         """Ingest messages from queue and add to status window"""
@@ -650,7 +674,8 @@ class TKgui(object):
                 oldpos = self.status_pos
                 self.status_txt.config(state=Tk.NORMAL)
                 self.status_txt.insert(oldpos, msg)
-                newpos = self.status_txt.index(Tk.INSERT)
+                self.status_txt.see(oldpos)
+                newpos = self.status_txt.index(Tk.END)
                 if hlt and oldpos != newpos:
                     self.status_txt.tag_add('_highlight_', oldpos, newpos)
                     self.status_txt.tag_config('_highlight_',
@@ -684,7 +709,6 @@ class GUIthread(threading.Thread):
         if self.parent.pkgfiles:
             usrpkgs = builder.ReadPackageLists(self.parent.pkgfiles)
 
-        print 'Building mirror from %s...' % self.parent.builder.GetIniURL()
         builder.BuildMirror(usrpkgs, dummy=self.parent.dummy_var.get(),
                             include_all=self.parent.allpkgs_var.get())
 

@@ -1,6 +1,16 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+11Jun09
+    Patched inconsistent importing of 'threading' module
+
+08Jun09
+    Moved build controls into pull-down menu
+    Added mechanism for cancelling download before completion
+
+07Jun09
+    Neatened GUI status window to auto-scroll to location of added text
+
 04Jun09
     Added beginnings of menu-bar to top-level window
 

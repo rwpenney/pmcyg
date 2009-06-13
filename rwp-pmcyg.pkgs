@@ -171,7 +171,7 @@ font-misc-misc
 font-util
 fontconfig
 gvim
-setkbmap
+setxkbmap
 xcalc
 xev
 xinit

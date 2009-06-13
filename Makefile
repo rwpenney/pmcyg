@@ -3,7 +3,7 @@
 
 PREFIX=/usr/local
 PKGNAME = pmcyg
-VERSION = 0.0.3
+VERSION = $(shell python -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
 DISTFILES = pmcyg.py example.pkgs \
 	ChangeLog.txt LICENSE Makefile README.txt ToDo.txt
 

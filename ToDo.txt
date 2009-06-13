@@ -1,4 +1,5 @@
 Improve error-checking
 Add download progress indicator
 GUI:
-    Add 'cancel' mechanism
+    Add 'reset' option for URLs
+    Add package-selection mechanism
