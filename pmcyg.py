@@ -58,6 +58,8 @@ class PMbuilder(object):
         # Set of package age descriptors:
         self._epochs = ['curr']
 
+        self._ini_header = None
+        self._ini_pkgdict = None
         self._cancelling = False
 
     def GetTargetDir(self):
@@ -92,6 +94,8 @@ class PMbuilder(object):
             self._iniurl = iniurl
         else:
             self._iniurl = urlparse.urljoin(self._mirror, 'setup.ini')
+        self._ini_header = None
+        self._ini_pkgdict = None
 
     def GetEpochs(self):
         return self._epochs
@@ -124,13 +128,11 @@ class PMbuilder(object):
         """Download and configure packages into local directory"""
 
         self._cancelling = False
-        print 'Scanning mirror index at %s...' % self._iniurl
 
-        (header, pkgdict) = self._parseIniFile()
-        packages = self._resolveDependencies(pkgdict, userpackages,
+        packages = self._resolveDependencies(userpackages,
                                             include_all=include_all)
 
-        self._doDownloading(header, pkgdict, packages, dummy=dummy)
+        self._doDownloading(packages, dummy=dummy)
 
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
@@ -146,6 +148,14 @@ class PMbuilder(object):
                 return '%.3g%s' % ( qsize, unit )
 
         return '%dB' % ( size )
+
+    def _getPkgDict(self, reload=False):
+        """Return, possibly cached, package dictionary from setup.ini file"""
+        if reload or not self._ini_header or not self._ini_pkgdict:
+            print 'Scanning mirror index at %s...' % self._iniurl,
+            (self._ini_header, self._ini_pkgdict) = self._parseIniFile()
+            print ' done'
+        return (self._ini_header, self._ini_pkgdict)
 
     def _parseIniFile(self):
         """Ingest original 'setup.ini' file defining available cygwin packages"""
@@ -243,13 +253,15 @@ class PMbuilder(object):
         return "".join(pkgtxt)
 
 
-    def _makeCategories(self, pkgdict):
+    def MakeCategories(self):
         """Construct lists of packages grouped into categories"""
+
+        (header, pkgdict) = self._getPkgDict()
 
         allpkgs = []
         catlists = {}
 
-        for pkg, pkginfo in pkgdict.items():
+        for pkg, pkginfo in pkgdict.iteritems():
             allpkgs.append(pkg)
 
             cats = pkginfo.get('category_curr', '').split()
@@ -257,18 +269,23 @@ class PMbuilder(object):
                 catlists.setdefault(ctg, []).append(pkg)
 
         catlists['All'] = allpkgs
-        for cats in catlists.values():
+        for cats in catlists.itervalues():
             cats.sort()
 
         return catlists
 
 
-    def _resolveDependencies(self, pkgdict, usrpkgs=None, include_all=False):
+    def _resolveDependencies(self, usrpkgs=None, include_all=False):
         """Constuct list of packages, including all their dependencies"""
+
+        (hdr, pkgdict) = self._getPkgDict()
 
         if usrpkgs == None:
             # Setup minimalistic set of packages
-            usrpkgs = ['bash', 'bzip2', 'coreutils', 'gzip', 'tar', 'unzip', 'zip' ]
+            usrpkgs = ['alternatives', 'ash', 'base-files', 'base-passwd',
+                        'bash', 'bzip2', 'coreutils', 'editrights',
+                        'findutils', 'gzip', 'login',
+                        'tar', 'terminfo', 'unzip', 'zip' ]
 
         if include_all:
             usrpkgs = [ pkg for pkg in pkgdict.iterkeys()
@@ -311,8 +328,9 @@ class PMbuilder(object):
         return packages
 
 
-    def _buildDownload(self, pkgdict, packages):
+    def _buildDownload(self, packages):
         """Convert list of packages into set of files to fetch from Cygwin server"""
+        (header, pkgdict) = self._getPkgDict()
 
         downloads = []
         totsize = 0
@@ -334,8 +352,10 @@ class PMbuilder(object):
         return downloads, totsize
 
 
-    def _buildSetupFiles(self, header, pkgdict, packages):
+    def _buildSetupFiles(self, packages):
         """Create top-level configuration files in local mirror"""
+
+        (header, pkgdict) = self._getPkgDict()
 
         # Split package list into normal + specials:
         spkgs = [pkg for pkg in packages if pkg.startswith('_')]
@@ -401,16 +421,18 @@ class PMbuilder(object):
         return True
 
 
-    def _doDownloading(self, header, pkgdict, packages, dummy=False):
+    def _doDownloading(self, packages, dummy=False):
         """Download files from Cygwin mirror to create local partial copy"""
+
+        (header, pkgdict) = self._getPkgDict()
 
         if not dummy:
             if not os.path.isdir(self._tgtdir):
                 os.makedirs(self._tgtdir)
 
-            self._buildSetupFiles(header, pkgdict, packages)
+            self._buildSetupFiles(packages)
 
-        (downloads, totsize) = self._buildDownload(pkgdict, packages)
+        (downloads, totsize) = self._buildDownload(packages)
         print 'Download size: %s from %s' % ( self._prettyfsize(totsize), self._mirror)
 
         if dummy:
@@ -474,7 +496,7 @@ class TKgui(object):
         'ftp://mirror.switch.ch/mirror/cygwin',
         'ftp://ftp.iitm.ac.in/cygwin',
         'ftp://mirror.nyi.net/cygwin',
-        'ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin'
+        'ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin',
         'http://mirror.aarnet.edu.au/pub/sourceware/cygwin',
         'http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com',
         'http://mirror.mcs.anl.gov/cygwin',

@@ -10,6 +10,9 @@
 #
 # Base packages:
 #
+alternatives
+base-files
+base-passwd
 bash
 bzip2
 coreutils
@@ -17,8 +20,11 @@ cygutils
 cygwin
 cygwin-doc
 cygwin-x-doc
+editrights
+findutils
 gzip
 less
+login
 man
 patch
 perl

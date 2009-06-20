@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+20Jun09
+    Patched minimalistic package lists to include base-files, base-passwd etc
+
+14Jun09
+    Improved caching of setup.ini information within PMbuilder class
+
 11Jun09
     Patched inconsistent importing of 'threading' module
 

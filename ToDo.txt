@@ -3,3 +3,4 @@ Add download progress indicator
 GUI:
     Add 'reset' option for URLs
     Add package-selection mechanism
+    Use http://cygwin.com/mirrors.lst

@@ -15,17 +15,22 @@ p7zip
 #
 # Base packages:
 #
+alternatives
+base-files
+base-passwd
 bash
 bzip2
 cabextract
 coreutils
 cpio
+editrights
 findutils
 gawk
 grep
 groff
 gzip
 less
+login
 man
 patch
 perl
