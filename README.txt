@@ -13,7 +13,7 @@ installer to operate from the locally created repository.
 
 All files are released under the GNU General Public License (v3)
 (see http://www.gnu.org/licenses)
-and are Copyright 2009 RW Penney.
+and are Copyright 2009 RW Penney <rwpenney@users.sourceforge.net>.
 
 
 To run pmcyg, you will need to have a recent version of 'Python' installed
@@ -25,6 +25,10 @@ After installation, to use, try one of the following:
 pmcyg --help
 pmcyg --nogui --mirror http://NearbyMirrorLocation/pub/cygwin --directory MyBuildDirectory packagelist.txt
 pmcyg --nogui --all
+
+If you have the 'Tkinter' package installed, and pmcyg is run without
+any command-line options , then mirror-locations and other options
+can be controlled through a graphical user interface.
 
 
 A list of Cygwin mirror sites is available at http://cygwin.com/mirrors.html

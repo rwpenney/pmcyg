@@ -5,7 +5,7 @@ PREFIX=/usr/local
 PKGNAME = pmcyg
 VERSION = $(shell python -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
 DISTFILES = pmcyg.py example.pkgs \
-	AUTHORS ChangeLog.txt LICENSE \
+	Authors.txt ChangeLog.txt LICENSE.txt \
 	Makefile README.txt ToDo.txt
 
 FQNAME = ${PKGNAME}-${VERSION}

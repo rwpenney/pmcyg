@@ -317,17 +317,25 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return catlists
 
 
-    def _resolveDependencies(self, usrpkgs=None, include_all=False):
+    def _resolveDependencies(self, usrpkgs=None, include_all=False, all_base=False):
         """Constuct list of packages, including all their dependencies"""
 
         (hdr, pkgdict) = self._getPkgDict()
 
         if usrpkgs == None:
             # Setup minimalistic set of packages
-            usrpkgs = ['alternatives', 'ash', 'base-files', 'base-passwd',
-                        'bash', 'bzip2', 'coreutils', 'editrights',
+            usrpkgs = ['ash', 'base-files', 'base-passwd',
+                        'bash', 'bzip2', 'coreutils',
                         'findutils', 'gzip', 'login',
-                        'tar', 'terminfo', 'unzip', 'which', 'zip' ]
+                        'tar', 'unzip', 'zip' ]
+            all_base = True
+
+        if all_base:
+            # Include all packages from 'Base' category:
+            for pkg, pkginfo in pkgdict.iteritems():
+                cats = pkginfo.get('category_curr', '').split()
+                if 'Base' in cats:
+                    usrpkgs.append(pkg)
 
         if include_all:
             usrpkgs = [ pkg for pkg in pkgdict.iterkeys()
@@ -550,6 +558,7 @@ class TKgui(object):
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
 
+        self.mirror_menu = None
         parampanel = self.mkParamPanel(rootwin)
         parampanel.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.W)
         row += 1
@@ -564,7 +573,16 @@ class TKgui(object):
         row += 1
 
     def Run(self):
+        self.mirrorthread = GUImirrorthread(self)
+        self.mirrorthread.setDaemon(True)
+        self.mirrorthread.start()
+
         def tick():
+            # Check if list of mirror sites is available yet:
+            if self.mirror_menu and not self.mirrorthread.isAlive():
+                self.mirror_btn.config(menu=self.mirror_menu)
+                self.mirror_btn.config(state=Tk.NORMAL)
+
             if self.buildthread and self.buildthread.isAlive() != self.building:
                 # Update 'build' button to avoid multiple builder threads:
                 state = Tk.NORMAL
@@ -581,6 +599,7 @@ class TKgui(object):
 
             self.processMessages()
             self.status_txt.after(200, tick)
+
         tick()
         Tk.mainloop()
 
@@ -638,10 +657,9 @@ class TKgui(object):
         self.mirror_entry = Tk.Entry(parampanel, width=entwidth)
         self.mirror_entry.insert(0, self.builder.GetMirrorURL())
         self.mirror_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
-        mirror_btn = Tk.Menubutton(parampanel, text='Mirror list', relief=Tk.RAISED)
-        mirror_menu = self.mkMirrorMenu(mirror_btn)
-        mirror_btn['menu'] = mirror_menu
-        mirror_btn.grid(row=idx+1, column=1, sticky=Tk.W)
+        self.mirror_btn = Tk.Menubutton(parampanel, text='Mirror list',
+                                    relief=Tk.RAISED, state=Tk.DISABLED)
+        self.mirror_btn.grid(row=idx+1, column=1, sticky=Tk.W)
         idx += 2
 
         Tk.Label(parampanel, text='Local cache:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
@@ -691,10 +709,10 @@ This is free software, and you are welcome to redistribute it under the terms of
             self.cache_entry.delete(0, Tk.END)
             self.cache_entry.insert(0, dirname)
 
-    def mkMirrorMenu(self, parent):
+    def mkMirrorMenu(self):
         """Build hierarchical menu of Cygwin mirror sites"""
         mirrordict = self.builder.ReadMirrorList()
-        menu = Tk.Menu(parent, tearoff=0)
+        menu = Tk.Menu(self.mirror_btn, tearoff=0)
 
         regions = list(mirrordict.iterkeys())
         regions.sort()
@@ -730,7 +748,7 @@ This is free software, and you are welcome to redistribute it under the terms of
             self.buildmenu.entryconfigure(self.buildmenu.index('Start'),
                                         state=Tk.DISABLED)
             self.building = True
-            self.buildthread = GUIthread(self)
+            self.buildthread = GUIfetchthread(self)
             self.buildthread.setDaemon(True)
             self.buildthread.start()
 
@@ -769,7 +787,7 @@ class GUIstream:
         self.parent.message_queue.put_nowait((string, self.highlight))
 
 
-class GUIthread(threading.Thread):
+class GUIfetchthread(threading.Thread):
     """Asynchronous downloading for GUI"""
     def __init__(self, parent):
         threading.Thread.__init__(self, target=self.download)
@@ -783,6 +801,21 @@ class GUIthread(threading.Thread):
 
         builder.BuildMirror(usrpkgs, dummy=self.parent.dummy_var.get(),
                             include_all=self.parent.allpkgs_var.get())
+
+
+class GUImirrorthread(threading.Thread):
+    """Asynchronous construction of list of Cygwin mirrors"""
+    def __init__(self, parent):
+        threading.Thread.__init__(self, target=self.mklist)
+        self.parent = parent
+
+    def mklist(self):
+        if self.parent.mirror_menu:
+            return
+
+        menu = self.parent.mkMirrorMenu()
+        if menu:
+            self.parent.mirror_menu = menu
 
 
 

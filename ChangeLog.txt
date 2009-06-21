@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+21Jun09 **** pmcyg-0.0.4 released ****
+
+21Jun09
+    Converted mirror-list downloading into thread to avoid GUI startup delays
+    Added mechanism for selecting all packages in 'Base' category
+
 20Jun09
     Patched minimalistic package lists to include base-files, base-passwd etc
     Automated generation of mirror-site menu using http://cygwin.com/mirror.lst
