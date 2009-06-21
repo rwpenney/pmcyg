@@ -1,6 +1,6 @@
 Improve error-checking
 Add download progress indicator
 GUI:
+    Add startup message when downloading http://cygwin.com/mirrors.lst
     Add 'reset' option for URLs
     Add package-selection mechanism
-    Use http://cygwin.com/mirrors.lst

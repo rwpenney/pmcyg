@@ -16,7 +16,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import bz2, optparse, os, os.path, re, sys, threading, time, urllib, urlparse
+import  bz2, optparse, os, os.path, re, \
+        StringIO, sys, threading, time, urllib, urlparse
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
 try: import hashlib; md5hasher = hashlib.md5
@@ -58,9 +59,13 @@ class PMbuilder(object):
         # Set of package age descriptors:
         self._epochs = ['curr']
 
+        # URL of official list of Cygwin mirrors:
+        self._mirrorlisturl = 'http://cygwin.com/mirrors.lst'
+
         self._ini_header = None
         self._ini_pkgdict = None
         self._cancelling = False
+        self._mirrordict = None
 
     def GetTargetDir(self):
         return self._tgtdir
@@ -102,6 +107,43 @@ class PMbuilder(object):
 
     def SetEpochs(self, epochs):
         self._epochs = epochs
+
+    def ReadMirrorList(self, reload=False):
+        """Construct list of Cygwin mirror sites"""
+
+        if self._mirrordict and not reload:
+            return self._mirrordict
+
+        self._mirrordict = {}
+
+        try:
+            fp = urllib.urlopen(self._mirrorlisturl)
+        except:
+            print >>sys.stderr, 'Failed to read list of Cygwin mirrors from %s' % self._mirrorlisturl
+            fp = StringIO.StringIO("""
+ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
+http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
+ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
+http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
+ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
+ftp://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
+http://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
+ftp://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
+http://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
+ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK
+http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
+ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
+http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
+                """)
+
+        for line in fp:
+            line = line.strip()
+            if not line: continue
+            (url, ident, region, country) = line.split(';')
+            self._mirrordict.setdefault(region,{}).setdefault(country,[]).append((ident, url))
+
+        fp.close()
+        return self._mirrordict
 
     def ReadPackageLists(self, filenames):
         """Read a set of user-supplied package names for local mirroring"""
@@ -285,7 +327,7 @@ class PMbuilder(object):
             usrpkgs = ['alternatives', 'ash', 'base-files', 'base-passwd',
                         'bash', 'bzip2', 'coreutils', 'editrights',
                         'findutils', 'gzip', 'login',
-                        'tar', 'terminfo', 'unzip', 'zip' ]
+                        'tar', 'terminfo', 'unzip', 'which', 'zip' ]
 
         if include_all:
             usrpkgs = [ pkg for pkg in pkgdict.iterkeys()
@@ -490,21 +532,6 @@ class PMbuilder(object):
 class TKgui(object):
     """Manage graphical user-interface based on Tk toolkit"""
 
-    urllist = [
-        'ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin',
-        'ftp://mirror.cpsc.ucalgary.ca/cygwin.com',
-        'ftp://mirror.switch.ch/mirror/cygwin',
-        'ftp://ftp.iitm.ac.in/cygwin',
-        'ftp://mirror.nyi.net/cygwin',
-        'ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin',
-        'http://mirror.aarnet.edu.au/pub/sourceware/cygwin',
-        'http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com',
-        'http://mirror.mcs.anl.gov/cygwin',
-        'http://ftp.iitm.ac.in/cygwin',
-        'http://mirror.nyi.net/cygwin',
-        'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
-    ]
-
     def __init__(self, builder=None, pkgfiles=[]):
         if not builder: builder = PMbuilder()
         self.builder = builder
@@ -665,10 +692,33 @@ This is free software, and you are welcome to redistribute it under the terms of
             self.cache_entry.insert(0, dirname)
 
     def mkMirrorMenu(self, parent):
+        """Build hierarchical menu of Cygwin mirror sites"""
+        mirrordict = self.builder.ReadMirrorList()
         menu = Tk.Menu(parent, tearoff=0)
-        for url in self.urllist:
-            menu.add_command(label=url,
-                            command=lambda url=url:self.setMirror(url))
+
+        regions = list(mirrordict.iterkeys())
+        regions.sort()
+        for region in regions:
+            regmenu = Tk.Menu(menu, tearoff=0)
+
+            countries = list(mirrordict[region].iterkeys())
+            countries.sort()
+            for country in countries:
+                cntmenu = Tk.Menu(regmenu, tearoff=0)
+
+                sites = list(mirrordict[region][country])
+                sites.sort()
+                for site,url in sites:
+                    fields = url.split(':', 1)
+                    if fields:
+                        site = '%s (%s)' % ( site, fields[0] )
+                    cntmenu.add_command(label=site,
+                                    command=lambda url=url:self.setMirror(url))
+
+                regmenu.add_cascade(label=country, menu=cntmenu)
+
+            menu.add_cascade(label=region, menu=regmenu)
+
         return menu
 
     def doBuildMirror(self):

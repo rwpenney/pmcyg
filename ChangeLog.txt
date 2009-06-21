@@ -3,6 +3,7 @@
 
 20Jun09
     Patched minimalistic package lists to include base-files, base-passwd etc
+    Automated generation of mirror-site menu using http://cygwin.com/mirror.lst
 
 14Jun09
     Improved caching of setup.ini information within PMbuilder class
