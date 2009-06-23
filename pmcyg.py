@@ -30,7 +30,7 @@ except:
     HASGUI = False
 
 
-PMCYG_VERSION = '0.0.4'
+PMCYG_VERSION = '0.0.5'
 
 
 class PMCygException(Exception):
@@ -66,6 +66,11 @@ class PMbuilder(object):
         self._ini_pkgdict = None
         self._cancelling = False
         self._mirrordict = None
+        self._optiondict = {
+            'DummyDownload':    False,
+            'AllPackages':      False,
+            'IncludeBase':      True
+        }
 
     def GetTargetDir(self):
         return self._tgtdir
@@ -107,6 +112,19 @@ class PMbuilder(object):
 
     def SetEpochs(self, epochs):
         self._epochs = epochs
+
+    def GetOption(self, optname):
+        return self._optiondict.get(optname)
+
+    def SetOption(self, optname, value):
+        oldval = None
+        try:
+            oldval = self._optiondict[optname]
+            self._optiondict[optname] = value
+        except:
+            # Option-name is not valid:
+            raise
+        return oldval
 
     def ReadMirrorList(self, reload=False):
         """Construct list of Cygwin mirror sites"""
@@ -166,15 +184,14 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         return usrpkgs
 
-    def BuildMirror(self, userpackages, include_all=False, dummy=False):
+    def BuildMirror(self, userpackages):
         """Download and configure packages into local directory"""
 
         self._cancelling = False
 
-        packages = self._resolveDependencies(userpackages,
-                                            include_all=include_all)
+        packages = self._resolveDependencies(userpackages)
 
-        self._doDownloading(packages, dummy=dummy)
+        self._doDownloading(packages)
 
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
@@ -317,33 +334,32 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return catlists
 
 
-    def _resolveDependencies(self, usrpkgs=None, include_all=False, all_base=False):
+    def _resolveDependencies(self, usrpkgs=None):
         """Constuct list of packages, including all their dependencies"""
 
+        all_base = self._optiondict['IncludeBase']
         (hdr, pkgdict) = self._getPkgDict()
 
         if usrpkgs == None:
             # Setup minimalistic set of packages
             usrpkgs = ['ash', 'base-files', 'base-passwd',
-                        'bash', 'bzip2', 'coreutils',
-                        'findutils', 'gzip', 'login',
-                        'tar', 'unzip', 'zip' ]
-            all_base = True
+                        'bash', 'bzip2', 'coreutils', 'gzip',
+                        'tar', 'unzip', 'zip']
 
-        if all_base:
-            # Include all packages from 'Base' category:
-            for pkg, pkginfo in pkgdict.iteritems():
-                cats = pkginfo.get('category_curr', '').split()
-                if 'Base' in cats:
-                    usrpkgs.append(pkg)
-
-        if include_all:
+        if self._optiondict['AllPackages']:
             usrpkgs = [ pkg for pkg in pkgdict.iterkeys()
                                 if not pkg.startswith('_') ]
 
         additions = set(usrpkgs)
         packages = set()
         badpkgnames = []
+
+        if all_base:
+            # Include all packages from 'Base' category:
+            for pkg, pkginfo in pkgdict.iteritems():
+                cats = pkginfo.get('category_curr', '').split()
+                if 'Base' in cats:
+                    additions.add(pkg)
 
         while additions:
             pkg = additions.pop()
@@ -471,9 +487,10 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return True
 
 
-    def _doDownloading(self, packages, dummy=False):
+    def _doDownloading(self, packages):
         """Download files from Cygwin mirror to create local partial copy"""
 
+        dummy = self._optiondict['DummyDownload']
         (header, pkgdict) = self._getPkgDict()
 
         if not dummy:
@@ -554,6 +571,8 @@ class TKgui(object):
         self.buildthread = None
         self.building = False
         self.dummy_var = Tk.IntVar()
+        self.nobase_var = Tk.IntVar()
+        self.allpkgs_var = Tk.IntVar()
 
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
@@ -613,6 +632,8 @@ class TKgui(object):
 
         self.buildmenu = Tk.Menu(menubar, tearoff=0)
         self.buildmenu.add_checkbutton(label='Dry-run', variable=self.dummy_var)
+        self.buildmenu.add_checkbutton(label='Omit base packages', variable=self.nobase_var)
+        self.buildmenu.add_checkbutton(label='Include all packages', variable=self.allpkgs_var)
         self.buildmenu.add_separator()
         self.buildmenu.add_command(label='Start', command=self.doBuildMirror)
         self.buildmenu.add_command(label='Cancel', command=self.doCancel)
@@ -640,10 +661,6 @@ class TKgui(object):
         pkgpanel = Tk.Frame(parampanel)
         pkgs_btn = Tk.Button(pkgpanel, text='Browse', command=self.pkgsSelect)
         pkgs_btn.pack(side=Tk.LEFT)
-        self.allpkgs_var = Tk.IntVar()
-        allpkgs_btn = Tk.Checkbutton(pkgpanel, text='Include all',
-                                    variable=self.allpkgs_var)
-        allpkgs_btn.pack(padx=4, side=Tk.LEFT)
         pkgpanel.grid(row=idx+1, column=1, stick=Tk.W)
         idx += 2
 
@@ -742,7 +759,9 @@ This is free software, and you are welcome to redistribute it under the terms of
     def doBuildMirror(self):
         self.builder.SetTargetDir(self.cache_entry.get())
         self.builder.SetExeSrc(self.setup_entry.get())
-        self.builder.SetMirrorURL(self.mirror_entry.get())
+        newmirror = self.mirror_entry.get()
+        if newmirror != self.builder.GetMirrorURL():
+            self.builder.SetMirrorURL(newmirror)
 
         if not self.buildthread:
             self.buildmenu.entryconfigure(self.buildmenu.index('Start'),
@@ -799,8 +818,10 @@ class GUIfetchthread(threading.Thread):
         if self.parent.pkgfiles:
             usrpkgs = builder.ReadPackageLists(self.parent.pkgfiles)
 
-        builder.BuildMirror(usrpkgs, dummy=self.parent.dummy_var.get(),
-                            include_all=self.parent.allpkgs_var.get())
+        builder.SetOption('DummyDownload', self.parent.dummy_var.get())
+        builder.SetOption('AllPackages', self.parent.allpkgs_var.get())
+        builder.SetOption('IncludeBase', not self.parent.nobase_var.get())
+        builder.BuildMirror(usrpkgs)
 
 
 class GUImirrorthread(threading.Thread):
@@ -823,7 +844,7 @@ class GUImirrorthread(threading.Thread):
 ## Application entry-points
 ##
 
-def PlainMain(builder, pkgfiles, allpkgs=False, dummy=False):
+def PlainMain(builder, pkgfiles):
     """Subsidiary program entry-point if used as command-line application"""
 
     usrpkgs = None
@@ -831,7 +852,7 @@ def PlainMain(builder, pkgfiles, allpkgs=False, dummy=False):
         usrpkgs = builder.ReadPackageLists(pkgfiles)
 
     try:
-        builder.BuildMirror(usrpkgs, include_all=allpkgs, dummy=dummy)
+        builder.BuildMirror(usrpkgs)
 
     except Exception, ex:
         print >>sys.stderr, 'Failed to build mirror\n - %s' % ( str(ex) )
@@ -869,6 +890,8 @@ def main():
             help='comma-separated list of epochs, e.g. "curr,prev"')
     parser.add_option('--all', '-a', action='store_true', default=False,
             help='include all available Cygwin packages')
+    parser.add_option('--nobase', '-B', action='store_true', default=False,
+            help='do not automatically include all base packages')
     parser.add_option('--nogui', '-c', action='store_true', default=False,
             help='do not startup graphical user interface (if available)')
     opts, remargs = parser.parse_args()
@@ -877,12 +900,15 @@ def main():
     builder.SetMirrorURL(opts.mirror)
     builder.SetIniURL(opts.iniurl)
     builder.SetEpochs(opts.epochs.split(','))
+    builder.SetOption('DummyDownload', opts.dummy)
+    builder.SetOption('AllPackages', opts.all)
+    builder.SetOption('IncludeBase', not opts.nobase)
 
 
     if HASGUI and not opts.nogui:
         GUImain(builder, remargs)
     else:
-        PlainMain(builder, remargs, opts.all, opts.dummy)
+        PlainMain(builder, remargs)
 
 
 if __name__ == "__main__":

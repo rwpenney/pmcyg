@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, April 2009
+                        RW Penney, July 2009
 
 
 This directory contains 'pmcyg', a Python script which allows one to create

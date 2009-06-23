@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+23Jun09
+    Added GUI and command-line options for auto-inclusion of 'Base' packages
+
 21Jun09 **** pmcyg-0.0.4 released ****
 
 21Jun09
