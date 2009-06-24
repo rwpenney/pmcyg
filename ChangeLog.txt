@@ -1,8 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+24Jun09
+    Added facility for creating template list of Cygwin packages
+
 23Jun09
     Added GUI and command-line options for auto-inclusion of 'Base' packages
+    Further neatening of highlighting of error-messages in GUI status window
 
 21Jun09 **** pmcyg-0.0.4 released ****
 

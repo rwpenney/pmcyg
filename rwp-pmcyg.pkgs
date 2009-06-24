@@ -65,7 +65,6 @@ gcc-core
 gcc-g++
 gcc-g77
 gcc-gdc
-gcc-gm2
 gcc-gpc
 gcc-java
 gcc-mingw
@@ -78,7 +77,6 @@ gcc-mingw-gpc
 gcc-mingw-java
 gcc-mingw-objc
 gcc-objc
-gcc-testsuite
 gcc-tools
 gcc-tools-autoconf
 gcc-tools-automake
@@ -226,7 +224,6 @@ flawfinder
 flex
 fortune
 freeglut
-freetype2
 gccmakedep
 gettext
 gettext-devel
@@ -368,7 +365,6 @@ perl-Win32-GUI
 perl-libwin32
 perl_manpages
 ping
-pixman
 pkg-config
 pkgconfig
 plotutils
