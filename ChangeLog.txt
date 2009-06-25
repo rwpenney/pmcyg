@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+25Jun09
+    Slightly improved output of '--help' command-line option
+
 24Jun09
     Added facility for creating template list of Cygwin packages
 

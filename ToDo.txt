@@ -1,5 +1,7 @@
+Neaten output of --help option
 Improve error-checking
 Add download progress indicator
+Add autorun option
 GUI:
     Add 'reset' option for URLs
     Add package-selection mechanism
