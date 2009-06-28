@@ -1,7 +1,7 @@
 # Minimalistic package listing for pmcyg (Cygwin Partial Mirror)
 # RW Penney, June 2009
 
-# This file contains listings a bare minimum set of Cygwin packages.
+# This file lists a bare minimum set of Cygwin packages.
 # This will require about 11MB of storage.
 
 alternatives

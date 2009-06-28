@@ -235,8 +235,13 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         """Return, possibly cached, package dictionary from setup.ini file"""
         if reload or not self._ini_header or not self._ini_pkgdict:
             print 'Scanning mirror index at %s...' % self._iniurl,
-            (self._ini_header, self._ini_pkgdict) = self._parseIniFile()
-            print ' done'
+            try:
+                (self._ini_header, self._ini_pkgdict) = self._parseIniFile()
+                print ' done'
+            except Exception, ex:
+                print ' FAILED - %s' % str(ex)
+                self._ini_header = None
+                self._ini_pkgdict = None
         return (self._ini_header, self._ini_pkgdict)
 
     def _parseIniFile(self):
@@ -362,6 +367,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         all_base = self._optiondict['IncludeBase']
         (hdr, pkgdict) = self._getPkgDict()
+        if not hdr or not pkgdict:
+            return []
 
         if usrpkgs == None:
             # Setup minimalistic set of packages
@@ -617,6 +624,7 @@ class TKgui(object):
         self.dummy_var = Tk.IntVar()
         self.nobase_var = Tk.IntVar()
         self.allpkgs_var = Tk.IntVar()
+        self.autorun_var = Tk.IntVar()
 
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
@@ -679,6 +687,7 @@ class TKgui(object):
         self.buildmenu.add_checkbutton(label='Dry-run', variable=self.dummy_var)
         self.buildmenu.add_checkbutton(label='Omit base packages', variable=self.nobase_var)
         self.buildmenu.add_checkbutton(label='Include all packages', variable=self.allpkgs_var)
+        self.buildmenu.add_checkbutton(label='Create autorun.inf', variable=self.autorun_var)
         self.buildmenu.add_separator()
         self.buildmenu.add_command(label='Start', command=self.doBuildMirror)
         self.buildmenu.add_command(label='Cancel', command=self.doCancel)
@@ -890,6 +899,7 @@ class GUIfetchthread(threading.Thread):
         builder.SetOption('DummyDownload', self.parent.dummy_var.get())
         builder.SetOption('AllPackages', self.parent.allpkgs_var.get())
         builder.SetOption('IncludeBase', not self.parent.nobase_var.get())
+        builder.SetOption('MakeAutorun', self.parent.autorun_var.get())
         builder.BuildMirror(usrpkgs)
 
 
@@ -944,31 +954,37 @@ def main():
                         usage='usage: %prog [options] [package_file...]',
                         description='pmcyg is a tool for generating customized Cygwin(TM) installers',
                         version=PMCYG_VERSION)
-    parser.add_option('--directory', '-d', type='string',
+    bscopts = optparse.OptionGroup(parser, 'Basic options')
+    bscopts.add_option('--all', '-a', action='store_true', default=False,
+            help='include all available Cygwin packages')
+    bscopts.add_option('--directory', '-d', type='string',
             default=os.path.join(os.getcwd(), 'cygwin'),
             help='where to build local mirror')
-    parser.add_option('--dummy', '-z', action='store_true', default=False,
+    bscopts.add_option('--dummy', '-z', action='store_true', default=False,
             help='do not actually download packages')
-    parser.add_option('--exeurl', '-x', type='string',
-            default=builder.GetExeSrc(),
-            help='URL of "setup.exe" Cygwin installer')
-    parser.add_option('--iniurl', '-i', type='string', default=None,
-            help='URL of "setup.ini" Cygwin database')
-    parser.add_option('--mirror', '-m', type='string',
+    bscopts.add_option('--mirror', '-m', type='string',
             default=builder.GetMirrorURL(),
             help='URL of Cygwin archive or mirror site')
-    parser.add_option('--epochs', '-e', type='string',
-            default=','.join(builder.GetEpochs()),
-            help='comma-separated list of epochs, e.g. "curr,prev"')
-    parser.add_option('--all', '-a', action='store_true', default=False,
-            help='include all available Cygwin packages')
-    parser.add_option('--nobase', '-B', action='store_true', default=False,
-            help='do not automatically include all base packages')
-    parser.add_option('--nogui', '-c', action='store_true', default=False,
+    bscopts.add_option('--nogui', '-c', action='store_true', default=False,
             help='do not startup graphical user interface (if available)')
-    parser.add_option('--generate-template', '-g', type='string',
+    bscopts.add_option('--generate-template', '-g', type='string',
             dest='pkg_file', default=None,
             help='generate template package-listing')
+    parser.add_option_group(bscopts)
+    advopts = optparse.OptionGroup(parser, 'Advanced options')
+    advopts.add_option('--epochs', '-e', type='string',
+            default=','.join(builder.GetEpochs()),
+            help='comma-separated list of epochs, e.g. "curr,prev"')
+    advopts.add_option('--exeurl', '-x', type='string',
+            default=builder.GetExeSrc(),
+            help='URL of "setup.exe" Cygwin installer')
+    advopts.add_option('--iniurl', '-i', type='string', default=None,
+            help='URL of "setup.ini" Cygwin database')
+    advopts.add_option('--nobase', '-B', action='store_true', default=False,
+            help='do not automatically include all base packages')
+    advopts.add_option('--with-autorun', '-r', action='store_true', default=False,
+            help='create autorun.inf file in build directory')
+    parser.add_option_group(advopts)
     opts, remargs = parser.parse_args()
 
     builder.SetTargetDir(opts.directory)
@@ -978,6 +994,7 @@ def main():
     builder.SetOption('DummyDownload', opts.dummy)
     builder.SetOption('AllPackages', opts.all)
     builder.SetOption('IncludeBase', not opts.nobase)
+    builder.SetOption('MakeAutorun', opts.with_autorun)
 
     if opts.pkg_file:
         fp = open(opts.pkg_file, 'wt')
