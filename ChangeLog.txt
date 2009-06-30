@@ -1,6 +1,13 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+30Jun09
+    Adjusted 'About' window to raise existing copy rather than make duplicates
+
+29Jun09
+    Changed '--dummy' command-line option to '--dry-run' to match GUI
+    Improved overview documentation within 'README.txt'
+
 27Jun09
     Added support for creating 'autorun.inf' file in build directory
 

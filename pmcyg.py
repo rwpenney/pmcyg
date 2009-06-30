@@ -30,7 +30,7 @@ except:
     HASGUI = False
 
 
-PMCYG_VERSION = '0.0.5'
+PMCYG_VERSION = '0.1'
 
 
 class PMCygException(Exception):
@@ -235,13 +235,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         """Return, possibly cached, package dictionary from setup.ini file"""
         if reload or not self._ini_header or not self._ini_pkgdict:
             print 'Scanning mirror index at %s...' % self._iniurl,
-            try:
-                (self._ini_header, self._ini_pkgdict) = self._parseIniFile()
-                print ' done'
-            except Exception, ex:
-                print ' FAILED - %s' % str(ex)
-                self._ini_header = None
-                self._ini_pkgdict = None
+            (self._ini_header, self._ini_pkgdict) = self._parseIniFile()
+            print ' done'
         return (self._ini_header, self._ini_pkgdict)
 
     def _parseIniFile(self):
@@ -395,9 +390,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             pkg = additions.pop()
             packages.add(pkg)
 
-            try:
-                pkginfo = pkgdict[pkg]
-            except:
+            pkginfo = pkgdict.get(pkg, None)
+            if not pkginfo:
                 badpkgnames.append(pkg)
                 continue
 
@@ -758,10 +752,16 @@ class TKgui(object):
                 print >>sys.stderr, 'Failed to create "%s" - %s' % ( tpltname, str(ex) )
 
     def mkAbout(self):
-        win = Tk.Toplevel()
-        win.title('About pmcyg')
-        msg = Tk.Message(win, name='pmcyg_about', justify=Tk.CENTER,
-                    aspect=300, border=2, relief=Tk.GROOVE, text= \
+        try:
+            win = self._aboutwin
+        except:
+            win = None
+
+        if not win or not win.winfo_exists():
+            win = Tk.Toplevel()
+            win.title('About pmcyg')
+            msg = Tk.Message(win, name='pmcyg_about', justify=Tk.CENTER,
+                        aspect=300, border=2, relief=Tk.GROOVE, text= \
 """pmcyg
 - a tool for creating Cygwin(TM) partial mirrors
 Version %s
@@ -770,7 +770,12 @@ Copyright © 2009 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
-        msg.pack(side=Tk.TOP, fill=Tk.X, padx=2, pady=2)
+            msg.pack(side=Tk.TOP, fill=Tk.X, padx=2, pady=2)
+            self._aboutwin = win
+        else:
+            win.deiconify()
+            win.tkraise()
+
 
     def setMirror(self, mirror):
         self.mirror_entry.delete(0, Tk.END)
@@ -893,14 +898,18 @@ class GUIfetchthread(threading.Thread):
     def download(self):
         builder = self.parent.builder
         usrpkgs = None
-        if self.parent.pkgfiles:
-            usrpkgs = builder.ReadPackageLists(self.parent.pkgfiles)
 
-        builder.SetOption('DummyDownload', self.parent.dummy_var.get())
-        builder.SetOption('AllPackages', self.parent.allpkgs_var.get())
-        builder.SetOption('IncludeBase', not self.parent.nobase_var.get())
-        builder.SetOption('MakeAutorun', self.parent.autorun_var.get())
-        builder.BuildMirror(usrpkgs)
+        try:
+            if self.parent.pkgfiles:
+                usrpkgs = builder.ReadPackageLists(self.parent.pkgfiles)
+
+            builder.SetOption('DummyDownload', self.parent.dummy_var.get())
+            builder.SetOption('AllPackages', self.parent.allpkgs_var.get())
+            builder.SetOption('IncludeBase', not self.parent.nobase_var.get())
+            builder.SetOption('MakeAutorun', self.parent.autorun_var.get())
+            builder.BuildMirror(usrpkgs)
+        except Exception, ex:
+            print >>sys.stderr, 'Build failed - %s' % str(ex)
 
 
 class GUImirrorthread(threading.Thread):
@@ -960,7 +969,8 @@ def main():
     bscopts.add_option('--directory', '-d', type='string',
             default=os.path.join(os.getcwd(), 'cygwin'),
             help='where to build local mirror')
-    bscopts.add_option('--dummy', '-z', action='store_true', default=False,
+    bscopts.add_option('--dry-run', '-z', action='store_true',
+            dest='dummy', default=False,
             help='do not actually download packages')
     bscopts.add_option('--mirror', '-m', type='string',
             default=builder.GetMirrorURL(),

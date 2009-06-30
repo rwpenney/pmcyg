@@ -21,12 +21,13 @@ p7zip                     	# A file archiver with very high compression ratios.
 sharutils                 	# The GNU shar utilities including uuencode/uudecode.
 unzip                     	# Info-ZIP decompression utility
 zip                       	# Info-ZIP compression utility
+zoo                       	# Manipulate zoo archives
 
 
 ##
 ## Audio
 ##
-#audiofile                 	# Digital audio file library (utilities)
+audiofile                 	# Digital audio file library (utilities)
 cdda2wav                  	# Extract audio CD data (symlink to icedax)
 flac                      	# Free Lossless Audio Codec
 flac-devel                	# Free Lossless Audio Codec (Development)
@@ -52,7 +53,6 @@ findutils                 	# Utilities for finding files--find, xargs, locate, u
 gawk                      	# GNU awk, a pattern scanning and processing language
 grep                      	# Search and print textual input for lines which match a specified pattern
 gzip                      	# The GNU compression utility
-libreadline6              	# GNU readline and history libraries (runtime)
 login                     	# Sign on to a system
 man                       	# Man, apropos and whatis
 run                       	# Start console programs with hidden console
@@ -61,7 +61,6 @@ tar                       	# A GNU file archiving program
 termcap                   	# Compatibility package for old termcap-based programs
 terminfo                  	# Database for ncurses-style terminal handling
 which                     	# Prints out full path of executables
-zlib0                     	# The zlib compression/decompression library (runtime)
 
 
 ##
@@ -87,11 +86,6 @@ autoconf2.5               	# Development version of the automatic configure scri
 automake                  	# Wrapper scripts for automake and aclocal
 automake1.10              	# (1.10) a tool for generating GNU-compliant Makefiles
 automake1.11              	# (1.11) a tool for generating GNU-compliant Makefiles
-automake1.4               	# (1.4) a tool for generating GNU-compliant Makefiles
-automake1.5               	# (1.5) a tool for generating GNU-compliant Makefiles
-automake1.6               	# (1.6) a tool for generating GNU-compliant Makefiles
-automake1.7               	# (1.7) a tool for generating GNU-compliant Makefiles
-automake1.8               	# (1.8) a tool for generating GNU-compliant Makefiles
 automake1.9               	# (1.9) a tool for generating GNU-compliant Makefiles
 bashdb                    	# Debugger for bash scripts
 bison                     	# A parser generator that is compatible with YACC
@@ -203,7 +197,6 @@ perl-ExtUtils-PkgConfig   	# Perl module for using pkg-config
 pkg-config                	# A utility used to retrieve information about installed libraries
 plotutils-devel           	# Header files and link libraries for plotutils dlls
 postgresql-devel          	# Development files for PostgreSQL 8.2 server-side programming
-python-brlapi             	# Braille python bindings
 python-pyrex              	# Compile native-code modules for Python from python-like syntax
 qt3-devel                 	# C++ GUI application framework (qmake/moc/uic, headers, import libraries)
 rcs                       	# The Revision Control System
@@ -484,6 +477,7 @@ octave                    	# The GNU Octave language for numerical computations
 octave-devel              	# Header files for the GNU Octave language
 octave-doc                	# The GNU Octave. Additional docs in html and pdf
 octave-forge              	# //octave.sourceforge.net
+orpie                     	# Fullscreen RPN calculator for the console
 singular-base             	# A computer algebra system for polynomial calculations (executeables)
 singular-help             	# A computer algebra system for polynomial calculations (HTML Help, info)
 singular-icons            	# A computer algebra system for polynomial calculations (icons on desktop and start menu)
@@ -625,12 +619,9 @@ util-linux                	# Random collection of Linux utilities
 ##
 a2ps                      	# Formats files for printing on a PostScript printer.
 aspell                    	# A spell checker designed to eventually replace Ispell
-aspell-de                 	# GNU Aspell 0.60 German Dictionary Package
 aspell-dev                	# A spell checker designed to eventually replace Ispell (Development)
 aspell-doc                	# A spell checker designed to eventually replace Ispell (Documentation)
 aspell-en                 	# GNU Aspell 0.60 English Dictionary Package
-aspell-pl                 	# GNU Aspell 0.60 Polish Dictionary Package
-aspell-sv                 	# Swedish dictionary files for GNU aspell
 groff                     	# GNU troff text-formatting system
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
 less                      	# A file pager program, similar to more(1)
@@ -731,11 +722,16 @@ font-adobe-utopia-dpi100  	# X.Org Adobe Utopia 100dpi fonts
 font-adobe-utopia-dpi75   	# X.Org Adobe Utopia 75dpi fonts
 font-adobe-utopia-type1   	# X.Org Adobe Utopia Type1 fonts
 font-alias                	# X.Org font aliases
+font-bitstream-dpi100     	# X.Org Bitstream 100dpi fonts
+font-bitstream-dpi75      	# X.Org Bitstream 75dpi fonts
+font-bitstream-speedo     	# X.Org Bitstream Speedo fonts
 font-bitstream-type1      	# X.Org Bitstream Type1 fonts
+font-bitstream-vera-ttf   	# Bitstream Vera font family
 font-encodings            	# X.Org font encodings
 font-misc-misc            	# X.Org miscellaneous fonts
 font-util                 	# X.Org font utilities and font maps
 fontconfig                	# Font configuration library (utilities, config files)
+fvwm                      	# F Virtual Window Manager
 gccmakedep                	# Xorg preprocessor dependency maker
 gtk+                      	# Gimp Toolkit GUI library (runtime)
 gtk+-devel                	# Gimp Toolkit GUI library (development files)
@@ -774,6 +770,7 @@ qt3-doc                   	# C++ GUI application framework (API documentation)
 setxkbmap                 	# Xorg keyboard settings utility
 startup-notification      	# Program startup notification library (sources)
 sxpm                      	# X.Org X Pixmap utilities
+twm                       	# X.Org Tiny Window Manager
 xcalc                     	# X.Org calculator
 xev                       	# X.Org X event monitor
 xfig                      	# An interactive drawing tool
