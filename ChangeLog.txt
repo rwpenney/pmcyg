@@ -1,6 +1,14 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+12Jul09 **** pmcyg-0.1 released ****
+
+11Jul09
+    Improved initialization of GUI button states to match command-line options
+
+02Jul09
+    Adjusted PMbuilder to preserve basenames of user-selected setup.ini etc
+
 30Jun09
     Adjusted 'About' window to raise existing copy rather than make duplicates
 

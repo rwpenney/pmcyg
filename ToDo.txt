@@ -1,5 +1,6 @@
 Improve error-checking
 Add download progress indicator
+Allow placing all packages in 'Base' category
 GUI:
     Add 'reset' option for URLs
     Add package-selection mechanism

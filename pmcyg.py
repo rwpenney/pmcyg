@@ -48,7 +48,7 @@ class PMbuilder(object):
         self._tgtdir = '.'
 
         # URL of source of Cygwin installation program 'setup.exe':
-        self._exesrc = 'http://sourceware.redhat.com/cygwin/setup.exe'
+        self._exeurl = 'http://sourceware.redhat.com/cygwin/setup.exe'
 
         # URL of Cygwin mirror site, hosting available packages:
         self._mirror = 'ftp://cygwin.com/pub/cygwin/'
@@ -79,11 +79,11 @@ class PMbuilder(object):
     def SetTargetDir(self, tgtdir):
         self._tgtdir = tgtdir
 
-    def GetExeSrc(self):
-        return self._exesrc
+    def GetExeURL(self):
+        return self._exeurl
 
-    def SetExeSrc(self, exesrc):
-        self._exesrc = exesrc
+    def SetExeURL(self, exesrc):
+        self._exeurl = exesrc
 
     def GetMirrorURL(self):
         return self._mirror
@@ -448,6 +448,10 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         (header, pkgdict) = self._getPkgDict()
         hashfiles = []
 
+        (inibase, inipure) = self._urlbasename(self._iniurl)
+        inibz2 = inipure + '.bz2'
+        (exebase, exepure) = self._urlbasename(self._exeurl)
+
         # Split package list into normal + specials:
         spkgs = [pkg for pkg in packages if pkg.startswith('_')]
         packages = [pkg for pkg in packages if not pkg.startswith('_')]
@@ -456,8 +460,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         packages.extend(spkgs)
 
         # Reconstruct setup.ini file:
-        spath = os.path.join(self._tgtdir, 'setup.ini')
-        hashfiles.append('setup.ini')
+        spath = os.path.join(self._tgtdir, inibase)
+        hashfiles.append(inibase)
         fp = open(spath, 'w+t')
         now = time.localtime()
         msgs = [
@@ -475,21 +479,21 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             fp.write('\n')
             fp.write(pkgdict[pkg]['TEXT'])
         fp.seek(0)
-        hashfiles.append('setup.bz2')
-        cpsr = bz2.BZ2File(os.path.join(self._tgtdir, 'setup.bz2'), mode='w')
+        hashfiles.append(inibz2)
+        cpsr = bz2.BZ2File(os.path.join(self._tgtdir, inibz2), mode='w')
         cpsr.write(fp.read())
         cpsr.close()
         fp.close()
 
         # Create copy of Cygwin installer program:
-        tgtpath = os.path.join(self._tgtdir, 'setup.exe')
-        hashfiles.append('setup.exe')
+        tgtpath = os.path.join(self._tgtdir, exebase)
+        hashfiles.append(exebase)
         try:
-            print 'Retrieving %s to %s...' % ( self._exesrc, tgtpath ),
-            urllib.urlretrieve(self._exesrc, tgtpath)
+            print 'Retrieving %s to %s...' % ( self._exeurl, tgtpath ),
+            urllib.urlretrieve(self._exeurl, tgtpath)
             print ' done'
         except Exception, ex:
-            raise PMCygException, "Failed to retrieve %s\n - %s" % ( self._exesrc, str(ex) )
+            raise PMCygException, "Failed to retrieve %s\n - %s" % ( self._exeurl, str(ex) )
 
         # (Optionally) create auto-runner batch file:
         if self._optiondict['MakeAutorun']:
@@ -594,6 +598,20 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             print '%d/%d packages failed to download' % ( failures, (failures + successes) )
 
 
+    def _urlbasename(self, url):
+        """Split URL into base filename, and suffix-free filename"""
+        (scm, loc, basename, query, frag) = urlparse.urlsplit(url)
+        pos = basename.rfind('/')
+        if pos >= 0:
+            basename = basename[(pos+1):]
+        pos = basename.rfind('.')
+        if pos >= 0:
+            pure = basename[0:pos]
+        else:
+            pure = basename
+        return (basename, pure)
+
+
 
 ##
 ## GUI-related classes
@@ -616,9 +634,13 @@ class TKgui(object):
         self.buildthread = None
         self.building = False
         self.dummy_var = Tk.IntVar()
+        self.dummy_var.set(builder.GetOption('DummyDownload'))
         self.nobase_var = Tk.IntVar()
+        self.nobase_var.set(not builder.GetOption('IncludeBase'))
         self.allpkgs_var = Tk.IntVar()
+        self.allpkgs_var.set(builder.GetOption('AllPackages'))
         self.autorun_var = Tk.IntVar()
+        self.autorun_var.set(builder.GetOption('MakeAutorun'))
 
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
@@ -714,7 +736,7 @@ class TKgui(object):
 
         Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
         self.setup_entry = Tk.Entry(parampanel, width=entwidth)
-        self.setup_entry.insert(0, self.builder.GetExeSrc())
+        self.setup_entry.insert(0, self.builder.GetExeURL())
         self.setup_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
         idx += 1
 
@@ -871,7 +893,7 @@ This is free software, and you are welcome to redistribute it under the terms of
         """Transfer values of GUI controls to PMbuilder object"""
 
         self.builder.SetTargetDir(self.cache_entry.get())
-        self.builder.SetExeSrc(self.setup_entry.get())
+        self.builder.SetExeURL(self.setup_entry.get())
 
         newmirror = self.mirror_entry.get()
         if newmirror != self.builder.GetMirrorURL():
@@ -986,7 +1008,7 @@ def main():
             default=','.join(builder.GetEpochs()),
             help='comma-separated list of epochs, e.g. "curr,prev"')
     advopts.add_option('--exeurl', '-x', type='string',
-            default=builder.GetExeSrc(),
+            default=builder.GetExeURL(),
             help='URL of "setup.exe" Cygwin installer')
     advopts.add_option('--iniurl', '-i', type='string', default=None,
             help='URL of "setup.ini" Cygwin database')
@@ -1000,6 +1022,7 @@ def main():
     builder.SetTargetDir(opts.directory)
     builder.SetMirrorURL(opts.mirror)
     builder.SetIniURL(opts.iniurl)
+    builder.SetExeURL(opts.exeurl)
     builder.SetEpochs(opts.epochs.split(','))
     builder.SetOption('DummyDownload', opts.dummy)
     builder.SetOption('AllPackages', opts.all)

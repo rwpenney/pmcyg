@@ -31,10 +31,10 @@ Installation
 ============
 
 To run pmcyg, you will need to have a recent version of 'Python' installed
-(preferably version 2.2-2.6). This should be available by default on most
+(preferably version 2.3-2.6). This should be available by default on most
 GNU/Linux systems, or can be obtained from http://www.python.org
 
-In order to use pmcyg as a graphical (GUI) application, you will need to have
+In order to use pmcyg as a graphical (GUI) application, you will need
 the 'Tkinter' toolkit for Python. This is part of the default distribution of
 Python for Windows platforms, but may be part of a separate package
 (possibly called python-tk) on Unix/Linux systems.
@@ -86,7 +86,7 @@ something like:
     pmcyg --nogui --mirror http://NearbyMirroLocation/pub/cygwin mypackages.txt
 
 
-Other options that may be useful are the 'dry-run' option, which can be used
+Other options that may be useful are the '--dry-run' option, which can be used
 to check your package list, and estimate how much space it would require
 to download all the selected packages. If you want to download to a directory
 other than the default location you can choose a different area for the
