@@ -1,6 +1,10 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+18Jul09
+    Patched construction of autorun.inf to match selected setup.exe filename
+    Added support for downloading source packages
+
 12Jul09 **** pmcyg-0.1 released ****
 
 11Jul09

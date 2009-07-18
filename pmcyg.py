@@ -30,7 +30,7 @@ except:
     HASGUI = False
 
 
-PMCYG_VERSION = '0.1'
+PMCYG_VERSION = '0.2'
 
 
 class PMCygException(Exception):
@@ -70,7 +70,8 @@ class PMbuilder(object):
             'AllPackages':      False,
             'DummyDownload':    False,
             'IncludeBase':      True,
-            'MakeAutorun':      False
+            'MakeAutorun':      False,
+            'IncludeSources':   False
         }
 
     def GetTargetDir(self):
@@ -422,22 +423,29 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         """Convert list of packages into set of files to fetch from Cygwin server"""
         (header, pkgdict) = self._getPkgDict()
 
+        # Construct list of compiled/source/current/previous variants:
+        pkgtypes = ['install']
+        if self._optiondict['IncludeSources']:
+            pkgtypes.append('source')
+        variants = [ pfx + '_' + sfx for pfx in pkgtypes
+                                        for sfx in self._epochs ]
+
         downloads = []
         totsize = 0
 
         for pkg in packages:
             pkginfo = pkgdict[pkg]
 
-            for epoch in self._epochs:
+            for vrt in variants:
                 try:
-                    flds = pkginfo['install' + '_' + epoch].split()
+                    flds = pkginfo[vrt].split()
                     pkgref = flds[0]
                     pkgsize = int(flds[1])
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
                     totsize += pkgsize
                 except KeyError:
-                    print >>sys.stderr, 'Cannot find package filename for %s in epoch \'%s\'' % (pkg, epoch)
+                    print >>sys.stderr, 'Cannot find package filename for %s in variant \'%s\'' % (pkg, vrt)
 
         return downloads, totsize
 
@@ -500,7 +508,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             apath = os.path.join(self._tgtdir, 'autorun.inf')
             hashfiles.append('autorun.inf')
             fp = open(apath, 'w+b')
-            fp.write('[autorun]\r\nopen=setup.exe --local-install\r\n')
+            fp.write('[autorun]\r\nopen=' + exebase +' --local-install\r\n')
             fp.close()
 
         # Generate message-digest of top-level files:
@@ -633,14 +641,18 @@ class TKgui(object):
 
         self.buildthread = None
         self.building = False
-        self.dummy_var = Tk.IntVar()
-        self.dummy_var.set(builder.GetOption('DummyDownload'))
-        self.nobase_var = Tk.IntVar()
-        self.nobase_var.set(not builder.GetOption('IncludeBase'))
-        self.allpkgs_var = Tk.IntVar()
-        self.allpkgs_var.set(builder.GetOption('AllPackages'))
-        self.autorun_var = Tk.IntVar()
-        self.autorun_var.set(builder.GetOption('MakeAutorun'))
+
+        self._boolopts = [
+            ( 'dummy_var',   'DummyDownload',  False, 'Dry-run' ),
+            ( 'nobase_var',  'IncludeBase',    True,  'Omit base packages' ),
+            ( 'allpkgs_var', 'AllPackages',    False, 'Include all packages' ),
+            ( 'incsrcs_var', 'IncludeSources', False, 'Include sources'),
+            ( 'autorun_var', 'MakeAutorun',    False, 'Create autorun.inf')
+        ]
+        for attr, opt, flip, descr in self._boolopts:
+            tkvar = Tk.IntVar()
+            tkvar.set(flip ^ builder.GetOption(opt))
+            self.__setattr__(attr, tkvar)
 
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
@@ -700,10 +712,9 @@ class TKgui(object):
         menubar.add_cascade(label='File', menu=filemenu)
 
         self.buildmenu = Tk.Menu(menubar, tearoff=0)
-        self.buildmenu.add_checkbutton(label='Dry-run', variable=self.dummy_var)
-        self.buildmenu.add_checkbutton(label='Omit base packages', variable=self.nobase_var)
-        self.buildmenu.add_checkbutton(label='Include all packages', variable=self.allpkgs_var)
-        self.buildmenu.add_checkbutton(label='Create autorun.inf', variable=self.autorun_var)
+        for attr, opt, flip, descr in self._boolopts:
+            tkvar = self.__getattribute__(attr)
+            self.buildmenu.add_checkbutton(label=descr, variable=tkvar)
         self.buildmenu.add_separator()
         self.buildmenu.add_command(label='Start', command=self.doBuildMirror)
         self.buildmenu.add_command(label='Cancel', command=self.doCancel)
@@ -925,10 +936,10 @@ class GUIfetchthread(threading.Thread):
             if self.parent.pkgfiles:
                 usrpkgs = builder.ReadPackageLists(self.parent.pkgfiles)
 
-            builder.SetOption('DummyDownload', self.parent.dummy_var.get())
-            builder.SetOption('AllPackages', self.parent.allpkgs_var.get())
-            builder.SetOption('IncludeBase', not self.parent.nobase_var.get())
-            builder.SetOption('MakeAutorun', self.parent.autorun_var.get())
+            for attr, opt, flip, descr in self.parent._boolopts:
+                tkvar = self.parent.__getattribute__(attr)
+                builder.SetOption(opt, flip ^ tkvar.get())
+
             builder.BuildMirror(usrpkgs)
         except Exception, ex:
             print >>sys.stderr, 'Build failed - %s' % str(ex)
@@ -1016,6 +1027,8 @@ def main():
             help='do not automatically include all base packages')
     advopts.add_option('--with-autorun', '-r', action='store_true', default=False,
             help='create autorun.inf file in build directory')
+    advopts.add_option('--with-sources', '-s', action='store_true', default=False,
+            help='include source-code for of each package')
     parser.add_option_group(advopts)
     opts, remargs = parser.parse_args()
 
@@ -1028,6 +1041,7 @@ def main():
     builder.SetOption('AllPackages', opts.all)
     builder.SetOption('IncludeBase', not opts.nobase)
     builder.SetOption('MakeAutorun', opts.with_autorun)
+    builder.SetOption('IncludeSources', opts.with_sources)
 
     if opts.pkg_file:
         fp = open(opts.pkg_file, 'wt')
