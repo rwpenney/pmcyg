@@ -128,6 +128,7 @@ class PMbuilder(object):
             raise
         return oldval
 
+
     def ReadMirrorList(self, reload=False):
         """Construct list of Cygwin mirror sites"""
 
@@ -140,21 +141,7 @@ class PMbuilder(object):
             fp = urllib.urlopen(self._mirrorlisturl)
         except:
             print >>sys.stderr, 'Failed to read list of Cygwin mirrors from %s' % self._mirrorlisturl
-            fp = StringIO.StringIO("""
-ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
-http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
-ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
-http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
-ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
-ftp://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
-http://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
-ftp://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
-http://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
-ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK
-http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
-ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
-http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
-                """)
+            fp = self._makeFallbackMirrorList()
 
         for line in fp:
             line = line.strip()
@@ -164,6 +151,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         fp.close()
         return self._mirrordict
+
 
     def ReadPackageLists(self, filenames):
         """Read a set of user-supplied package names for local mirroring"""
@@ -186,6 +174,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         return usrpkgs
 
+
     def BuildMirror(self, userpackages):
         """Download and configure packages into local directory"""
 
@@ -198,6 +187,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
         self._cancelling = flag
+
 
     def MakeTemplate(self, stream):
         """Generate template package listing file"""
@@ -221,120 +211,6 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 desc = descfix(pkgdict[pkg].get('sdesc_curr', ''))
                 print >>stream, '#%-24s  \t# %s' % ( pkg, desc )
 
-    def _prettyfsize(self, size):
-        """Pretty-print file size, autoscaling units"""
-        divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
-
-        for div, unit in divisors:
-            qsize = float(size) / div
-            if qsize > 0.8:
-                return '%.3g%s' % ( qsize, unit )
-
-        return '%dB' % ( size )
-
-    def _getPkgDict(self, reload=False):
-        """Return, possibly cached, package dictionary from setup.ini file"""
-        if reload or not self._ini_header or not self._ini_pkgdict:
-            print 'Scanning mirror index at %s...' % self._iniurl,
-            (self._ini_header, self._ini_pkgdict) = self._parseIniFile()
-            print ' done'
-        return (self._ini_header, self._ini_pkgdict)
-
-    def _parseIniFile(self):
-        """Ingest original 'setup.ini' file defining available cygwin packages"""
-
-        re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
-        re_comment = re.compile(r'#(.*)$')
-        re_package = re.compile(r'^@\s+(\S+)$')
-        re_epoch = re.compile(r'^\[([a-z]+)\]$')
-        re_field = re.compile(r'^([a-z]+):\s+(.*)$')
-        re_blank = re.compile(r'^\s*$')
-        all_regexps = [ re_setup, re_comment, re_blank,
-                        re_package, re_epoch, re_field ]
-
-        header = {}
-        packages = {}
-
-        try:
-            fp = urllib.urlopen(self._iniurl)
-        except Exception, ex:
-            raise PMCygException, "Failed to open %s\n - %s" % ( self._iniurl, str(ex) )
-
-        lineno = 0
-        (pkgname, pkgtxt, pkgdict, epoch) = (None, [], {}, None)
-        (fieldname, fieldlines) = (None, None)
-        inquote = False
-        for line in fp:
-            lineno += 1
-
-            if inquote and fieldname:
-                trline = line.rstrip()
-                if trline.endswith('"'):
-                    fieldlines.append(trline[0:-1])
-                    pkgdict[fieldname] = '\n'.join(fieldlines)
-                    fieldname = None
-                    inquote = False
-                else:
-                    fieldlines.append(line)
-            else:
-                # Classify current line as package definition/field etc:
-                matches = None
-                for regexp in all_regexps:
-                    matches = regexp.match(line)
-                    if matches: break
-                if not matches:
-                    raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
-
-                if regexp == re_setup:
-                    header[matches.group(1)] = matches.group(2)
-                elif regexp == re_comment:
-                    pass
-                elif regexp == re_package:
-                    if pkgname:
-                        pkgdict['TEXT'] = self._mergelines(pkgtxt)
-                        packages[pkgname] = pkgdict
-                        pkgname = None
-                    pkgname = matches.group(1)
-                    pkgtxt = []
-                    pkgdict = {}
-                    epoch = 'curr'
-                    fieldname = None
-                elif regexp == re_epoch:
-                    epoch = matches.group(1)
-                elif regexp == re_field:
-                    fieldname = matches.group(1) + '_' + epoch
-                    fieldtext = matches.group(2)
-                    if fieldtext.startswith('"'):
-                        if fieldtext[1:].endswith('"'):
-                            pkgdict[fieldname] = fieldtext[1:-1]
-                        else:
-                            fieldlines = [ fieldtext[1:] ]
-                            inquote = True
-                    else:
-                        pkgdict[fieldname] = fieldtext
-
-            if pkgname:
-                pkgtxt.append(line)
-        fp.close()
-
-        if pkgname:
-            pkgdict['TEXT'] = self._mergelines(pkgtxt)
-            packages[pkgname] = pkgdict
-
-        return (header, packages)
-
-
-    def _mergelines(self, pkgtxt):
-        """Combine list of lines describing single package"""
-
-        if not pkgtxt:
-            return ""
-
-        while pkgtxt and pkgtxt[-1].isspace():
-            pkgtxt.pop()
-
-        return "".join(pkgtxt)
-
 
     def MakeCategories(self):
         """Construct lists of packages grouped into categories"""
@@ -356,6 +232,46 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             cats.sort()
 
         return catlists
+
+
+    def _prettyfsize(self, size):
+        """Pretty-print file size, autoscaling units"""
+        divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
+
+        for div, unit in divisors:
+            qsize = float(size) / div
+            if qsize > 0.8:
+                return '%.3g%s' % ( qsize, unit )
+
+        return '%dB' % ( size )
+
+
+    def _getPkgDict(self, reload=False):
+        """Return, possibly cached, package dictionary from setup.ini file"""
+        if reload or not self._ini_header or not self._ini_pkgdict:
+            print 'Scanning mirror index at %s...' % self._iniurl,
+            parser = PackageListParser()
+            (self._ini_header, self._ini_pkgdict) = parser.Parse(self._iniurl)
+            print ' done'
+        return (self._ini_header, self._ini_pkgdict)
+
+
+    def _makeFallbackMirrorList(self):
+            return StringIO.StringIO("""
+ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
+http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
+ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
+http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
+ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
+ftp://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
+http://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
+ftp://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
+http://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
+ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK
+http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
+ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
+http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
+                """)
 
 
     def _resolveDependencies(self, usrpkgs=None):
@@ -498,6 +414,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         hashfiles.append(exebase)
         try:
             print 'Retrieving %s to %s...' % ( self._exeurl, tgtpath ),
+            sys.stdout.flush()
             urllib.urlretrieve(self._exeurl, tgtpath)
             print ' done'
         except Exception, ex:
@@ -582,6 +499,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
             print '  %s (%s)...' % ( os.path.basename(pkgfile),
                                     self._prettyfsize(pkgsize) ),
+            sys.stdout.flush()
             if not os.path.isfile(tgtpath) or os.path.getsize(tgtpath) != pkgsize:
                 dlsize = 0
                 try:
@@ -618,6 +536,113 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         else:
             pure = basename
         return (basename, pure)
+
+
+"""Ingest a 'setup.ini' file defining all available Cygwin packages"""
+class PackageListParser:
+    def __init__(self):
+        self.re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
+        self.re_comment = re.compile(r'#(.*)$')
+        self.re_package = re.compile(r'^@\s+(\S+)$')
+        self.re_epoch = re.compile(r'^\[([a-z]+)\]$')
+        self.re_field = re.compile(r'^([a-z]+):\s+(.*)$')
+        self.re_blank = re.compile(r'^\s*$')
+        self.all_regexps = [ self.re_setup, self.re_comment, self.re_blank,
+                        self.re_package, self.re_epoch, self.re_field ]
+
+    def Parse(self, iniurl):
+        self._header = {}
+        self._packages = {}
+
+        try:
+            fp = urllib.urlopen(iniurl)
+        except Exception, ex:
+            raise PMCygException, "Failed to open %s\n - %s" % ( iniurl, str(ex) )
+
+        lineno = 0
+        self._pkgname = None
+        self._pkgtxt = []
+        self._pkgdict = {}
+        self._epoch = None
+        self._fieldname = None
+        self._fieldlines = None
+        self._inquote = False
+
+        for line in fp:
+            lineno += 1
+
+            if self._inquote and self._fieldname:
+                self._ingestQuotedLine(line)
+            else:
+                self._ingestOrdinaryLine(line)
+
+            if self._pkgname:
+                self._pkgtxt.append(line)
+        fp.close()
+
+        self._finalizePackage()
+
+        return (self._header, self._packages)
+
+
+    def _ingestQuotedLine(self, line):
+        trline = line.rstrip()
+        if trline.endswith('"'):
+            self._fieldlines.append(trline[0:-1])
+            self._pkgdict[self._fieldname] = '\n'.join(self._fieldlines)
+            self._fieldname = None
+            self._inquote = False
+        else:
+            self._fieldlines.append(line)
+
+    def _ingestOrdinaryLine(self, line):
+        # Classify current line as package definition/field etc:
+        matches = None
+        for regexp in self.all_regexps:
+            matches = regexp.match(line)
+            if matches: break
+        if not matches:
+            raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
+
+        if regexp == self.re_setup:
+            self._header[matches.group(1)] = matches.group(2)
+        elif regexp == self.re_comment:
+            pass
+        elif regexp == self.re_package:
+            self._finalizePackage()
+
+            self._pkgname = matches.group(1)
+            self._epoch = 'curr'
+            self._fieldname = None
+        elif regexp == self.re_epoch:
+            self._epoch = matches.group(1)
+        elif regexp == self.re_field:
+            self._fieldname = matches.group(1) + '_' + self._epoch
+            self._fieldtext = matches.group(2)
+            if self._fieldtext.startswith('"'):
+                if self._fieldtext[1:].endswith('"'):
+                    self._pkgdict[self._fieldname] = self._fieldtext[1:-1]
+                else:
+                    self._fieldlines = [ self._fieldtext[1:] ]
+                    self._inquote = True
+            else:
+                self._pkgdict[self._fieldname] = self._fieldtext
+
+    def _finalizePackage(self):
+        """Final assembly of text & field records describing single package"""
+
+        if not self._pkgname:
+            return
+
+        pkgtxt = self._pkgtxt
+        while pkgtxt and pkgtxt[-1].isspace():
+            pkgtxt.pop()
+        self._pkgdict['TEXT'] = "".join(pkgtxt)
+        self._packages[self._pkgname] = self._pkgdict
+
+        self._pkgname = None
+        self._pkgtxt = []
+        self._pkgdict = {}
 
 
 
@@ -917,6 +942,9 @@ class GUIstream:
     def __init__(self, parent, highlight=False):
         self.parent = parent
         self.highlight = highlight
+
+    def flush(self):
+        pass
 
     def write(self, string):
         self.parent.message_queue.put_nowait((string, self.highlight))
