@@ -3,14 +3,15 @@
 
 PREFIX=/usr/local
 PKGNAME = pmcyg
-VERSION = $(shell python -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
+PYTHON = python
+VERSION = $(shell ${PYTHON} -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
 DISTFILES = pmcyg.py example.pkgs \
 	Authors.txt ChangeLog.txt LICENSE.txt \
 	Makefile README.txt ToDo.txt
 
 FQNAME = ${PKGNAME}-${VERSION}
 
-.PHONY:
+.PHONY:	install
 install:	pmcyg.py
 	install -m 755 pmcyg.py ${PREFIX}/bin/pmcyg
 
@@ -28,6 +29,10 @@ dist-zip:	dist-dir
 dist-dir:
 	test -d ${FQNAME} || mkdir ${FQNAME}
 	cp -p ${DISTFILES} ${FQNAME}/
+
+.PHONY:	test
+test:
+	test -d test && ( cd test; ${PYTHON} -t testPMCyg.py )
 
 .PHONY:
 clean:

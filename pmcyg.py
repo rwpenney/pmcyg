@@ -593,7 +593,7 @@ class PackageListParser:
             self._fieldname = None
             self._inquote = False
         else:
-            self._fieldlines.append(line)
+            self._fieldlines.append(trline)
 
     def _ingestOrdinaryLine(self, line):
         # Classify current line as package definition/field etc:
