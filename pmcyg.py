@@ -62,8 +62,7 @@ class PMbuilder(object):
         # URL of official list of Cygwin mirrors:
         self._mirrorlisturl = 'http://cygwin.com/mirrors.lst'
 
-        self._ini_header = None
-        self._ini_pkgdict = None
+        self._masterlist = MasterPackageList()
         self._cancelling = False
         self._mirrordict = None
         self._optiondict = {
@@ -95,19 +94,19 @@ class PMbuilder(object):
         self._mirror = mirror
 
         if resetiniurl:
-            self._iniurl = None
             self.SetIniURL(None)
 
     def GetIniURL(self):
         return self._iniurl
 
     def SetIniURL(self, iniurl):
+        reload = False
         if iniurl:
             self._iniurl = iniurl
         else:
             self._iniurl = urlparse.urljoin(self._mirror, 'setup.ini')
-        self._ini_header = None
-        self._ini_pkgdict = None
+            reload = True
+        self._masterlist.SetSourceURL(self._iniurl, reload)
 
     def GetEpochs(self):
         return self._epochs
@@ -193,7 +192,7 @@ class PMbuilder(object):
         """Generate template package listing file"""
 
         (header, pkgdict) = self._getPkgDict()
-        catgroups = self.MakeCategories()
+        catgroups = self._masterlist.GetCategories()
         catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
         catlist.sort()
 
@@ -212,28 +211,6 @@ class PMbuilder(object):
                 print >>stream, '#%-24s  \t# %s' % ( pkg, desc )
 
 
-    def MakeCategories(self):
-        """Construct lists of packages grouped into categories"""
-
-        (header, pkgdict) = self._getPkgDict()
-
-        allpkgs = []
-        catlists = {}
-
-        for pkg, pkginfo in pkgdict.iteritems():
-            allpkgs.append(pkg)
-
-            cats = pkginfo.get('category_curr', '').split()
-            for ctg in cats:
-                catlists.setdefault(ctg, []).append(pkg)
-
-        catlists['All'] = allpkgs
-        for cats in catlists.itervalues():
-            cats.sort()
-
-        return catlists
-
-
     def _prettyfsize(self, size):
         """Pretty-print file size, autoscaling units"""
         divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
@@ -246,14 +223,19 @@ class PMbuilder(object):
         return '%dB' % ( size )
 
 
-    def _getPkgDict(self, reload=False):
+    def _getPkgDict(self):
         """Return, possibly cached, package dictionary from setup.ini file"""
-        if reload or not self._ini_header or not self._ini_pkgdict:
-            print 'Scanning mirror index at %s...' % self._iniurl,
-            parser = PackageListParser()
-            (self._ini_header, self._ini_pkgdict) = parser.Parse(self._iniurl)
+        cached = self._masterlist.HasCachedData()
+        if not cached:
+            print 'Scanning mirror index at %s...' % self._masterlist.GetSourceURL(),
+            sys.stdout.flush()
+
+        (hdr, pkgs) = self._masterlist.GetHeaderAndPackages()
+
+        if not cached:
             print ' done'
-        return (self._ini_header, self._ini_pkgdict)
+
+        return (hdr, pkgs)
 
 
     def _makeFallbackMirrorList(self):
@@ -538,9 +520,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return (basename, pure)
 
 
-"""Ingest a 'setup.ini' file defining all available Cygwin packages"""
-class PackageListParser:
-    def __init__(self):
+"""Database of available Cygwin packages built from 'setup.ini' file"""
+class MasterPackageList:
+    def __init__(self, iniURL=None):
         self.re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
         self.re_comment = re.compile(r'#(.*)$')
         self.re_package = re.compile(r'^@\s+(\S+)$')
@@ -550,14 +532,69 @@ class PackageListParser:
         self.all_regexps = [ self.re_setup, self.re_comment, self.re_blank,
                         self.re_package, self.re_epoch, self.re_field ]
 
-    def Parse(self, iniurl):
-        self._header = {}
-        self._packages = {}
+        self._iniURL = None
+        self.ClearCache()
+        self.SetSourceURL(iniURL)
+
+    def ClearCache(self):
+        self._ini_header = None
+        self._ini_packages = None
+
+    def GetSourceURL(self):
+        return self._iniURL
+
+    def SetSourceURL(self, iniURL=None, reload=False):
+        if reload or iniURL != self._iniURL:
+            self.ClearCache()
+        self._iniURL = iniURL
+
+    def GetHeaderInfo(self):
+        self._parseSource()
+        return self._ini_header
+
+    def GetPackageDict(self):
+        self._parseSource()
+        return self._ini_packages
+
+    def GetHeaderAndPackages(self):
+        self._parseSource()
+        return (self._ini_header, self._ini_packages)
+
+    def HasCachedData(self):
+        return (self._ini_header and self._ini_packages)
+
+    def GetCategories(self):
+        """Construct lists of packages grouped into categories"""
+
+        pkgdict = self.GetPackageDict()
+        allpkgs = []
+        catlists = {}
+
+        for pkg, pkginfo in pkgdict.iteritems():
+            allpkgs.append(pkg)
+
+            cats = pkginfo.get('category_curr', '').split()
+            for ctg in cats:
+                catlists.setdefault(ctg, []).append(pkg)
+
+        catlists['All'] = allpkgs
+        for cats in catlists.itervalues():
+            cats.sort()
+
+        return catlists
+
+    def _parseSource(self):
+        # Check if cached result is available
+        if self._ini_header and self._ini_packages:
+            return
+
+        self._ini_header = {}
+        self._ini_packages = {}
 
         try:
-            fp = urllib.urlopen(iniurl)
+            fp = urllib.urlopen(self._iniURL)
         except Exception, ex:
-            raise PMCygException, "Failed to open %s\n - %s" % ( iniurl, str(ex) )
+            raise PMCygException, "Failed to open %s\n - %s" % ( self._iniURL, str(ex) )
 
         lineno = 0
         self._pkgname = None
@@ -582,18 +619,15 @@ class PackageListParser:
 
         self._finalizePackage()
 
-        return (self._header, self._packages)
-
-
     def _ingestQuotedLine(self, line):
-        trline = line.rstrip()
-        if trline.endswith('"'):
-            self._fieldlines.append(trline[0:-1])
+        trimmed = line.rstrip()
+        if trimmed.endswith('"'):
+            self._fieldlines.append(trimmed[0:-1])
             self._pkgdict[self._fieldname] = '\n'.join(self._fieldlines)
             self._fieldname = None
             self._inquote = False
         else:
-            self._fieldlines.append(trline)
+            self._fieldlines.append(trimmed)
 
     def _ingestOrdinaryLine(self, line):
         # Classify current line as package definition/field etc:
@@ -605,7 +639,7 @@ class PackageListParser:
             raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
 
         if regexp == self.re_setup:
-            self._header[matches.group(1)] = matches.group(2)
+            self._ini_header[matches.group(1)] = matches.group(2)
         elif regexp == self.re_comment:
             pass
         elif regexp == self.re_package:
@@ -638,7 +672,7 @@ class PackageListParser:
         while pkgtxt and pkgtxt[-1].isspace():
             pkgtxt.pop()
         self._pkgdict['TEXT'] = "".join(pkgtxt)
-        self._packages[self._pkgname] = self._pkgdict
+        self._ini_packages[self._pkgname] = self._pkgdict
 
         self._pkgname = None
         self._pkgtxt = []

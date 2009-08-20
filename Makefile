@@ -7,7 +7,8 @@ PYTHON = python
 VERSION = $(shell ${PYTHON} -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
 DISTFILES = pmcyg.py example.pkgs \
 	Authors.txt ChangeLog.txt LICENSE.txt \
-	Makefile README.txt ToDo.txt
+	Makefile README.txt ToDo.txt \
+	test/testPMCyg.py
 
 FQNAME = ${PKGNAME}-${VERSION}
 
@@ -28,7 +29,7 @@ dist-zip:	dist-dir
 .PHONY:
 dist-dir:
 	test -d ${FQNAME} || mkdir ${FQNAME}
-	cp -p ${DISTFILES} ${FQNAME}/
+	tar -cf - ${DISTFILES} | tar -C ${FQNAME}/ -xpf -
 
 .PHONY:	test
 test:

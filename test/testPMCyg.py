@@ -4,45 +4,51 @@
 
 import os, string, sys, unittest, urlparse
 sys.path.insert(0, '..')
-from pmcyg import PMbuilder, PackageListParser
+from pmcyg import PMbuilder, MasterPackageList
 
 
 class ParserTest(unittest.TestCase):
+    pkglist = MasterPackageList()
+
     def setUp(self):
-        txdirsep = string.maketrans('\\', '/')
-        cwd = os.getcwd()
-        self.urlprefix = 'file://' + cwd.translate(txdirsep) + '/'
+        if os.path.isfile('setup.ini'):
+            txdirsep = string.maketrans('\\', '/')
+            cwd = os.getcwd()
+            self.urlprefix = 'file://' + cwd.translate(txdirsep) + '/'
+            iniurl = urlparse.urljoin(self.urlprefix, 'setup.ini')
+        else:
+            iniurl = 'http://ftp.heanet.ie/pub/cygwin/setup.ini'
 
         try:
-            parser = PackageListParser()
-            iniurl = urlparse.urljoin(self.urlprefix, 'setup.ini')
-            self.header, self.packages = parser.Parse(iniurl)
+            self.pkglist.SetSourceURL(iniurl)
         except:
             self.fail()
 
     def tearDown(self):
-        self.parser = None
+        pass
 
     def testBadURL(self):
-        parser = PackageListParser()
+        sublist = MasterPackageList()
         try:
-            parser.Parse('http://nowhere/badurl.txt')
+            sublist.SetSourceURL('http://nowhere/badurl.txt')
+            (hdr, pkgs) = sublistGetHeaderAndPackages()
             self.fail()
         except:
             pass
 
     def testIngestion(self):
+        (header, packages) = self.pkglist.GetHeaderAndPackages()
 
-        self.failIf(self.header.get('setup-version') == None)
+        self.failIf(header.get('setup-version') == None)
         try:
-            ts = int(self.header['setup-timestamp'])
+            ts = int(header['setup-timestamp'])
             self.failUnless(ts > (1 << 30))
             self.failUnless(ts < (1 << 31))
         except:
             self.fail()
 
-        self.failIf(self.packages == None)
-        self.failUnless(len(self.packages) >= 1000)
+        self.failIf(packages == None)
+        self.failUnless(len(packages) >= 1000)
 
     def testFieldPresence(self):
         fields = ['sdesc_curr', 'category_curr', 'version_curr',
@@ -51,8 +57,10 @@ class ParserTest(unittest.TestCase):
         for field in fields:
             scores[field] = 0
 
+        (header, packages) = self.pkglist.GetHeaderAndPackages()
+
         numpkgs = 0
-        for pkgname, pkgdict in self.packages.iteritems():
+        for pkgname, pkgdict in packages.iteritems():
             numpkgs += 1
             for field in fields:
                 try:
@@ -69,10 +77,12 @@ class ParserTest(unittest.TestCase):
         self.failUnless(scores['install_prev'] >= 0.3 * numpkgs)
 
     def testLongDescriptions(self):
+        (header, packages) = self.pkglist.GetHeaderAndPackages()
+
         numpkgs = 0
         numldesc = 0
         totlines = 0
-        for pkgname, pkgdict in self.packages.iteritems():
+        for pkgname, pkgdict in packages.iteritems():
             numpkgs += 1
             try:
                 ldesc = pkgdict['ldesc_curr']
@@ -93,6 +103,28 @@ class ParserTest(unittest.TestCase):
 
         self.failUnless(numldesc >= 0.7 * numpkgs)
         self.failUnless(totlines > 2 * numldesc)
+
+    def testCategories(self):
+        packages = self.pkglist.GetPackageDict()
+        categories = self.pkglist.GetCategories()
+
+        if not categories.get('All'):
+            self.fail()
+
+        for cat, members in categories.iteritems():
+            if cat != 'All':
+                for pkgname in members:
+                    try:
+                        pkginfo = packages[pkgname]
+                        cats = pkginfo['category_curr'].split()
+                    except:
+                        cats = None
+                    self.failUnless(cat in cats)
+            else:
+                self.assertEqual(len(members), len(packages))
+
+                for pkgname in members:
+                    self.failUnless(pkgname in packages.iterkeys())
 
 
 
