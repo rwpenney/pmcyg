@@ -180,8 +180,14 @@ class PMbuilder(object):
         self._cancelling = False
 
         packages = self._resolveDependencies(userpackages)
+        (downloads, totsize) = self._buildFetchList(packages)
 
-        self._doDownloading(packages)
+        print 'Download size: %s from %s' % ( self._prettyfsize(totsize), self._mirror)
+
+        if self._optiondict['DummyDownload']:
+            self._doDummyDownloading(downloads)
+        else:
+            self._doDownloading(packages, downloads)
 
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
@@ -259,31 +265,11 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
     def _resolveDependencies(self, usrpkgs=None):
         """Constuct list of packages, including all their dependencies"""
 
-        all_base = self._optiondict['IncludeBase']
         (hdr, pkgdict) = self._getPkgDict()
-        if not hdr or not pkgdict:
-            return []
 
-        if usrpkgs == None:
-            # Setup minimalistic set of packages
-            usrpkgs = ['ash', 'base-files', 'base-passwd',
-                        'bash', 'bzip2', 'coreutils', 'gzip',
-                        'tar', 'unzip', 'zip']
-
-        if self._optiondict['AllPackages']:
-            usrpkgs = [ pkg for pkg in pkgdict.iterkeys()
-                                if not pkg.startswith('_') ]
-
-        additions = set(usrpkgs)
+        additions = self._extendPkgSelection(usrpkgs)
         packages = set()
         badpkgnames = []
-
-        if all_base:
-            # Include all packages from 'Base' category:
-            for pkg, pkginfo in pkgdict.iteritems():
-                cats = pkginfo.get('category_curr', '').split()
-                if 'Base' in cats:
-                    additions.add(pkg)
 
         while additions:
             pkg = additions.pop()
@@ -316,8 +302,37 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         return packages
 
+    def _extendPkgSelection(self, userpkgs=None):
+        """Amend list of packages to include base or default packages"""
 
-    def _buildDownload(self, packages):
+        pkgset = set()
+
+        (hdr, pkgdict) = self._getPkgDict()
+        if not pkgdict:
+            return pkgset
+
+        if userpkgs == None:
+            # Setup minimalistic set of packages
+            userpkgs = ['ash', 'base-files', 'base-passwd',
+                        'bash', 'bzip2', 'coreutils', 'gzip',
+                        'tar', 'unzip', 'zip']
+
+        if self._optiondict['AllPackages']:
+            userpkgs = [ pkg for pkg in pkgdict.iterkeys()
+                                if not pkg.startswith('_') ]
+
+        pkgset.update(userpkgs)
+
+        if self._optiondict['IncludeBase']:
+            # Include all packages from 'Base' category:
+            for pkg, pkginfo in pkgdict.iteritems():
+                cats = pkginfo.get('category_curr', '').split()
+                if 'Base' in cats:
+                    pkgset.add(pkg)
+
+        return pkgset
+
+    def _buildFetchList(self, packages):
         """Convert list of packages into set of files to fetch from Cygwin server"""
         (header, pkgdict) = self._getPkgDict()
 
@@ -442,27 +457,20 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         return True
 
+    def _doDummyDownloading(self, downloads):
+        """Rehearsal downloading of files from Cygwin mirror"""
 
-    def _doDownloading(self, packages):
+        for (pkgfile, pkgsize, pkghash) in downloads:
+            print '  %s (%s)' % ( os.path.basename(pkgfile),
+                                self._prettyfsize(pkgsize) )
+
+    def _doDownloading(self, packages, downloads):
         """Download files from Cygwin mirror to create local partial copy"""
 
-        dummy = self._optiondict['DummyDownload']
-        (header, pkgdict) = self._getPkgDict()
+        if not os.path.isdir(self._tgtdir):
+            os.makedirs(self._tgtdir)
 
-        if not dummy:
-            if not os.path.isdir(self._tgtdir):
-                os.makedirs(self._tgtdir)
-
-            self._buildSetupFiles(packages)
-
-        (downloads, totsize) = self._buildDownload(packages)
-        print 'Download size: %s from %s' % ( self._prettyfsize(totsize), self._mirror)
-
-        if dummy:
-            for (pkgfile, pkgsize, pkghash) in downloads:
-                print '  %s (%s)' % ( os.path.basename(pkgfile),
-                                    self._prettyfsize(pkgsize) )
-            return
+        self._buildSetupFiles(packages)
 
         successes = 0
         failures = 0
@@ -518,6 +526,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         else:
             pure = basename
         return (basename, pure)
+
 
 
 """Database of available Cygwin packages built from 'setup.ini' file"""
@@ -1037,8 +1046,8 @@ def PlainMain(builder, pkgfiles):
     try:
         builder.BuildMirror(usrpkgs)
 
-    except Exception, ex:
-        print >>sys.stderr, 'Failed to build mirror\n - %s' % ( str(ex) )
+    except BaseException, ex:
+        print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
 
 
 
