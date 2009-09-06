@@ -4,10 +4,10 @@
 
 import os, string, sys, unittest, urlparse
 sys.path.insert(0, '..')
-from pmcyg import PMbuilder, MasterPackageList
+from pmcyg import *
 
 
-class ParserTest(unittest.TestCase):
+class testMasterPackageList(unittest.TestCase):
     pkglist = MasterPackageList()
 
     def setUp(self):
@@ -22,7 +22,7 @@ class ParserTest(unittest.TestCase):
         try:
             self.pkglist.SetSourceURL(iniurl)
         except:
-            self.fail()
+            self.fail('Failed to read setup.ini')
 
     def tearDown(self):
         pass
@@ -125,6 +125,72 @@ class ParserTest(unittest.TestCase):
 
                 for pkgname in members:
                     self.failUnless(pkgname in packages.iterkeys())
+
+
+
+class testGarbageCollector(unittest.TestCase):
+    def testNothing(self):
+        self.fail('GarbageCollector test needs writing')
+
+
+
+class testGarbageConfirmer(unittest.TestCase):
+    class _collector(GarbageCollector):
+        def __init__(self):
+            GarbageCollector.__init__(self)
+
+        def SetSuspicious(self, flag):
+            self._suspicious = flag
+
+    class _confirmer(GarbageConfirmer):
+        def __init__(self, default):
+            GarbageConfirmer.__init__(self, default)
+            self.UserAsked = False
+            self.UserResponse = False
+
+        def _askUser(self, garbage):
+            self.UserAsked = True
+            return self.UserResponse
+
+    def setUp(self):
+        self.garbage = testGarbageConfirmer._collector()
+        pass
+
+    def tearDown(self):
+        pass
+
+    def testNo(self):
+        for susp in [False, True]:
+            self.garbage.SetSuspicious(susp)
+            confirmer = testGarbageConfirmer._confirmer(default=GarbageConfirmer.NO)
+            doDelete = confirmer(self.garbage)
+            self.assertFalse(doDelete)
+            self.assertFalse(confirmer.UserAsked)
+
+
+    def testYes(self):
+        for susp in [False, True] * 2:
+            for resp in [False, True]:
+                self.garbage.SetSuspicious(susp)
+                confirmer = testGarbageConfirmer._confirmer(default=GarbageConfirmer.YES)
+                confirmer.UserResponse = resp
+                doDelete = confirmer(self.garbage)
+                if susp:
+                    self.assertEqual(doDelete, resp)
+                    self.assertTrue(confirmer.UserAsked)
+                else:
+                    self.assertTrue(doDelete)
+                    self.assertFalse(confirmer.UserAsked)
+
+    def testAsk(self):
+        for susp in [False, True]:
+            for resp in [False, True]:
+                self.garbage.SetSuspicious(susp)
+                confirmer = testGarbageConfirmer._confirmer(default=GarbageConfirmer.ASK)
+                confirmer.UserResponse = resp
+                doDelete = confirmer(self.garbage)
+                self.assertEqual(doDelete, resp)
+                self.assertTrue(confirmer.UserAsked)
 
 
 

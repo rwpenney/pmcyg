@@ -63,6 +63,8 @@ class PMbuilder(object):
         self._mirrorlisturl = 'http://cygwin.com/mirrors.lst'
 
         self._masterlist = MasterPackageList()
+        self._garbage = GarbageCollector()
+        self._confirmwaste = GarbageConfirmer()
         self._cancelling = False
         self._mirrordict = None
         self._optiondict = {
@@ -184,10 +186,15 @@ class PMbuilder(object):
 
         print 'Download size: %s from %s' % ( self._prettyfsize(totsize), self._mirror)
 
+        self._garbage.IndexCurrentFiles(self._tgtdir, mindepth=1)
+
         if self._optiondict['DummyDownload']:
             self._doDummyDownloading(downloads)
         else:
             self._doDownloading(packages, downloads)
+
+        if self._confirmwaste(self._garbage):
+            self._garbage.PurgeFiles()
 
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
@@ -215,18 +222,6 @@ class PMbuilder(object):
             for pkg in catgroups[cat]:
                 desc = descfix(pkgdict[pkg].get('sdesc_curr', ''))
                 print >>stream, '#%-24s  \t# %s' % ( pkg, desc )
-
-
-    def _prettyfsize(self, size):
-        """Pretty-print file size, autoscaling units"""
-        divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
-
-        for div, unit in divisors:
-            qsize = float(size) / div
-            if qsize > 0.8:
-                return '%.3g%s' % ( qsize, unit )
-
-        return '%dB' % ( size )
 
 
     def _getPkgDict(self):
@@ -436,27 +431,6 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         hp.close()
 
 
-    def _hashCheck(self, tgtpath, pkghash):
-        """Check md5 hash-code of downloaded package"""
-        blksize = 1 << 14
-
-        hasher = md5hasher()
-
-        try:
-            fp = open(tgtpath, 'rb')
-            while True:
-                chunk = fp.read(blksize)
-                if not chunk:
-                    break
-                hasher.update(chunk)
-        except:
-            return False
-
-        dlhash = hasher.hexdigest().lower()
-        pkghash = pkghash.lower()
-
-        return True
-
     def _doDummyDownloading(self, downloads):
         """Rehearsal downloading of files from Cygwin mirror"""
 
@@ -485,6 +459,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             tgtdir = os.path.dirname(tgtpath)
             if not os.path.isdir(tgtdir):
                 os.makedirs(tgtdir)
+            self._garbage.RescueFile(tgtpath)
             mirpath = urlparse.urljoin(self._mirror, pkgfile)
 
             print '  %s (%s)...' % ( os.path.basename(pkgfile),
@@ -514,6 +489,27 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             print '%d/%d packages failed to download' % ( failures, (failures + successes) )
 
 
+    def _hashCheck(self, tgtpath, pkghash):
+        """Check md5 hash-code of downloaded package"""
+        blksize = 1 << 14
+
+        hasher = md5hasher()
+
+        try:
+            fp = open(tgtpath, 'rb')
+            while True:
+                chunk = fp.read(blksize)
+                if not chunk:
+                    break
+                hasher.update(chunk)
+        except:
+            return False
+
+        dlhash = hasher.hexdigest().lower()
+        pkghash = pkghash.lower()
+
+        return True
+
     def _urlbasename(self, url):
         """Split URL into base filename, and suffix-free filename"""
         (scm, loc, basename, query, frag) = urlparse.urlsplit(url)
@@ -526,6 +522,17 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         else:
             pure = basename
         return (basename, pure)
+
+    def _prettyfsize(self, size):
+        """Pretty-print file size, autoscaling units"""
+        divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
+
+        for div, unit in divisors:
+            qsize = float(size) / div
+            if qsize > 0.8:
+                return '%.3g%s' % ( qsize, unit )
+
+        return '%dB' % ( size )
 
 
 
@@ -686,6 +693,135 @@ class MasterPackageList:
         self._pkgname = None
         self._pkgtxt = []
         self._pkgdict = {}
+
+
+
+##
+## Garbage-collection mechanisms
+##
+
+class GarbageCollector:
+    def __init__(self, topdir=None):
+        self._topdir = None
+        self._suspicious = True
+        if topdir:
+            self.IndexCurrentFiles(topdir)
+
+    def IndexCurrentFiles(self, topdir, mindepth=0):
+        """Build list of files and directories likely to be deleted"""
+        self._topdir = topdir
+        self._suspicious = self._checkSuspiciousness()
+        self._directories = []
+        self._files = []
+
+        topdepth = self._calcDepth(topdir)
+
+        for dirpath, dirnames, filenames in os.walk(topdir, topdown=False):
+            dirdepth = self._calcDepth(dirpath)
+            if (dirdepth - topdepth) < mindepth:
+                continue
+
+            for subdir in dirnames:
+                self._directories.append(os.path.join(dirpath, subdir))
+            for fname in filenames:
+                fullname = os.path.join(dirpath, fname)
+                self._files.append(fullname)
+                if os.path.islink(fullname):
+                    self._suspicious = True
+
+
+    def RescueFile(self, filename):
+        """Signal that file is to be removed from deletions list"""
+
+        dirname, basename = os.path.split(filename)
+        try:
+            self._files.remove(filename)
+        except:
+            pass
+
+        dirsegs = dirname.split(os.sep)
+        maxdepth = len(dirsegs)
+        for depth in range(maxdepth, 0, -1):
+            pardir = os.sep.join(dirsegs[0:depth])
+            try:
+                self._directories.remove(pardir)
+            except:
+                break
+
+    def GetFileList(self):
+        return self._files
+
+    def GetDirectoryList(self):
+        return self._directories
+
+    def IsSuspicious(self):
+        return self._suspicious
+
+    def PurgeFiles(self):
+        print 'deleting %d files' % len(self._files)
+        # FIXME - delete files
+        pass
+
+    def _checkSuspiciousness(self):
+        """Try to protect user from accidentally deleting anything other than an old Cygwin repository"""
+        toplist = os.listdir(self._topdir)
+        releasedirs = 0
+        subdirs = 0
+        topfiles = 0
+        for entry in toplist:
+            fullname = os.path.join(self._topdir, entry)
+            if os.path.isdir(fullname):
+                subdirs += 1
+                if entry.startswith('release'):
+                    releasedirs += 1
+            else:
+                topfiles += 1
+
+        return (topfiles > 10) or (subdirs > releasedirs)
+
+    def _calcDepth(self, dirname):
+        npath = os.path.normpath(dirname)
+        return len(npath.split(os.sep))
+
+
+class GarbageConfirmer(object):
+    """Mechanism for inviting user to confirm disposal of outdated files"""
+
+    ASK = 0
+    NO = 1
+    YES = 2
+
+    def __init__(self, default=NO):
+        self._default = default
+
+    def __call__(self, garbage):
+        if self._default == self.NO:
+            return False
+        elif self._default == self.YES and not garbage.IsSuspicious():
+            return True
+        else:
+            return self._askUser(garbage)
+
+    def _askUser(self, garbage):
+        do_deletion = False
+        files = garbage.GetFileList()
+        dirs = garbage.GetDirectoryList()
+        if not files:
+            return False
+        print '\nThe following files are outdated:'
+        for fl in files:
+            print '  %s' % fl
+        for dr in dirs:
+            print '  %s' % dr
+
+        try:
+            response = raw_input('Delete outdate files [YES/no]: ')
+            if response == 'YES':
+                do_deletion = True
+        except:
+            pass
+
+        return do_deletion
 
 
 
