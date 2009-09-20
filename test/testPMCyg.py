@@ -2,7 +2,7 @@
 # Unit-tests for Cygwin Partial Mirror (pmcyg)
 # RW Penney, August 2009
 
-import os, string, sys, unittest, urlparse
+import os, random, re, shutil, string, sys, tempfile, unittest, urlparse
 sys.path.insert(0, '..')
 from pmcyg import *
 
@@ -131,6 +131,60 @@ class testMasterPackageList(unittest.TestCase):
 class testGarbageCollector(unittest.TestCase):
     def testNothing(self):
         self.fail('GarbageCollector test needs writing')
+
+    def testSuspiciousTrees(self):
+        re_tree = re.compile(r'^tree-([a-z]*)-([0-9]*)$')
+        dirlist = os.listdir('.')
+        for item in dirlist:
+            matches = re_tree.match(item)
+            if not matches or matches.lastindex < 2:
+                continue
+            if matches.group(1).startswith('susp'):
+                verdict = True
+            else:
+                verdict = False
+            index = matches.group(2)
+
+            topdir = tempfile.mkdtemp()
+            try:
+                makeGarbageTree(item, topdir)
+                collector = GarbageCollector(topdir)
+                self.assertEqual(collector.IsSuspicious(), verdict,
+                                msg='Suspiciousness failure on "%s"' % item)
+            finally:
+                shutil.rmtree(topdir)
+
+
+
+def makeGarbageTree(treefile, topdir='.'):
+    """Create outline directory tree for testing GarbageCollector"""
+
+    fp = open(treefile, 'rt')
+    for line in fp:
+        idx = line.find('#')
+        if idx >= 0:
+            line = line[0:idx]
+        line = line.strip()
+        if not line:
+            continue
+
+        fields = line.split(None, 1)
+        ftype = fields[0].upper()
+        fname = fields[1].replace('/', os.sep)
+        fname = os.path.join(topdir, fname)
+
+        if ftype == 'D':
+            try:
+                os.mkdir(fname)
+            except OSError:
+                pass
+        elif ftype == 'F':
+            fp = open(fname, 'wb')
+            flen = random.randint(0, 512)
+            fp.write(chr(0xaa) * flen)
+            fp.close()
+        else:
+            pass
 
 
 

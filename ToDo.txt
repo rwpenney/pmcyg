@@ -3,4 +3,4 @@ Add download progress indicator
 Allow placing all packages in 'Base' category
 GUI:
     Add 'reset' option for URLs
-    Add package-selection mechanism
+    Convert to state-machine to support deletion of old packages

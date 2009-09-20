@@ -1,0 +1,9 @@
+# GarbageCollector tree layout
+
+# This tree should be marked 'suspicious' because:
+#   it contains a '.bashrc' file
+
+F setup.exe
+D release
+D release-2
+F release/.bashrc

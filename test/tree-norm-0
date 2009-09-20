@@ -1,0 +1,12 @@
+# GarbageCollector tree layout
+
+F md5.sum
+F setup.exe
+F setup.bz2
+F setup.ini
+D release
+D release/alternatives
+D release/base-files
+D release/base-passwd
+D release/bash
+D release/_update-info-dir

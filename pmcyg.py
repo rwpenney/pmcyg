@@ -193,8 +193,11 @@ class PMbuilder(object):
         else:
             self._doDownloading(packages, downloads)
 
-        if self._confirmwaste(self._garbage):
-            self._garbage.PurgeFiles()
+    def PurgeGarbage(self):
+        if not self._optiondict['DummyDownload']:
+            if self._confirmwaste(self._garbage):
+                self._garbage.PurgeFiles()
+
 
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
@@ -704,13 +707,18 @@ class GarbageCollector:
     def __init__(self, topdir=None):
         self._topdir = None
         self._suspicious = True
+
+        self._susDirnames = [ 'bin', 'sbin', 'home',
+                            'My Documents', 'WINNT', 'system32' ]
+        self._susFilenames = [ '.bashrc', '.bash_profile', '.login', '.tcshrc']
+
         if topdir:
             self.IndexCurrentFiles(topdir)
 
     def IndexCurrentFiles(self, topdir, mindepth=0):
         """Build list of files and directories likely to be deleted"""
         self._topdir = topdir
-        self._suspicious = self._checkSuspiciousness()
+        self._suspicious = self._checkTopSuspiciousness()
         self._directories = []
         self._files = []
 
@@ -721,6 +729,7 @@ class GarbageCollector:
             if (dirdepth - topdepth) < mindepth:
                 continue
 
+            self._suspicious |= self._checkNodeSuspiciousness(dirnames, filenames)
             for subdir in dirnames:
                 self._directories.append(os.path.join(dirpath, subdir))
             for fname in filenames:
@@ -754,6 +763,10 @@ class GarbageCollector:
     def GetDirectoryList(self):
         return self._directories
 
+    def GetNeatList(self):
+        # FIXME - return user-friendly combined, sorted, list
+        return None
+
     def IsSuspicious(self):
         return self._suspicious
 
@@ -762,7 +775,7 @@ class GarbageCollector:
         # FIXME - delete files
         pass
 
-    def _checkSuspiciousness(self):
+    def _checkTopSuspiciousness(self):
         """Try to protect user from accidentally deleting anything other than an old Cygwin repository"""
         toplist = os.listdir(self._topdir)
         releasedirs = 0
@@ -778,6 +791,17 @@ class GarbageCollector:
                 topfiles += 1
 
         return (topfiles > 10) or (subdirs > releasedirs)
+
+    def _checkNodeSuspiciousness(self, dirnames, filenames):
+        for dname in dirnames:
+            if dname in self._susDirnames:
+                return True
+
+        for fname in filenames:
+            if fname in self._susFilenames:
+                return True
+
+        return False
 
     def _calcDepth(self, dirname):
         npath = os.path.normpath(dirname)
@@ -801,6 +825,11 @@ class GarbageConfirmer(object):
             return True
         else:
             return self._askUser(garbage)
+
+    def _import(self, other):
+        """Ersatz copy constructor"""
+        self._default = other._default
+        return self
 
     def _askUser(self, garbage):
         do_deletion = False
@@ -846,6 +875,9 @@ class TKgui(object):
         self.buildthread = None
         self.building = False
 
+        self.builder._confirmwaste = GUIgarbageConfirmer()._import(self.builder._confirmwaste)
+        self.builder._confirmwaste._default = GarbageConfirmer.ASK  # FIXME - remove
+
         self._boolopts = [
             ( 'dummy_var',   'DummyDownload',  False, 'Dry-run' ),
             ( 'nobase_var',  'IncludeBase',    True,  'Omit base packages' ),
@@ -885,6 +917,7 @@ class TKgui(object):
                 self.mirror_btn.config(menu=self.mirror_menu)
                 self.mirror_btn.config(state=Tk.NORMAL)
 
+            buildfinishing = False
             if self.buildthread and self.buildthread.isAlive() != self.building:
                 # Update 'build' button to avoid multiple builder threads:
                 state = Tk.NORMAL
@@ -894,12 +927,16 @@ class TKgui(object):
                     flag = True
                 else:
                     self.buildthread = None
+                    buildfinishing = True
                     print '\n'
                 self.buildmenu.entryconfig(self.buildmenu.index('Start'),
                                             state=state)
                 self.building = flag
 
             self.processMessages()
+            if buildfinishing:
+                self.builder.PurgeGarbage()
+
             self.status_txt.after(200, tick)
 
         tick()
@@ -1023,10 +1060,10 @@ This is free software, and you are welcome to redistribute it under the terms of
         """Callback for selecting set of user-supplied listing of packages"""
         pkgfiles = tkFileDialog.askopenfilenames(title='pmcyg user-package lists')
         if pkgfiles:
-            self.pkgfiles = pkgfiles
+            self.pkgfiles = os.path.normpath(pkgfiles)
             self.pkgs_entry.config(state=Tk.NORMAL)
             self.pkgs_entry.delete(0, Tk.END)
-            self.pkgs_entry.insert(0, '; '.join(pkgfiles))
+            self.pkgs_entry.insert(0, '; '.join(self.pkgfiles))
             self.pkgs_entry.config(state='readonly')
 
     def cacheSelect(self):
@@ -1035,7 +1072,7 @@ This is free software, and you are welcome to redistribute it under the terms of
                                 mustexist=False, title='pmcyg cache directory')
         if dirname:
             self.cache_entry.delete(0, Tk.END)
-            self.cache_entry.insert(0, dirname)
+            self.cache_entry.insert(0, os.path.normpath(dirname))
 
     def mkMirrorMenu(self):
         """Build hierarchical menu of Cygwin mirror sites"""
@@ -1115,6 +1152,7 @@ This is free software, and you are welcome to redistribute it under the terms of
             self.builder.SetMirrorURL(newmirror)
 
 
+
 class GUIstream:
     """Wrapper for I/O stream for use in GUI"""
 
@@ -1127,6 +1165,7 @@ class GUIstream:
 
     def write(self, string):
         self.parent.message_queue.put_nowait((string, self.highlight))
+
 
 
 class GUIfetchthread(threading.Thread):
@@ -1152,6 +1191,7 @@ class GUIfetchthread(threading.Thread):
             print >>sys.stderr, 'Build failed - %s' % str(ex)
 
 
+
 class GUImirrorthread(threading.Thread):
     """Asynchronous construction of list of Cygwin mirrors"""
     def __init__(self, parent):
@@ -1168,6 +1208,56 @@ class GUImirrorthread(threading.Thread):
 
 
 
+class GUIgarbageConfirmer(GarbageConfirmer):
+    def __init__(self, default=GarbageConfirmer.ASK):
+        GarbageConfirmer.__init__(self, default)
+
+    def _askUser(self, garbage):
+        self._proceed = False
+        self.root = self._buildWindow(garbage)
+
+        self.root.wait_visibility()
+        self.root.grab_set()
+        self.root.mainloop()
+        self.root.destroy()
+
+        return self._proceed
+
+    def _buildWindow(self, garbage):
+        topwin = Tk.Toplevel()
+        topwin.title('pmcyg - confirm deletion')
+
+        lbl = Tk.Label(topwin, text='The following packages are no longer needed and will be deleted:')
+        lbl.pack(expand=1, fill=Tk.X)
+
+        # Construct scrolled window containing list of files for deletion:
+        txt = ScrolledText.ScrolledText(topwin, height=16)
+        allfiles = garbage.GetFileList()
+        allfiles.extend(garbage.GetDirectoryList())
+        allfiles.sort()
+        for fl in allfiles:
+            txt.insert(Tk.END, fl + '\n')
+        txt.pack(expand=1, fill=Tk.BOTH)
+
+        btn = Tk.Button(topwin, text='Cancel', command=self._onCancel)
+        btn.pack(side=Tk.RIGHT)
+        btn = Tk.Button(topwin, text='Ok', command=self._onOk)
+        btn.pack(side=Tk.RIGHT)
+
+        return topwin
+
+    def _onOk(self):
+        self._proceed = True
+        self._onExit()
+
+    def _onCancel(self):
+        self._proceed = False
+        self._onExit()
+
+    def _onExit(self):
+        self.root.quit()
+
+
 ##
 ## Application entry-points
 ##
@@ -1181,6 +1271,7 @@ def PlainMain(builder, pkgfiles):
 
     try:
         builder.BuildMirror(usrpkgs)
+        builder.PurgeGarbage()
 
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )

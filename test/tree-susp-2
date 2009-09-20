@@ -1,0 +1,9 @@
+# GarbageCollector tree layout
+
+# This tree should be marked 'suspicious' because:
+#   it contains a 'My Documents' folder
+
+F setup.exe
+D release
+D release-2
+D release/My Documents
