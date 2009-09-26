@@ -64,7 +64,6 @@ class PMbuilder(object):
 
         self._masterlist = MasterPackageList()
         self._garbage = GarbageCollector()
-        self._confirmwaste = GarbageConfirmer()
         self._cancelling = False
         self._mirrordict = None
         self._optiondict = {
@@ -193,11 +192,11 @@ class PMbuilder(object):
         else:
             self._doDownloading(packages, downloads)
 
-    def PurgeGarbage(self):
-        if not self._optiondict['DummyDownload']:
-            if self._confirmwaste(self._garbage):
-                self._garbage.PurgeFiles()
-
+    def GetGarbage(self):
+        if self._optiondict['DummyDownload']:
+            return None
+        else:
+            return self._garbage
 
     def Cancel(self, flag=True):
         """Signal that downloading should be terminated"""
@@ -811,30 +810,31 @@ class GarbageCollector:
 class GarbageConfirmer(object):
     """Mechanism for inviting user to confirm disposal of outdated files"""
 
-    ASK = 0
-    NO = 1
-    YES = 2
+    def __init__(self, garbage, default='no'):
+        self._garbage = garbage
+        default = default.lower()
+        self._userresponse = None
 
-    def __init__(self, default=NO):
-        self._default = default
-
-    def __call__(self, garbage):
-        if self._default == self.NO:
-            return False
-        elif self._default == self.YES and not garbage.IsSuspicious():
-            return True
+        if default == 'no' or not garbage:
+            self._userresponse = 'no'
+        elif default == 'yes' and not garbage.IsSuspicious():
+            self._userresponse = 'yes'
         else:
-            return self._askUser(garbage)
+            self._askUser()
 
-    def _import(self, other):
-        """Ersatz copy constructor"""
-        self._default = other._default
-        return self
+    def HasResponded(self):
+        return self._userresponse
 
-    def _askUser(self, garbage):
-        do_deletion = False
-        files = garbage.GetFileList()
-        dirs = garbage.GetDirectoryList()
+    def ActionResponse(self):
+        if not self.HasResponded():
+            self._awaitResponse()
+        if self._userresponse == 'yes':
+            print >>sys.stderr, 'Purging files...'
+            self._garbage.PurgeFiles()
+
+    def _askUser(self):
+        files = self._garbage.GetFileList()
+        dirs = self._garbage.GetDirectoryList()
         if not files:
             return False
         print '\nThe following files are outdated:'
@@ -846,11 +846,14 @@ class GarbageConfirmer(object):
         try:
             response = raw_input('Delete outdate files [YES/no]: ')
             if response == 'YES':
-                do_deletion = True
+                self._userresponse = 'yes'
+            else:
+                self._userresponse = 'no'
         except:
             pass
 
-        return do_deletion
+    def _awaitResponse(self):
+        pass    # assume that _askUser blocks until user responds
 
 
 
@@ -871,12 +874,6 @@ class TKgui(object):
         rootwin.title('pmcyg - Cygwin(TM) partial mirror')
         rootwin.grid_columnconfigure(0, weight=1)
         row = 0
-
-        self.buildthread = None
-        self.building = False
-
-        self.builder._confirmwaste = GUIgarbageConfirmer()._import(self.builder._confirmwaste)
-        self.builder._confirmwaste._default = GarbageConfirmer.ASK  # FIXME - remove
 
         self._boolopts = [
             ( 'dummy_var',   'DummyDownload',  False, 'Dry-run' ),
@@ -906,6 +903,9 @@ class TKgui(object):
         self.message_queue = Queue.Queue()
         row += 1
 
+        self._state = GUIstate(self)
+        self._updateState(GUIconfigState(self))
+
     def Run(self):
         self.mirrorthread = GUImirrorthread(self)
         self.mirrorthread.setDaemon(True)
@@ -917,30 +917,24 @@ class TKgui(object):
                 self.mirror_btn.config(menu=self.mirror_menu)
                 self.mirror_btn.config(state=Tk.NORMAL)
 
-            buildfinishing = False
-            if self.buildthread and self.buildthread.isAlive() != self.building:
-                # Update 'build' button to avoid multiple builder threads:
-                state = Tk.NORMAL
-                flag = False
-                if self.buildthread.isAlive():
-                    state = Tk.DISABLED
-                    flag = True
-                else:
-                    self.buildthread = None
-                    buildfinishing = True
-                    print '\n'
-                self.buildmenu.entryconfig(self.buildmenu.index('Start'),
-                                            state=state)
-                self.building = flag
+            try:
+                newstate = self._state.tick()
+                self._updateState(newstate)
+            except Exception, ex:
+                print >>sys.stderr, 'Unhandled exception in GUI event loop - %s'% str(ex)
 
             self.processMessages()
-            if buildfinishing:
-                self.builder.PurgeGarbage()
 
             self.status_txt.after(200, tick)
 
         tick()
         Tk.mainloop()
+
+    def _updateState(self, newstate):
+        if newstate and not self._state is newstate:
+            self._state.leave()
+            newstate.enter()
+            self._state = newstate
 
     def mkMenuBar(self, rootwin):
         """Construct menu-bar for top-level window"""
@@ -1106,14 +1100,7 @@ This is free software, and you are welcome to redistribute it under the terms of
 
     def doBuildMirror(self):
         self._txFields()
-
-        if not self.buildthread:
-            self.buildmenu.entryconfigure(self.buildmenu.index('Start'),
-                                        state=Tk.DISABLED)
-            self.building = True
-            self.buildthread = GUIfetchthread(self)
-            self.buildthread.setDaemon(True)
-            self.buildthread.start()
+        self._updateState(GUIbuildState(self))
 
     def doCancel(self):
         self.builder.Cancel(True)
@@ -1150,6 +1137,81 @@ This is free software, and you are welcome to redistribute it under the terms of
         newmirror = self.mirror_entry.get()
         if newmirror != self.builder.GetMirrorURL():
             self.builder.SetMirrorURL(newmirror)
+
+
+
+class GUIstate:
+    """Base class for processing state of GUI"""
+    def __init__(self, parent):
+        self._parent = parent
+
+    def tick(self):
+        return self
+
+    def enter(self):
+        pass
+
+    def leave(self):
+        pass
+
+
+class GUIconfigState(GUIstate):
+    def __init__(self, parent):
+        GUIstate.__init__(self, parent)
+        def btn(state):
+            # Update 'build' button to avoid multiple builder threads:
+            buttonId = parent.buildmenu.index('Start')
+            parent.buildmenu.entryconfig(buttonId, state=state)
+        self._buttonConfig = btn
+
+    def tick(self):
+        return self
+
+    def enter(self):
+        self._buttonConfig(Tk.NORMAL)
+
+    def leave(self):
+        self._buttonConfig(Tk.DISABLED)
+
+
+class GUIbuildState(GUIstate):
+    def __init__(self, parent):
+        GUIstate.__init__(self, parent)
+        self._buildthread = None
+
+    def tick(self):
+        if self._buildthread and not self._buildthread.isAlive():
+            return GUItidyState(self._parent)
+        return self
+
+    def enter(self):
+        buildthread = GUIfetchthread(self._parent)
+        buildthread.setDaemon(True)
+        buildthread.start()
+        self._buildthread = buildthread
+
+    def leave(self):
+        self._buildthread = None
+        print '\n'
+
+
+class GUItidyState(GUIstate):
+    def __init__(self, parent):
+        GUIstate.__init__(self, parent)
+        self._builder = parent.builder
+        self._confirmer = None
+
+    def tick(self):
+        if self._confirmer.HasResponded():
+            self._confirmer.ActionResponse()
+            return GUIconfigState(self._parent)
+        return self
+
+    def enter(self):
+        self._confirmer = GUIgarbageConfirmer(self._builder.GetGarbage(), default='ask')
+
+    def leave(self):
+        pass
 
 
 
@@ -1209,31 +1271,28 @@ class GUImirrorthread(threading.Thread):
 
 
 class GUIgarbageConfirmer(GarbageConfirmer):
-    def __init__(self, default=GarbageConfirmer.ASK):
-        GarbageConfirmer.__init__(self, default)
+    def __init__(self, garbage, default='no'):
+        GarbageConfirmer.__init__(self, garbage, default)
 
-    def _askUser(self, garbage):
+    def _askUser(self):
         self._proceed = False
-        self.root = self._buildWindow(garbage)
+        self.root = self._buildWindow()
 
-        self.root.wait_visibility()
-        self.root.grab_set()
-        self.root.mainloop()
-        self.root.destroy()
+    def _awaitResponse(self):
+        self._userresponse = 'no'
 
-        return self._proceed
-
-    def _buildWindow(self, garbage):
+    def _buildWindow(self):
         topwin = Tk.Toplevel()
         topwin.title('pmcyg - confirm deletion')
+        topwin.protocol('WM_DELETE_WINDOW', self._onExit)
 
         lbl = Tk.Label(topwin, text='The following packages are no longer needed and will be deleted:')
         lbl.pack(expand=1, fill=Tk.X)
 
         # Construct scrolled window containing list of files for deletion:
         txt = ScrolledText.ScrolledText(topwin, height=16)
-        allfiles = garbage.GetFileList()
-        allfiles.extend(garbage.GetDirectoryList())
+        allfiles = self._garbage.GetFileList()
+        allfiles.extend(self._garbage.GetDirectoryList())
         allfiles.sort()
         for fl in allfiles:
             txt.insert(Tk.END, fl + '\n')
@@ -1247,15 +1306,14 @@ class GUIgarbageConfirmer(GarbageConfirmer):
         return topwin
 
     def _onOk(self):
-        self._proceed = True
-        self._onExit()
+        self._onExit('yes')
 
     def _onCancel(self):
-        self._proceed = False
-        self._onExit()
+        self._onExit('no')
 
-    def _onExit(self):
-        self.root.quit()
+    def _onExit(self, response='no'):
+        self._userresponse = response
+        self.root.destroy()
 
 
 ##
@@ -1271,8 +1329,9 @@ def PlainMain(builder, pkgfiles):
 
     try:
         builder.BuildMirror(usrpkgs)
-        builder.PurgeGarbage()
-
+        garbage = builder.GetGarbage()
+        confirmer = GarbageConfirmer(garbage, default='no')
+        confirmer.ActionResponse()
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
 

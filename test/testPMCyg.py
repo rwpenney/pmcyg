@@ -197,18 +197,18 @@ class testGarbageConfirmer(unittest.TestCase):
             self._suspicious = flag
 
     class _confirmer(GarbageConfirmer):
-        def __init__(self, default):
-            GarbageConfirmer.__init__(self, default)
+        def __init__(self, garbage, default, cannedresponse=None):
             self.UserAsked = False
-            self.UserResponse = False
+            self._cannedresponse = cannedresponse
 
-        def _askUser(self, garbage):
+            GarbageConfirmer.__init__(self, garbage, default)
+
+        def _askUser(self):
             self.UserAsked = True
-            return self.UserResponse
+            self._userresponse = self._cannedresponse
 
     def setUp(self):
         self.garbage = testGarbageConfirmer._collector()
-        pass
 
     def tearDown(self):
         pass
@@ -216,33 +216,31 @@ class testGarbageConfirmer(unittest.TestCase):
     def testNo(self):
         for susp in [False, True]:
             self.garbage.SetSuspicious(susp)
-            confirmer = testGarbageConfirmer._confirmer(default=GarbageConfirmer.NO)
-            doDelete = confirmer(self.garbage)
-            self.assertFalse(doDelete)
+            confirmer = testGarbageConfirmer._confirmer(self.garbage, default='no')
+            doDelete = confirmer.HasResponded()
+            self.assertEqual(doDelete, 'no')
             self.assertFalse(confirmer.UserAsked)
 
 
     def testYes(self):
         for susp in [False, True] * 2:
-            for resp in [False, True]:
+            for resp in ['no', 'yes']:
                 self.garbage.SetSuspicious(susp)
-                confirmer = testGarbageConfirmer._confirmer(default=GarbageConfirmer.YES)
-                confirmer.UserResponse = resp
-                doDelete = confirmer(self.garbage)
+                confirmer = testGarbageConfirmer._confirmer(self.garbage, default='yes', cannedresponse=resp)
+                doDelete = confirmer.HasResponded()
                 if susp:
                     self.assertEqual(doDelete, resp)
                     self.assertTrue(confirmer.UserAsked)
                 else:
-                    self.assertTrue(doDelete)
+                    self.assertEqual(doDelete, 'yes')
                     self.assertFalse(confirmer.UserAsked)
 
     def testAsk(self):
         for susp in [False, True]:
-            for resp in [False, True]:
+            for resp in ['no', 'yes']:
                 self.garbage.SetSuspicious(susp)
-                confirmer = testGarbageConfirmer._confirmer(default=GarbageConfirmer.ASK)
-                confirmer.UserResponse = resp
-                doDelete = confirmer(self.garbage)
+                confirmer = testGarbageConfirmer._confirmer(self.garbage, default='ask', cannedresponse=resp)
+                doDelete = confirmer.HasResponded()
                 self.assertEqual(doDelete, resp)
                 self.assertTrue(confirmer.UserAsked)
 
