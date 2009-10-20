@@ -1,6 +1,26 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+13Oct09
+    Wired-up package-deletion options into GUI menu
+
+26Sep09
+    Added GUI support for deleting old package versions
+
+20Sep09
+    Added unit-test for GarbageCollector protecting non-Cygwin directory trees
+
+06Sep09
+    Added beginnings of GarbageCollector class for removing old package versions
+
+20Aug09
+    Improved caching of setup.ini information
+    Added unit-test for package category generation
+
+16Aug09
+    Refactored parser of setup.ini files into separate class
+    Added basic unit-test framework
+
 18Jul09
     Patched construction of autorun.inf to match selected setup.exe filename
     Added support for downloading source packages

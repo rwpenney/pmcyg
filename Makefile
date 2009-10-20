@@ -8,7 +8,7 @@ VERSION = $(shell ${PYTHON} -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
 DISTFILES = pmcyg.py example.pkgs \
 	Authors.txt ChangeLog.txt LICENSE.txt \
 	Makefile README.txt ToDo.txt \
-	test/testPMCyg.py
+	test/testPMCyg.py $(shell ls test/tree-*)
 
 FQNAME = ${PKGNAME}-${VERSION}
 

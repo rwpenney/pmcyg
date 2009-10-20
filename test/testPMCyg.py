@@ -129,8 +129,36 @@ class testMasterPackageList(unittest.TestCase):
 
 
 class testGarbageCollector(unittest.TestCase):
-    def testNothing(self):
-        self.fail('GarbageCollector test needs writing')
+    def testRescuing(self):
+        re_tree = re.compile(r'tree-norm-[0-9]*$')
+        dirlist = os.listdir('.')
+        for item in dirlist:
+            if not re_tree.match(item):
+                continue
+
+            topdir = tempfile.mkdtemp()
+            try:
+                treedict = makeGarbageTree(item, topdir)
+                collector = GarbageCollector(topdir)
+
+                rescuedfiles = []
+                deletedfiles = []
+                for file in treedict['files']:
+                    if random.randint(0,1):
+                        collector.RescueFile(file)
+                        rescuedfiles.append(file)
+                    else:
+                        deletedfiles.append(file)
+
+                collector.PurgeFiles()
+
+                for presence, filelist in [ (True, rescuedfiles),
+                                            (False, deletedfiles) ]:
+                    for file in filelist:
+                        fullname = os.path.join(topdir, file)
+                        self.assertEqual(presence, os.path.isfile(fullname))
+            finally:
+                shutil.rmtree(topdir)
 
     def testSuspiciousTrees(self):
         re_tree = re.compile(r'^tree-([a-z]*)-([0-9]*)$')
@@ -159,6 +187,8 @@ class testGarbageCollector(unittest.TestCase):
 def makeGarbageTree(treefile, topdir='.'):
     """Create outline directory tree for testing GarbageCollector"""
 
+    treedict = { 'directories':[], 'files':[] }
+
     fp = open(treefile, 'rt')
     for line in fp:
         idx = line.find('#')
@@ -176,6 +206,7 @@ def makeGarbageTree(treefile, topdir='.'):
         if ftype == 'D':
             try:
                 os.mkdir(fname)
+                treedict['directories'].append(fname)
             except OSError:
                 pass
         elif ftype == 'F':
@@ -183,8 +214,11 @@ def makeGarbageTree(treefile, topdir='.'):
             flen = random.randint(0, 512)
             fp.write(chr(0xaa) * flen)
             fp.close()
+            treedict['files'].append(fname)
         else:
             pass
+
+    return treedict
 
 
 
@@ -196,6 +230,9 @@ class testGarbageConfirmer(unittest.TestCase):
         def SetSuspicious(self, flag):
             self._suspicious = flag
 
+        def GetNeatList(self):
+            return [ 'nowhere' ]
+
     class _confirmer(GarbageConfirmer):
         def __init__(self, garbage, default, cannedresponse=None):
             self.UserAsked = False
@@ -203,7 +240,7 @@ class testGarbageConfirmer(unittest.TestCase):
 
             GarbageConfirmer.__init__(self, garbage, default)
 
-        def _askUser(self):
+        def _askUser(self, allfiles):
             self.UserAsked = True
             self._userresponse = self._cannedresponse
 

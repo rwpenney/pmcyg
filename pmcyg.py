@@ -71,7 +71,8 @@ class PMbuilder(object):
             'DummyDownload':    False,
             'IncludeBase':      True,
             'MakeAutorun':      False,
-            'IncludeSources':   False
+            'IncludeSources':   False,
+            'RemoveOutdated':   'no'
         }
 
     def GetTargetDir(self):
@@ -721,14 +722,16 @@ class GarbageCollector:
         self._directories = []
         self._files = []
 
+        topdir = os.path.normpath(topdir)
         topdepth = self._calcDepth(topdir)
 
         for dirpath, dirnames, filenames in os.walk(topdir, topdown=False):
+            self._suspicious |= self._checkNodeSuspiciousness(dirnames, filenames)
+
             dirdepth = self._calcDepth(dirpath)
             if (dirdepth - topdepth) < mindepth:
                 continue
 
-            self._suspicious |= self._checkNodeSuspiciousness(dirnames, filenames)
             for subdir in dirnames:
                 self._directories.append(os.path.join(dirpath, subdir))
             for fname in filenames:
@@ -756,6 +759,9 @@ class GarbageCollector:
             except:
                 break
 
+    def GetNfiles(self):
+        return len(self._files)
+
     def GetFileList(self):
         return self._files
 
@@ -763,16 +769,36 @@ class GarbageCollector:
         return self._directories
 
     def GetNeatList(self):
-        # FIXME - return user-friendly combined, sorted, list
-        return None
+        dirprefix = self._topdir
+        if not dirprefix.endswith(os.sep):
+            dirprefix += os.sep
+        prefixlen = len(dirprefix)
+
+        allfiles = []
+        for fl in self._files + self._directories:
+            if fl.startswith(dirprefix):
+                allfiles.append(os.path.join('[.]', fl[prefixlen:]))
+            else:
+                allfiles.append(fl)
+        allfiles.sort()
+
+        return allfiles
 
     def IsSuspicious(self):
         return self._suspicious
 
     def PurgeFiles(self):
-        print 'deleting %d files' % len(self._files)
-        # FIXME - delete files
-        pass
+        try:
+            for fl in self._files:
+                os.remove(fl)
+            rdirs = self._directories
+
+            # Use reverse-alphabetic sort to approximate depth-first dirsearch:
+            rdirs.sort(reverse=True)
+            for dr in rdirs:
+                os.rmdir(dr)
+        except Exception, ex:
+            print >>sys.stderr, 'Failed to remove outdated files - %s' % str(ex)
 
     def _checkTopSuspiciousness(self):
         """Try to protect user from accidentally deleting anything other than an old Cygwin repository"""
@@ -803,8 +829,7 @@ class GarbageCollector:
         return False
 
     def _calcDepth(self, dirname):
-        npath = os.path.normpath(dirname)
-        return len(npath.split(os.sep))
+        return len(dirname.split(os.sep))
 
 
 class GarbageConfirmer(object):
@@ -820,7 +845,11 @@ class GarbageConfirmer(object):
         elif default == 'yes' and not garbage.IsSuspicious():
             self._userresponse = 'yes'
         else:
-            self._askUser()
+            allfiles = self._garbage.GetNeatList()
+            if allfiles:
+                self._askUser(allfiles)
+            else:
+                self._userresponse = 'no'
 
     def HasResponded(self):
         return self._userresponse
@@ -829,19 +858,13 @@ class GarbageConfirmer(object):
         if not self.HasResponded():
             self._awaitResponse()
         if self._userresponse == 'yes':
-            print >>sys.stderr, 'Purging files...'
+            print 'Deleting %d files' % self._garbage.GetNfiles()
             self._garbage.PurgeFiles()
 
-    def _askUser(self):
-        files = self._garbage.GetFileList()
-        dirs = self._garbage.GetDirectoryList()
-        if not files:
-            return False
+    def _askUser(self, allfiles):
         print '\nThe following files are outdated:'
-        for fl in files:
+        for fl in allfiles:
             print '  %s' % fl
-        for dr in dirs:
-            print '  %s' % dr
 
         try:
             response = raw_input('Delete outdate files [YES/no]: ')
@@ -886,6 +909,8 @@ class TKgui(object):
             tkvar = Tk.IntVar()
             tkvar.set(flip ^ builder.GetOption(opt))
             self.__setattr__(attr, tkvar)
+        self.rmvold_var = Tk.StringVar()
+        self.rmvold_var.set(builder.GetOption('RemoveOutdated'))
 
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
@@ -942,6 +967,13 @@ class TKgui(object):
 
         filemenu = Tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label='Make template', command=self.mkTemplate)
+
+        rmvmenu = Tk.Menu(filemenu, tearoff=0)
+        for opt in [ 'no', 'ask', 'yes' ]:
+            rmvmenu.add_radiobutton(label=opt, variable=self.rmvold_var,
+                                value=opt, command=self.setRemoveOld)
+        filemenu.add_cascade(label='Remove outdated', menu=rmvmenu)
+
         filemenu.add_separator()
         filemenu.add_command(label='Quit', command=rootwin.quit)
         menubar.add_cascade(label='File', menu=filemenu)
@@ -1098,6 +1130,9 @@ This is free software, and you are welcome to redistribute it under the terms of
 
         return menu
 
+    def setRemoveOld(self):
+        self.builder.SetOption('RemoveOutdated', self.rmvold_var.get())
+
     def doBuildMirror(self):
         self._txFields()
         self._updateState(GUIbuildState(self))
@@ -1208,7 +1243,8 @@ class GUItidyState(GUIstate):
         return self
 
     def enter(self):
-        self._confirmer = GUIgarbageConfirmer(self._builder.GetGarbage(), default='ask')
+        policy = self._builder.GetOption('RemoveOutdated')
+        self._confirmer = GUIgarbageConfirmer(self._builder.GetGarbage(), default=policy)
 
     def leave(self):
         pass
@@ -1274,14 +1310,14 @@ class GUIgarbageConfirmer(GarbageConfirmer):
     def __init__(self, garbage, default='no'):
         GarbageConfirmer.__init__(self, garbage, default)
 
-    def _askUser(self):
+    def _askUser(self, allfiles):
         self._proceed = False
-        self.root = self._buildWindow()
+        self.root = self._buildWindow(allfiles)
 
     def _awaitResponse(self):
         self._userresponse = 'no'
 
-    def _buildWindow(self):
+    def _buildWindow(self, allfiles):
         topwin = Tk.Toplevel()
         topwin.title('pmcyg - confirm deletion')
         topwin.protocol('WM_DELETE_WINDOW', self._onExit)
@@ -1291,9 +1327,6 @@ class GUIgarbageConfirmer(GarbageConfirmer):
 
         # Construct scrolled window containing list of files for deletion:
         txt = ScrolledText.ScrolledText(topwin, height=16)
-        allfiles = self._garbage.GetFileList()
-        allfiles.extend(self._garbage.GetDirectoryList())
-        allfiles.sort()
         for fl in allfiles:
             txt.insert(Tk.END, fl + '\n')
         txt.pack(expand=1, fill=Tk.BOTH)
@@ -1330,7 +1363,8 @@ def PlainMain(builder, pkgfiles):
     try:
         builder.BuildMirror(usrpkgs)
         garbage = builder.GetGarbage()
-        confirmer = GarbageConfirmer(garbage, default='no')
+        confirmer = GarbageConfirmer(garbage,
+                                default=builder.GetOption('RemoveOutdated'))
         confirmer.ActionResponse()
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
@@ -1386,6 +1420,8 @@ def main():
             help='create autorun.inf file in build directory')
     advopts.add_option('--with-sources', '-s', action='store_true', default=False,
             help='include source-code for of each package')
+    advopts.add_option('--remove-outdated', '-o', type='string', default='no',
+            help='remove old versions of packages [no/yes/ask]')
     parser.add_option_group(advopts)
     opts, remargs = parser.parse_args()
 
@@ -1399,6 +1435,7 @@ def main():
     builder.SetOption('IncludeBase', not opts.nobase)
     builder.SetOption('MakeAutorun', opts.with_autorun)
     builder.SetOption('IncludeSources', opts.with_sources)
+    builder.SetOption('RemoveOutdated', opts.remove_outdated)
 
     if opts.pkg_file:
         fp = open(opts.pkg_file, 'wt')
