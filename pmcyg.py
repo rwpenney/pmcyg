@@ -718,9 +718,13 @@ class GarbageCollector:
     def IndexCurrentFiles(self, topdir, mindepth=0):
         """Build list of files and directories likely to be deleted"""
         self._topdir = topdir
-        self._suspicious = self._checkTopSuspiciousness()
         self._directories = []
         self._files = []
+        if os.path.isdir(topdir):
+            self._suspicious = self._checkTopSuspiciousness()
+        else:
+            self._suspicious = False
+            return
 
         topdir = os.path.normpath(topdir)
         topdepth = self._calcDepth(topdir)
@@ -735,7 +739,7 @@ class GarbageCollector:
             for subdir in dirnames:
                 self._directories.append(os.path.join(dirpath, subdir))
             for fname in filenames:
-                fullname = os.path.join(dirpath, fname)
+                fullname = os.path.normpath(os.path.join(dirpath, fname))
                 self._files.append(fullname)
                 if os.path.islink(fullname):
                     self._suspicious = True
@@ -744,6 +748,7 @@ class GarbageCollector:
     def RescueFile(self, filename):
         """Signal that file is to be removed from deletions list"""
 
+        filename = os.path.normpath(filename)
         dirname, basename = os.path.split(filename)
         try:
             self._files.remove(filename)
@@ -794,7 +799,8 @@ class GarbageCollector:
             rdirs = self._directories
 
             # Use reverse-alphabetic sort to approximate depth-first dirsearch:
-            rdirs.sort(reverse=True)
+            rdirs.sort()
+            rdirs.reverse()
             for dr in rdirs:
                 os.rmdir(dr)
         except Exception, ex:
@@ -965,28 +971,32 @@ class TKgui(object):
         """Construct menu-bar for top-level window"""
         menubar = Tk.Menu()
 
+        # 'File' menu:
         filemenu = Tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label='Make template', command=self.mkTemplate)
-
-        rmvmenu = Tk.Menu(filemenu, tearoff=0)
-        for opt in [ 'no', 'ask', 'yes' ]:
-            rmvmenu.add_radiobutton(label=opt, variable=self.rmvold_var,
-                                value=opt, command=self.setRemoveOld)
-        filemenu.add_cascade(label='Remove outdated', menu=rmvmenu)
-
         filemenu.add_separator()
         filemenu.add_command(label='Quit', command=rootwin.quit)
         menubar.add_cascade(label='File', menu=filemenu)
 
+        # 'Build' menu:
         self.buildmenu = Tk.Menu(menubar, tearoff=0)
-        for attr, opt, flip, descr in self._boolopts:
-            tkvar = self.__getattribute__(attr)
-            self.buildmenu.add_checkbutton(label=descr, variable=tkvar)
-        self.buildmenu.add_separator()
         self.buildmenu.add_command(label='Start', command=self.doBuildMirror)
         self.buildmenu.add_command(label='Cancel', command=self.doCancel)
         menubar.add_cascade(label='Build', menu=self.buildmenu)
 
+        # 'Options' menu:
+        optmenu = Tk.Menu(menubar, tearoff=0)
+        for attr, opt, flip, descr in self._boolopts:
+            tkvar = self.__getattribute__(attr)
+            optmenu.add_checkbutton(label=descr, variable=tkvar)
+        rmvmenu = Tk.Menu(optmenu, tearoff=0)
+        for opt in [ 'no', 'ask', 'yes' ]:
+            rmvmenu.add_radiobutton(label=opt, variable=self.rmvold_var,
+                                value=opt, command=self.setRemoveOld)
+        optmenu.add_cascade(label='Remove outdated', menu=rmvmenu)
+        menubar.add_cascade(label='Options', menu=optmenu)
+
+        # 'Help' menu:
         helpmenu = Tk.Menu(menubar, tearoff=0, name='help')
         helpmenu.add_command(label='About', command=self.mkAbout)
         menubar.add_cascade(label='Help', menu=helpmenu)

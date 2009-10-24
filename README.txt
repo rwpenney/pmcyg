@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, July 2009
+                        RW Penney, October 2009
 
 
 Introduction
@@ -8,7 +8,7 @@ Introduction
 This directory contains 'pmcyg', a tool for creating customized collections
 of Cygwin(TM) packages. pmcyg is intended to support construction of
 a self-contained CD or DVD that can be used to install or upgrade Cygwin
-on machines that do not have network access to a Cygwin mirror site.
+on computers that do not have network access to a Cygwin mirror site.
 
 pmcyg avoids having to download the entirety of a Cygwin release
 (about 4GB or more), and can create a minimal Cygwin installation within 20MB.
@@ -37,7 +37,7 @@ GNU/Linux systems, or can be obtained from http://www.python.org
 In order to use pmcyg as a graphical (GUI) application, you will need
 the 'Tkinter' toolkit for Python. This is part of the default distribution of
 Python for Windows platforms, but may be part of a separate package
-(possibly called python-tk) on Unix/Linux systems.
+(possibly called "python-tk") on Unix/Linux systems.
 
 On Windows platforms, double-clicking on the file 'pmcyg.py' should be
 sufficient to run pmcyg in graphical mode.
@@ -74,7 +74,7 @@ a '#' symbol at the start of each line. Removing the '#' at the start
 of any package's entry will prompt pmcyg to download that package when
 processing your file. If you simply want to download all the available
 Cygwin packages, you do not need to create this file, but can instead use
-the 'Include all packages' option within the GUI 'Build' menu or the
+the 'Include all packages' option within the GUI 'Options' menu or the
 '--all' command-line option.
 
 To build your local Cygwin mirror within the GUI, you will need to select

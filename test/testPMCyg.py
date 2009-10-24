@@ -41,9 +41,9 @@ class testMasterPackageList(unittest.TestCase):
 
         self.failIf(header.get('setup-version') == None)
         try:
-            ts = int(header['setup-timestamp'])
-            self.failUnless(ts > (1 << 30))
-            self.failUnless(ts < (1 << 31))
+            ts = long(header['setup-timestamp'])
+            self.failUnless(ts > (1L << 30))
+            self.failUnless(ts < (1L << 31))
         except:
             self.fail()
 
@@ -129,6 +129,20 @@ class testMasterPackageList(unittest.TestCase):
 
 
 class testGarbageCollector(unittest.TestCase):
+    def testAbsentTopdir(self):
+        topdir = tempfile.mkdtemp()
+        try:
+            subdir = os.path.join(topdir, 'non-existent')
+
+            try:
+                collector = GarbageCollector(subdir)
+                collector = GarbageCollector(topdir)
+            except:
+                self.fail('GarbageCollector construction failed')
+
+        finally:
+            shutil.rmtree(topdir)
+
     def testRescuing(self):
         re_tree = re.compile(r'tree-norm-[0-9]*$')
         dirlist = os.listdir('.')
@@ -151,6 +165,7 @@ class testGarbageCollector(unittest.TestCase):
                         deletedfiles.append(file)
 
                 collector.PurgeFiles()
+                self.assertEqual(collector.IsSuspicious(), False)
 
                 for presence, filelist in [ (True, rescuedfiles),
                                             (False, deletedfiles) ]:
@@ -281,6 +296,18 @@ class testGarbageConfirmer(unittest.TestCase):
                 self.assertEqual(doDelete, resp)
                 self.assertTrue(confirmer.UserAsked)
 
+
+# Ensure support for older versions of unittest (e.g. Python-2.3):
+try:
+    fn = unittest.TestCase.assertTrue
+    fn = unittest.TestCase.assertFalse
+except AttributeError:
+    def assTrue(obj, arg):
+        obj.assertEqual(arg, True)
+    def assFalse(obj, arg):
+        obj.assertEqual(arg, False)
+    unittest.TestCase.assertTrue = assTrue
+    unittest.TestCase.assertFalse = assFalse
 
 
 if __name__ == "__main__":
