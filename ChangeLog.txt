@@ -1,6 +1,10 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+27Oct09
+    Improved hash checking on pre-existing package files
+    Improved consistency of checking of directory prefixes in GarbageCollector
+
 24Oct09 **** pmcyg-0.2 released ****
 
 13Oct09

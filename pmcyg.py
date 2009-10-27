@@ -30,7 +30,7 @@ except:
     HASGUI = False
 
 
-PMCYG_VERSION = '0.2'
+PMCYG_VERSION = '0.2.1'
 
 
 class PMCygException(Exception):
@@ -468,23 +468,29 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             print '  %s (%s)...' % ( os.path.basename(pkgfile),
                                     self._prettyfsize(pkgsize) ),
             sys.stdout.flush()
-            if not os.path.isfile(tgtpath) or os.path.getsize(tgtpath) != pkgsize:
-                dlsize = 0
-                try:
+
+            try:
+                succ_msg = None
+                if os.path.isfile(tgtpath) and os.path.getsize(tgtpath) == pkgsize:
+                    succ_msg = 'already present'
+                else:
+                    dlsize = 0
                     urllib.urlretrieve(mirpath, tgtpath)
                     dlsize = os.path.getsize(tgtpath)
                     if dlsize != pkgsize:
                         raise IOError, 'Mismatched package size (deficit=%s)' \
                                         % ( self._prettyfsize(pkgsize - dlsize) )
-                    if not self._hashCheck(tgtpath, pkghash):
-                        raise IOError, 'Mismatched checksum'
-                    print ' done'
-                    successes += 1
-                except Exception, ex:
-                    print ' FAILED\n  -- %s' % ( str(ex) )
-                    failures += 1
-            else:
-                print '  already present'
+                    succ_msg = 'done'
+
+                if not self._hashCheck(tgtpath, pkghash):
+                    os.remove(tgtpath)
+                    raise IOError, 'Mismatched checksum'
+
+                print ' %s' % succ_msg
+                successes += 1
+            except Exception, ex:
+                print ' FAILED\n  -- %s' % ( str(ex) )
+                failures += 1
 
         if not failures:
             print 'Downloaded %d package(s) successfully' % ( successes )
@@ -511,7 +517,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         dlhash = hasher.hexdigest().lower()
         pkghash = pkghash.lower()
 
-        return True
+        return (dlhash == pkghash)
 
     def _urlbasename(self, url):
         """Split URL into base filename, and suffix-free filename"""
@@ -737,18 +743,17 @@ class GarbageCollector:
                 continue
 
             for subdir in dirnames:
-                self._directories.append(os.path.join(dirpath, subdir))
+                self._directories.append(self._canonPath(dirpath, subdir))
             for fname in filenames:
-                fullname = os.path.normpath(os.path.join(dirpath, fname))
+                fullname = self._canonPath(dirpath, fname)
                 self._files.append(fullname)
                 if os.path.islink(fullname):
                     self._suspicious = True
 
-
     def RescueFile(self, filename):
         """Signal that file is to be removed from deletions list"""
 
-        filename = os.path.normpath(filename)
+        filename = self._canonPath(filename)
         dirname, basename = os.path.split(filename)
         try:
             self._files.remove(filename)
@@ -758,7 +763,7 @@ class GarbageCollector:
         dirsegs = dirname.split(os.sep)
         maxdepth = len(dirsegs)
         for depth in range(maxdepth, 0, -1):
-            pardir = os.sep.join(dirsegs[0:depth])
+            pardir = self._canonPath(os.sep.join(dirsegs[0:depth]))
             try:
                 self._directories.remove(pardir)
             except:
@@ -836,6 +841,10 @@ class GarbageCollector:
 
     def _calcDepth(self, dirname):
         return len(dirname.split(os.sep))
+
+    def _canonPath(self, path, *suffixes):
+        # Create canonical form of filename/dirname from path components
+        return os.path.normpath(os.path.join(path, *suffixes))
 
 
 class GarbageConfirmer(object):
