@@ -105,6 +105,36 @@ automatically try to download the latest list of mirrors to construct
 the 'Mirror list' menu, which may take a few seconds when the GUI first starts.
 
 
+Updating package sets
+=====================
+
+After initially downloading a set of Cygwin packages using pmcyg, it is often
+useful to be able to perform updates without having to download all packages.
+pmcyg will automatically check whether the current version of each
+user-selected package is present, and only download files from the mirror site
+if they are not up to date.
+
+It is also possible to arrange for pmcyg to delete old versions of packages
+that are no longer needed. By default, pmcyg will simply leave older packages
+in the local mirror directory tree. This is expected to have little adverse
+effect apart from consuming unnecessary storage space.
+
+By using the '--remove-outdated' command-line option (or the corresponding
+GUI option), you can arrange for superseded versions of packages to be deleted.
+Setting this flag to 'yes' will remove all files in the local mirror that
+are not needed for the current package list. Safer is to set the flag to 'ask'
+which will display a list of files that are to be deleted, and ask for
+confirmation before deletion.
+
+To reduce the risk of setting 'remove-outdated' to 'yes' and deleting valuable
+files that have mistakenly been placed in the local mirror directory,
+pmcyg uses some very simple tests to try to identify when automatic deletion
+would be dangerous. In these circumstances it will behave as though the user
+had selected the 'ask' setting. Naturally, these tests offer no guarantees
+that important files will not be deleted, so setting 'remove-outdated' to 'yes'
+is to be used with caution.
+
+
 Please note
 ===========
     "Cygwin" is a trademark of Red Hat Inc.

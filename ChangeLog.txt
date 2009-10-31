@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+31Oct09 **** pmcyg-0.2.1 released ****
+
+31Oct09
+    Patched path-normalization bug in GUI package-list selection
+    Added patch for tkFileDialog bug in MSW version of Python-2.6.1-2.6.4
+
 27Oct09
     Improved hash checking on pre-existing package files
     Improved consistency of checking of directory prefixes in GarbageCollector

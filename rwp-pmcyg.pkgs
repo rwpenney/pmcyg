@@ -20,6 +20,7 @@ hdf5                      	# HDF5 Hierarchical Data Format
 p7zip                     	# A file archiver with very high compression ratios.
 sharutils                 	# The GNU shar utilities including uuencode/uudecode.
 unzip                     	# Info-ZIP decompression utility
+xz                        	# XZ and LZMA compression (utilities)
 zip                       	# Info-ZIP compression utility
 zoo                       	# Manipulate zoo archives
 
@@ -32,6 +33,7 @@ cdda2wav                  	# Extract audio CD data (symlink to icedax)
 flac                      	# Free Lossless Audio Codec
 flac-devel                	# Free Lossless Audio Codec (Development)
 libaudiofile-devel        	# Digital audio file library (development)
+libogg                    	# Ogg Bitstream Library
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 speex                     	# An open-source, patent-free speech codec
 speex-devel               	# An open-source, patent-free speech codec (Development)
@@ -174,10 +176,11 @@ libmng-devel              	# A library of functions for manipulating MNG format 
 libncurses-devel          	# (devel) libraries for terminal handling
 libpng12-devel            	# PNG library (development)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
+libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
 libxml2-devel             	# XML C parser and toolkit (development)
 make                      	# The GNU version of the 'make' utility
 makedepend                	# Xorg Makefile dependency tool
-mercurial                 	# Fast, lightweight distributed source control management system
+mercurial                 	# Python based distributed version control system (DVCS)
 mingw-runtime             	# MinGW Runtime
 mlcscope                  	# Lucent version of cscope for multiple languages (mlcscope)
 monotone                  	# Free distributed version control system
@@ -240,6 +243,8 @@ qt3-doc                   	# C++ GUI application framework (API documentation)
 tetex-doc                 	# The TeX text formatting system (documentation).
 texinfo                   	# Documentation system for on-line information and printed output
 tiff-doc                  	# TIFF image library (API documentation)
+xerces-c                  	# A validating XML parser written in a portable subset of C++
+xerces-c-doc              	# (doc) A validating XML parser written in a portable subset of C++
 xmlto                     	# XML-to-any converter - a front-end to the DocBook XML toolchain
 xorg-docs                 	# Xorg documentation
 xpdf                      	# An open source viewer for Portable Document Format (PDF) files
@@ -300,6 +305,7 @@ python-libxslt            	# The GNOME XSLT C library (Python bindings)
 ##
 GraphicsMagick            	# GraphicsMagick
 ImageMagick               	# Image manipulation software suite (utilities)
+autotrace                 	# A program for converting bitmap to vector graphics
 epstool                   	# Edit preview images and fix bounding boxes in EPS files
 freeglut                  	# Open Source GLUT implementation 
 ghostscript               	# An interpreter for the PostScript language and for PDF
@@ -411,6 +417,8 @@ libpthread-stubs          	# Pthread stubs pkg-config metadata
 libreadline5              	# GNU readline and history libraries (runtime)
 libreadline6              	# GNU readline and history libraries (runtime)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
+libxerces-c28             	# (runtime) A validating XML parser written in a portable subset of C++
+libxerces-c30             	# (runtime) A validating XML parser written in a portable subset of C++
 libxml-devel              	# GNOME 1.4 XML C parser and toolkit (development)
 libxslt                   	# The GNOME XSLT C library (runtime)
 libxslt-devel             	# The GNOME XSLT C library (development)
@@ -469,6 +477,8 @@ xmh                       	# X.Org frontend to MH mail handler
 ## Math
 ##
 bc                        	# The GNU numeric processing language and reverse polish calculator
+fftw3                     	# Discrete Fourier transform library
+fftw3-doc                 	# Pdf and html documentation for using the fftw3 libraries
 gnuplot                   	# A command-line driven interactive function plotting utility.
 lapack                    	# Comprehensive FORTRAN library for linear algebra operations.
 libfftw3-devel            	# Discrete Fourier transform library (development)
@@ -564,7 +574,6 @@ tetex-x11                 	# The TeX text formatting system (X11 binaries).
 ## Python
 ##
 bzr                       	# Python based distributed version control system
-mercurial                 	# Fast, lightweight distributed source control management system
 pygtk2                    	# Python bindings for GTK2 and libglade
 python                    	# An interactive object-oriented scripting language
 python-crypto             	# Cryptographic algorithms and protocols for Python
@@ -689,6 +698,7 @@ util-linux                	# Random collection of Linux utilities
 wdiff                     	# Compare two files word by word
 which                     	# Prints out full path of executables
 wodim                     	# Command line CD/DVD writing tool
+xdelta                    	# Computes changes between binary files.
 
 
 ##
@@ -701,6 +711,7 @@ apache2-manual            	# Apache HTTPD 2 (Manual)
 curl                      	# Command line tool for transferring files with HTTP, HTTPS, FTP, etc.
 curl-devel                	# Development support files for cURL/libcurl (headers, static libs, samples, and docs)
 links                     	# Text mode WWW browser
+lynx                      	# Text-mode WWW Browser
 squid                     	# Web Proxy Cache
 subversion-apache2        	# A version control system (Apache 2 modules)
 w3m                       	# A text based Web browser and pager

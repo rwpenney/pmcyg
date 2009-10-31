@@ -33,6 +33,12 @@ except:
 PMCYG_VERSION = '0.2.1'
 
 
+broken_openfilenames = False
+if sys.platform.startswith('win') and sys.version.startswith('2.6.'):
+    # Selecting multiple filenames is broken in Windows version of Python-2.6:
+    broken_openfilenames = True
+
+
 class PMCygException(Exception):
     """Wrapper for internally generated exceptions"""
 
@@ -450,6 +456,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         self._buildSetupFiles(packages)
 
         successes = 0
+        newpkgs = 0
         failures = 0
         for (pkgfile, pkgsize, pkghash) in downloads:
             if self._cancelling:
@@ -480,6 +487,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     if dlsize != pkgsize:
                         raise IOError, 'Mismatched package size (deficit=%s)' \
                                         % ( self._prettyfsize(pkgsize - dlsize) )
+                    newpkgs += 1
                     succ_msg = 'done'
 
                 if not self._hashCheck(tgtpath, pkghash):
@@ -493,9 +501,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 failures += 1
 
         if not failures:
-            print 'Downloaded %d package(s) successfully' % ( successes )
+            print '%d package(s) mirrored, %d new' % ( successes, newpkgs )
         else:
-            print '%d/%d packages failed to download' % ( failures, (failures + successes) )
+            print '%d/%d package(s) failed to download' % ( failures, (failures + successes) )
 
 
     def _hashCheck(self, tgtpath, pkghash):
@@ -1103,9 +1111,17 @@ This is free software, and you are welcome to redistribute it under the terms of
 
     def pkgsSelect(self):
         """Callback for selecting set of user-supplied listing of packages"""
-        pkgfiles = tkFileDialog.askopenfilenames(title='pmcyg user-package lists')
+        opendlg = tkFileDialog.askopenfilenames
+        if broken_openfilenames:
+            def opendlg(*args, **kwargs):
+                filename = tkFileDialog.askopenfilename(*args, **kwargs)
+                if filename: return (filename, )
+                else: return None
+
+        pkgfiles = opendlg(title='pmcyg user-package lists')
+
         if pkgfiles:
-            self.pkgfiles = os.path.normpath(pkgfiles)
+            self.pkgfiles = [ os.path.normpath(pf) for pf in pkgfiles ]
             self.pkgs_entry.config(state=Tk.NORMAL)
             self.pkgs_entry.delete(0, Tk.END)
             self.pkgs_entry.insert(0, '; '.join(self.pkgfiles))
