@@ -1,6 +1,15 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+31Dec09 **** pmcyg-0.3 released ****
+
+29Dec09
+    Patched parser to handle new 'message:' tag in setup.ini files of cygwin-1.7
+    Slightly improved trapping of parser errors
+
+01Nov09
+    Added facility for clearing GUI history window
+
 31Oct09 **** pmcyg-0.2.1 released ****
 
 31Oct09

@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, October 2009
+                        RW Penney, December 2009
 
 
 Introduction

@@ -39,17 +39,18 @@ speex                     	# An open-source, patent-free speech codec
 speex-devel               	# An open-source, patent-free speech codec (Development)
 vorbis-tools              	# Several Ogg Vorbis Tools
 
-
 ##
 ## Base
 ##
 alternatives              	# A tool for managing package conflicts
+base-cygwin               	# Upgrade helper scripts from 1.5.x to 1.7.x
 base-files                	# A set of important system configuration and setup files
 base-passwd               	# A script to set up initial passwords and groups
 bash                      	# The GNU Bourne Again SHell
 coreutils                 	# GNU core utilities (includes fileutils, sh-utils and textutils)
 cygwin                    	# The UNIX emulation engine
 cygwin-doc                	# Cygwin-specific documentation, including man pages and User's Guide
+dash                      	# Dash shell
 editrights                	# Alter Windows user rights and privileges from command line
 findutils                 	# Utilities for finding files--find, xargs, locate, updatedb
 gawk                      	# GNU awk, a pattern scanning and processing language
@@ -283,6 +284,7 @@ sudoku                    	# Console based sudoku
 glib2                     	# GNOME C function library (runtime)
 glib2-devel               	# GNOME C function library (development)
 glib2-doc                 	# GNOME C function library (API documentation)
+gnome-keyring             	# GNOME Desktop password management system (daemon and client)
 gtk-engines               	# Theme engines for GTK+ 1.2
 gtk2-x11-engines          	# Ten theme engines for GTK+-2.6
 gvim                      	# GTK interface to the Vim text editor
@@ -295,9 +297,12 @@ libxml2-doc               	# XML C parser and toolkit (documentation)
 libxslt                   	# The GNOME XSLT C library (runtime)
 libxslt-devel             	# The GNOME XSLT C library (development)
 libxslt-doc               	# The GNOME XSLT C library (documentation)
-pygtk2                    	# Python bindings for GTK2 and libglade
+python-gtk2.0             	# Python bindings for GTK2 and libglade (runtime)
+python-gtk2.0-demo        	# Python bindings for GTK2 and libglade (demo app)
+python-gtk2.0-devel       	# Python bindings for GTK2 and libglade (development)
 python-libxml2            	# XML C parser and toolkit (Python bindings)
 python-libxslt            	# The GNOME XSLT C library (Python bindings)
+python-pygtk              	# PyGTK runtime version selector
 
 
 ##
@@ -380,6 +385,8 @@ boost                     	# Portable C++ libraries useful across a broad spectr
 boost-devel               	# Portable C++ libraries useful across a broad spectrum of applications.
 cppunit                   	# A C++ unit testing framework. It started its life as a port of JUnit to C++ by Michael Feathers.
 expat                     	# Expat XML parser library (xmlwf, docs)
+fftw3                     	# Discrete Fourier transform library
+fftw3-doc                 	# Pdf and html documentation for using the fftw3 libraries
 flac-devel                	# Free Lossless Audio Codec (Development)
 freeglut                  	# Open Source GLUT implementation 
 gettext                   	# GNU Internationalization library and core utilities (PLUS LINK LIBS)

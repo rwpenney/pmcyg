@@ -16,6 +16,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+PMCYG_VERSION = '0.3'
+
+
 import  bz2, optparse, os, os.path, re, string, \
         StringIO, sys, threading, time, urllib, urlparse
 try: set
@@ -23,20 +27,18 @@ except NameError: from sets import Set as set, ImmutableSet as frozenset
 try: import hashlib; md5hasher = hashlib.md5
 except ImportError: import md5; md5hasher = md5.new
 try:
-    import Tkinter as Tk;
-    import Queue, ScrolledText, tkFileDialog;
+    import Tkinter as Tk
+    import Queue, ScrolledText, tkFileDialog
     HASGUI = True
 except:
     HASGUI = False
-
-
-PMCYG_VERSION = '0.2.1'
 
 
 broken_openfilenames = False
 if sys.platform.startswith('win') and sys.version.startswith('2.6.'):
     # Selecting multiple filenames is broken in Windows version of Python-2.6:
     broken_openfilenames = True
+
 
 
 class PMCygException(Exception):
@@ -298,7 +300,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         if badpkgnames:
             badpkgnames.sort()
             raise PMCygException, \
-                "The following package names where not recognized:\n\t%s\n" \
+                "The following package names were not recognized:\n\t%s\n" \
                 % ( '\n\t'.join(badpkgnames) )
 
         packages = list(packages)
@@ -441,7 +443,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
 
     def _doDummyDownloading(self, downloads):
-        """Rehearsal downloading of files from Cygwin mirror"""
+        """Rehearse downloading of files from Cygwin mirror"""
 
         for (pkgfile, pkgsize, pkghash) in downloads:
             print '  %s (%s)' % ( os.path.basename(pkgfile),
@@ -644,7 +646,7 @@ class MasterPackageList:
             if self._inquote and self._fieldname:
                 self._ingestQuotedLine(line)
             else:
-                self._ingestOrdinaryLine(line)
+                self._ingestOrdinaryLine(line, lineno=lineno)
 
             if self._pkgname:
                 self._pkgtxt.append(line)
@@ -662,8 +664,8 @@ class MasterPackageList:
         else:
             self._fieldlines.append(trimmed)
 
-    def _ingestOrdinaryLine(self, line):
-        # Classify current line as package definition/field etc:
+    def _ingestOrdinaryLine(self, line, lineno=None):
+        """Classify current line as package definition/field etc"""
         matches = None
         for regexp in self.all_regexps:
             matches = regexp.match(line)
@@ -686,6 +688,24 @@ class MasterPackageList:
         elif regexp == self.re_field:
             self._fieldname = matches.group(1) + '_' + self._epoch
             self._fieldtext = matches.group(2)
+            quotepos = matches.group(2).find('"')
+            if quotepos < 0:
+                # Field value appears without quotation marks on single line:
+                self._pkgdict[self._fieldname] = self._fieldtext
+            if quotepos >= 0:
+                if quotepos > 0:
+                    # Field value contains additional metadata prefix:
+                    prefix = self._fieldtext[0:quotepos].strip()
+                    self._fieldname += '_' + prefix
+                    self._fieldtext = self._fieldtext[(quotepos+1):]
+                if self._fieldtext[1:].endswith('"'):
+                    # Quoted string starts and ends on current line:
+                    self._pkgdict[self._fieldname] = self._fieldtext[1:-1]
+                else:
+                    # Quoted string starts on current line, presumably ending later:
+                    self._fieldlines = [ self._fieldtext[1:] ]
+                    self._inquote = True
+
             if self._fieldtext.startswith('"'):
                 if self._fieldtext[1:].endswith('"'):
                     self._pkgdict[self._fieldname] = self._fieldtext[1:-1]
@@ -990,6 +1010,7 @@ class TKgui(object):
 
         # 'File' menu:
         filemenu = Tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label='Clear history', command=self.clearHist)
         filemenu.add_command(label='Make template', command=self.mkTemplate)
         filemenu.add_separator()
         filemenu.add_command(label='Quit', command=rootwin.quit)
@@ -1063,6 +1084,12 @@ class TKgui(object):
         idx += 2
 
         return parampanel
+
+    def clearHist(self):
+        """Clear history window"""
+        self.status_txt.config(state=Tk.NORMAL)
+        self.status_txt.delete('1.0', Tk.END)
+        self.status_txt.config(state=Tk.DISABLED)
 
     def mkTemplate(self):
         """GUI callback for creating template package-list file"""
