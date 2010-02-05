@@ -35,8 +35,6 @@ flac-devel                	# Free Lossless Audio Codec (Development)
 libaudiofile-devel        	# Digital audio file library (development)
 libogg                    	# Ogg Bitstream Library
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
-speex                     	# An open-source, patent-free speech codec
-speex-devel               	# An open-source, patent-free speech codec (Development)
 vorbis-tools              	# Several Ogg Vorbis Tools
 
 ##
@@ -118,7 +116,6 @@ gcc-core                  	# C compiler
 gcc-g++                   	# C++ compiler
 gcc-g77                   	# Fortran compiler
 gcc-gdc                   	# D compiler
-gcc-gm2                   	# GNU Modula 2 compiler
 gcc-gpc                   	# GNU Pascal compiler
 gcc-java                  	# Java compiler
 gcc-mingw                 	# Mingw32 GCC compiler upgrade helper
@@ -131,10 +128,6 @@ gcc-mingw-gpc             	# Mingw32 support headers and libraries for GCC Pasca
 gcc-mingw-java            	# Mingw32 support headers and libraries for GCC Java
 gcc-mingw-objc            	# Mingw32 support headers and libraries for GCC ObjC
 gcc-objc                  	# ObjC compiler
-gcc-testsuite             	# GCC testsuite sources
-gcc-tools                 	# (gcc-special) a tool for generating GNU-compliant Makefiles
-gcc-tools-autoconf        	# (gcc-special) automatic configure script builder
-gcc-tools-automake        	# (gcc-special) a tool for generating GNU-compliant Makefiles
 gcc4                      	# GCC Release series 4 compiler (C & C++ install helper)
 gcc4-ada                  	# Ada (GNAT) subpackage
 gcc4-core                 	# Core C compiler subpackage
@@ -206,7 +199,6 @@ qt3-devel                 	# C++ GUI application framework (qmake/moc/uic, heade
 rcs                       	# The Revision Control System
 readline                  	# GNU readline and history libraries
 ruby                      	# Interpreted object-oriented scripting language
-speex-devel               	# An open-source, patent-free speech codec (Development)
 splint                    	# Check C programs for security vulnerabilities and programming mistakes.
 stgit                     	# Quilt functionality on top of git
 subversion                	# A version control system
@@ -237,7 +229,6 @@ libxslt-doc               	# The GNOME XSLT C library (documentation)
 man                       	# Man, apropos and whatis
 netpbm-doc                	# Toolkit for manipulation of graphic images (HTML and manpage docs)
 pango-doc                 	# Documentation and manpages for Pango
-pcre-doc                  	# Perl-Compatible Regular Expressions (API documentation)
 perl_manpages             	# Perl manpages
 plotutils-doc             	# Documentation for GNU libplot
 qt3-doc                   	# C++ GUI application framework (API documentation)
@@ -291,7 +282,6 @@ gvim                      	# GTK interface to the Vim text editor
 intltool                  	# GNOME source internalization scripts
 lablgtk2                  	# OCaml interface to GTK2
 libaudiofile-devel        	# Digital audio file library (development)
-libxml-devel              	# GNOME 1.4 XML C parser and toolkit (development)
 libxml2-devel             	# XML C parser and toolkit (development)
 libxml2-doc               	# XML C parser and toolkit (documentation)
 libxslt                   	# The GNOME XSLT C library (runtime)
@@ -409,7 +399,6 @@ jbigkit                   	# The JBIG lossless image compression library (utilit
 jpeg                      	# A library for manipulating JPEG image format files
 lcms                      	# Little color management engine - (utilities)
 libGraphicsMagick-devel   	# GraphicsMagick. (development)
-libGraphicsMagick0        	# GraphicsMagick. (runtime)
 libXaw3d-devel            	# A 3D version of the MIT Athena widget set for X - (development)
 libexpat1-devel           	# Expat XML parser library (development)
 libfftw3-devel            	# Discrete Fourier transform library (development)
@@ -426,7 +415,6 @@ libreadline6              	# GNU readline and history libraries (runtime)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c28             	# (runtime) A validating XML parser written in a portable subset of C++
 libxerces-c30             	# (runtime) A validating XML parser written in a portable subset of C++
-libxml-devel              	# GNOME 1.4 XML C parser and toolkit (development)
 libxslt                   	# The GNOME XSLT C library (runtime)
 libxslt-devel             	# The GNOME XSLT C library (development)
 mingw-runtime             	# MinGW Runtime
@@ -448,7 +436,6 @@ python-lcms               	# Little color management engine - (Python bindings)
 python-libxslt            	# The GNOME XSLT C library (Python bindings)
 python-paramiko           	# SSH2 connection library for Python (library)
 readline                  	# GNU readline and history libraries
-speex-devel               	# An open-source, patent-free speech codec (Development)
 subversion-perl           	# A version control system (perl bindings)
 subversion-python         	# A version control system (python bindings)
 subversion-ruby           	# A version control system (ruby bindings)
@@ -786,7 +773,6 @@ qt3-bin                   	# C++ GUI application framework (Development tools)
 qt3-devel                 	# C++ GUI application framework (qmake/moc/uic, headers, import libraries)
 qt3-doc                   	# C++ GUI application framework (API documentation)
 setxkbmap                 	# Xorg keyboard settings utility
-startup-notification      	# Program startup notification library (sources)
 sxpm                      	# X.Org X Pixmap utilities
 twm                       	# X.Org Tiny Window Manager
 xcalc                     	# X.Org calculator
@@ -843,4 +829,4 @@ xwinwm                    	# Window manager for experimental WindowsWM multi-win
 ##
 ## _obsolete
 ##
-pkgconfig                 	# Compatibility package to force removal of files from a renamed package.
+# nothing

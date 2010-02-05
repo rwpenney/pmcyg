@@ -18,6 +18,9 @@ from a user-selected Cygwin mirror site.  It will then assemble a set of
 configuration files that allows the Cygwin installer to operate from
 the locally created repository.
 
+For updated versions of the pmcyg package, please see
+http://www.sourceforge.net/projects/pmcyg
+
 
 Licensing
 =========

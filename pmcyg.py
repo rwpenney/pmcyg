@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.3'
+PMCYG_VERSION = '0.3.1'
 
 
 import  bz2, optparse, os, os.path, re, string, \
