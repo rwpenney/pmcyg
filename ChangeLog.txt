@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009, RW Penney
 
+20Mar10
+    Improved removal of directories when updating downloaded packages
+
 31Dec09 **** pmcyg-0.3 released ****
 
 29Dec09

@@ -247,9 +247,6 @@ xpdf                      	# An open source viewer for Portable Document Format 
 ##
 bvi                       	# Binary vi-like editor
 ed                        	# The GNU version of the original UNIX line editor
-emacs                     	# The extensible, customizable, self-documenting real-time display editor.
-emacs-X11                 	# X11 binaries for Emacs.
-emacs-el                  	# LISP source code for Emacs (including LEIM).
 gvim                      	# GTK interface to the Vim text editor
 hexedit                   	# Hexadecimal file viewer and editor
 joe                       	# Fast and simple editor which emulates 5 other editors
@@ -265,7 +262,9 @@ xemacs-tags               	# Etags and ctags programs and man pages from the xem
 ##
 ## Games
 ##
+ctris                     	# Console mode tetris clone
 fortune                   	# Print a random, perhaps interesting, adage; may contain offsensive material
+ninvaders                 	# A space invaders-like game using ncurses
 sudoku                    	# Console based sudoku
 
 
@@ -298,7 +297,7 @@ python-pygtk              	# PyGTK runtime version selector
 ##
 ## Graphics
 ##
-GraphicsMagick            	# GraphicsMagick
+GraphicsMagick            	# GraphicsMagick is the swiss army knife of image processing
 ImageMagick               	# Image manipulation software suite (utilities)
 autotrace                 	# A program for converting bitmap to vector graphics
 epstool                   	# Edit preview images and fix bounding boxes in EPS files
@@ -344,9 +343,6 @@ xfig-lib                  	# An interactive drawing tool - (grahpic symbols libr
 ##
 ## Interpreters
 ##
-emacs                     	# The extensible, customizable, self-documenting real-time display editor.
-emacs-X11                 	# X11 binaries for Emacs.
-emacs-el                  	# LISP source code for Emacs (including LEIM).
 expect                    	# A program that 'talks' to other programs
 gawk                      	# GNU awk, a pattern scanning and processing language
 guile                     	# The GNU extension language and Scheme interpreter - executables
@@ -476,6 +472,7 @@ fftw3-doc                 	# Pdf and html documentation for using the fftw3 libr
 gnuplot                   	# A command-line driven interactive function plotting utility.
 lapack                    	# Comprehensive FORTRAN library for linear algebra operations.
 libfftw3-devel            	# Discrete Fourier transform library (development)
+liblapack-devel           	# Development libs for LAPACK.
 mpfr                      	# A library for multiple-precision floating-point arithmetic with exact rounding
 octave                    	# The GNU Octave language for numerical computations
 octave-devel              	# Header files for the GNU Octave language
@@ -555,6 +552,7 @@ perl_manpages             	# Perl manpages
 ## Publishing
 ##
 jgraph                    	# A Filter for Plotting Graphs in Postscript
+pdftk                     	# PDF manipulation without Acrobat.
 psutils                   	# Postscript Utilities
 tetex                     	# The TeX text formatting system (install helper).
 tetex-base                	# The TeX text formatting system (basic libraries).

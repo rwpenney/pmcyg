@@ -740,6 +740,7 @@ class MasterPackageList:
 class GarbageCollector:
     def __init__(self, topdir=None):
         self._topdir = None
+        self._topdepth = 0
         self._suspicious = True
 
         self._susDirnames = [ 'bin', 'sbin', 'home',
@@ -761,13 +762,13 @@ class GarbageCollector:
             return
 
         topdir = os.path.normpath(topdir)
-        topdepth = self._calcDepth(topdir)
+        self._topdepth = self._calcDepth(topdir)
 
         for dirpath, dirnames, filenames in os.walk(topdir, topdown=False):
             self._suspicious |= self._checkNodeSuspiciousness(dirnames, filenames)
 
             dirdepth = self._calcDepth(dirpath)
-            if (dirdepth - topdepth) < mindepth:
+            if (dirdepth - self._topdepth) < mindepth:
                 continue
 
             for subdir in dirnames:
@@ -779,7 +780,7 @@ class GarbageCollector:
                     self._suspicious = True
 
     def RescueFile(self, filename):
-        """Signal that file is to be removed from deletions list"""
+        """Signal that file should not be included in deletions list"""
 
         filename = self._canonPath(filename)
         dirname, basename = os.path.split(filename)
@@ -790,12 +791,13 @@ class GarbageCollector:
 
         dirsegs = dirname.split(os.sep)
         maxdepth = len(dirsegs)
-        for depth in range(maxdepth, 0, -1):
+        mindepth = max((self._topdepth - 1), 0)
+        for depth in range(maxdepth, mindepth, -1):
             pardir = self._canonPath(os.sep.join(dirsegs[0:depth]))
             try:
                 self._directories.remove(pardir)
             except:
-                break
+                pass
 
     def GetNfiles(self):
         return len(self._files)
@@ -871,7 +873,7 @@ class GarbageCollector:
         return len(dirname.split(os.sep))
 
     def _canonPath(self, path, *suffixes):
-        # Create canonical form of filename/dirname from path components
+        """Create canonical form of filename/dirname from path components"""
         return os.path.normpath(os.path.join(path, *suffixes))
 
 
