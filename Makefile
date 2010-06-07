@@ -1,7 +1,7 @@
 # Makefile for packaging 'pmcyg'
 # RW Penney, April 2009
 
-PREFIX=/usr/local
+PREFIX = /usr/local
 PKGNAME = pmcyg
 PYTHON = python
 VERSION = $(shell ${PYTHON} -c 'import pmcyg; print pmcyg.PMCYG_VERSION')

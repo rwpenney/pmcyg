@@ -71,9 +71,9 @@ class testMasterPackageList(unittest.TestCase):
 
         self.failUnless(scores['sdesc_curr'] == numpkgs)
         self.failUnless(scores['category_curr'] == numpkgs)
-        self.failUnless(scores['version_curr'] >= 0.9 * numpkgs)
-        self.failUnless(scores['install_curr'] >= 0.9 * numpkgs)
-        self.failUnless(scores['source_curr'] >= 0.8 * numpkgs)
+        self.failUnless(scores['version_curr'] >= 0.8 * numpkgs)
+        self.failUnless(scores['install_curr'] >= 0.8 * numpkgs)
+        self.failUnless(scores['source_curr'] >= 0.75 * numpkgs)
         self.failUnless(scores['install_prev'] >= 0.3 * numpkgs)
 
     def testLongDescriptions(self):

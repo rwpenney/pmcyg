@@ -1,5 +1,10 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
-## (C)Copyright 2009, RW Penney
+## (C)Copyright 2009-2010, RW Penney
+
+07Jun10 **** pmcyg-0.3.1 released ****
+
+07Jun10
+    Improved async mirror-menu generation in GUI to avoid thread conflicts
 
 20Mar10
     Improved removal of directories when updating downloaded packages

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-15
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2010, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ PMCYG_VERSION = '0.3.1'
 
 import  bz2, optparse, os, os.path, re, string, \
         StringIO, sys, threading, time, urllib, urlparse
+try: from urllib.request import urlopen as URLopen
+except ImportError: from urllib2 import urlopen as URLopen
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
 try: import hashlib; md5hasher = hashlib.md5
@@ -147,7 +149,7 @@ class PMbuilder(object):
         self._mirrordict = {}
 
         try:
-            fp = urllib.urlopen(self._mirrorlisturl)
+            fp = URLopen(self._mirrorlisturl)
         except:
             print >>sys.stderr, 'Failed to read list of Cygwin mirrors from %s' % self._mirrorlisturl
             fp = self._makeFallbackMirrorList()
@@ -217,7 +219,7 @@ class PMbuilder(object):
 
         (header, pkgdict) = self._getPkgDict()
         catgroups = self._masterlist.GetCategories()
-        catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
+        catlist = [ c for c in catgroups.keys() if c != 'All' ]
         catlist.sort()
 
         dtable = string.maketrans('\n', ' ')
@@ -324,14 +326,14 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                         'tar', 'unzip', 'zip']
 
         if self._optiondict['AllPackages']:
-            userpkgs = [ pkg for pkg in pkgdict.iterkeys()
+            userpkgs = [ pkg for pkg in pkgdict.keys()
                                 if not pkg.startswith('_') ]
 
         pkgset.update(userpkgs)
 
         if self._optiondict['IncludeBase']:
             # Include all packages from 'Base' category:
-            for pkg, pkginfo in pkgdict.iteritems():
+            for pkg, pkginfo in pkgdict.items():
                 cats = pkginfo.get('category_curr', '').split()
                 if 'Base' in cats:
                     pkgset.add(pkg)
@@ -605,7 +607,7 @@ class MasterPackageList:
         allpkgs = []
         catlists = {}
 
-        for pkg, pkginfo in pkgdict.iteritems():
+        for pkg, pkginfo in pkgdict.items():
             allpkgs.append(pkg)
 
             cats = pkginfo.get('category_curr', '').split()
@@ -613,7 +615,7 @@ class MasterPackageList:
                 catlists.setdefault(ctg, []).append(pkg)
 
         catlists['All'] = allpkgs
-        for cats in catlists.itervalues():
+        for cats in catlists.values():
             cats.sort()
 
         return catlists
@@ -627,7 +629,7 @@ class MasterPackageList:
         self._ini_packages = {}
 
         try:
-            fp = urllib.urlopen(self._iniURL)
+            fp = URLopen(self._iniURL)
         except Exception, ex:
             raise PMCygException, "Failed to open %s\n - %s" % ( self._iniURL, str(ex) )
 
@@ -977,15 +979,18 @@ class TKgui(object):
         self._updateState(GUIconfigState(self))
 
     def Run(self):
+        self._renewMirrorMenu = False
         self.mirrorthread = GUImirrorthread(self)
         self.mirrorthread.setDaemon(True)
         self.mirrorthread.start()
 
         def tick():
             # Check if list of mirror sites is available yet:
-            if self.mirror_menu and not self.mirrorthread.isAlive():
+            if self._renewMirrorMenu and not self.mirrorthread.isAlive():
+                self.mirror_menu = self.mkMirrorMenu()
                 self.mirror_btn.config(menu=self.mirror_menu)
                 self.mirror_btn.config(state=Tk.NORMAL)
+                self._renewMirrorMenu = False
 
             try:
                 newstate = self._state.tick()
@@ -1122,7 +1127,7 @@ class TKgui(object):
 - a tool for creating Cygwin(TM) partial mirrors
 Version %s
 
-Copyright © 2009 RW Penney
+Copyright © 2009-2010 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
@@ -1169,12 +1174,12 @@ This is free software, and you are welcome to redistribute it under the terms of
         mirrordict = self.builder.ReadMirrorList()
         menu = Tk.Menu(self.mirror_btn, tearoff=0)
 
-        regions = list(mirrordict.iterkeys())
+        regions = list(mirrordict.keys())
         regions.sort()
         for region in regions:
             regmenu = Tk.Menu(menu, tearoff=0)
 
-            countries = list(mirrordict[region].iterkeys())
+            countries = list(mirrordict[region].keys())
             countries.sort()
             for country in countries:
                 cntmenu = Tk.Menu(regmenu, tearoff=0)
@@ -1364,9 +1369,8 @@ class GUImirrorthread(threading.Thread):
         if self.parent.mirror_menu:
             return
 
-        menu = self.parent.mkMirrorMenu()
-        if menu:
-            self.parent.mirror_menu = menu
+        self.parent.builder.ReadMirrorList(reload=False)
+        self.parent._renewMirrorMenu = True
 
 
 
