@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009-2010, RW Penney
 
+09Jun10
+    Added facility to merge user's package list with template list generation
+
 07Jun10 **** pmcyg-0.3.1 released ****
 
 07Jun10

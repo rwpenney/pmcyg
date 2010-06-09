@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.3.1'
+PMCYG_VERSION = '0.4'
 
 
 import  bz2, optparse, os, os.path, re, string, \
@@ -214,7 +214,7 @@ class PMbuilder(object):
         self._cancelling = flag
 
 
-    def MakeTemplate(self, stream):
+    def MakeTemplate(self, stream, userpkgs=None):
         """Generate template package listing file"""
 
         (header, pkgdict) = self._getPkgDict()
@@ -234,7 +234,9 @@ class PMbuilder(object):
 
             for pkg in catgroups[cat]:
                 desc = descfix(pkgdict[pkg].get('sdesc_curr', ''))
-                print >>stream, '#%-24s  \t# %s' % ( pkg, desc )
+                prefix = '#'
+                if userpkgs and pkg in userpkgs: prefix=''
+                print >>stream, '%s%-24s  \t# %s' % ( prefix, pkg, desc )
 
 
     def _getPkgDict(self):
@@ -1102,15 +1104,20 @@ class TKgui(object):
         """GUI callback for creating template package-list file"""
         self._txFields()
 
-        tpltname = tkFileDialog.asksaveasfilename(title='Create pmcyg package-listing template')
+        tpltname = tkFileDialog.asksaveasfilename(title='Create pmcyg package-listing template', initialfile='pmcyg-template.pkgs')
+        if not tpltname: return
 
-        if tpltname:
-            try:
-                fp = open(tpltname, 'wt')
-                self.builder.MakeTemplate(fp)
-                fp.close()
-            except Exception, ex:
-                print >>sys.stderr, 'Failed to create "%s" - %s' % ( tpltname, str(ex) )
+        usrpkgs = None
+        try:
+            usrpkgs = self.builder.ReadPackageLists(self.pkgfiles)
+        except:
+            pass
+        try:
+            fp = open(tpltname, 'wt')
+            self.builder.MakeTemplate(fp, usrpkgs)
+            fp.close()
+        except Exception, ex:
+            print >>sys.stderr, 'Failed to create "%s" - %s' % ( tpltname, str(ex) )
 
     def mkAbout(self):
         try:
