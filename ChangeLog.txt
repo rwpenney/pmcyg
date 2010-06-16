@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009-2010, RW Penney
 
+15Jun10
+    Patched various url & file operations to prepare for Python-3.x
+
+12Jun10
+    Converted package list generation within GUI into background thread
+
 09Jun10
     Added facility to merge user's package list with template list generation
 

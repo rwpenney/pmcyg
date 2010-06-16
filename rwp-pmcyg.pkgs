@@ -215,6 +215,7 @@ libxslt                   	# The GNOME XSLT C library (runtime)
 libxslt-doc               	# The GNOME XSLT C library (documentation)
 man                       	# Man, apropos and whatis
 perl_manpages             	# Perl manpages
+ploticus-doc              	# Command-line plot and graph generator (HTML documentation)
 python-doc                	# Python HTML documentation
 tetex-doc                 	# The TeX text formatting system (documentation).
 texinfo                   	# Documentation system for on-line information and printed output
@@ -255,10 +256,9 @@ sudoku                    	# Console based sudoku
 ##
 ## Gnome
 ##
-glib2.0                   	# GNOME C function library (sources)
+audiofile                 	# Digital audio file library (utilities)
 gnome-keyring             	# GNOME Desktop password management system (daemon and client)
 gtk-engines               	# Theme engines for GTK+ 1.2
-gtk2.0                    	# Multi-platform GUI toolkit (sources)
 gtk2.0-demo               	# Multi-platform GUI toolkit (demo)
 gtk2.0-engines            	# Standard theme engines for gtk+-2.x
 gtk2.0-engines-pixmap     	# Multi-platform GUI toolkit (Pixmap theme engine)
@@ -304,7 +304,6 @@ jgraph                    	# A Filter for Plotting Graphs in Postscript
 jpeg                      	# A library for manipulating JPEG image format files
 lcms                      	# Little color management engine - (utilities)
 libGraphicsMagick-devel   	# GraphicsMagick library (runtime)
-libImageMagick1           	# Image manipulation software suite (runtime)
 libImlib-devel            	# Graphics rendering library (development)
 libMagick-devel           	# Image manipulation software suite (development)
 libglut-devel             	# Open Source GLUT implementation - (development)
@@ -316,6 +315,7 @@ netpbm                    	# Toolkit for manipulation of graphic images
 opengl                    	# OpenGL-related libraries
 perl-Graphics-Magick      	# GraphicsMagick Perl bind (PerlMagick)
 perl-Image-Magick         	# Image manipulation software suite (Perl bindings)
+ploticus                  	# Command-line plot and graph generator
 plotutils                 	# 2-D scientific data plotting utilities
 python-lcms               	# Little color management engine - (Python bindings)
 sxpm                      	# X.Org X Pixmap utilities
@@ -337,7 +337,7 @@ libxslt                   	# The GNOME XSLT C library (runtime)
 m4                        	# GNU implementation of the traditional Unix macro processor.
 ocaml                     	# The Objective Caml compiler and runtime
 perl                      	# Larry Wall's Practical Extracting and Report Language
-python                    	# An interactive object-oriented scripting language
+python                    	# Python language interpreter
 ruby                      	# Interpreted object-oriented scripting language
 xemacs                    	# A powerful, highly customizable open source text editor and application development system
 
@@ -362,7 +362,6 @@ fftw3-doc                 	# Pdf and html documentation for using the fftw3 libr
 flac-devel                	# Free Lossless Audio Codec (Development)
 freeglut                  	# Open Source GLUT implementation 
 gettext                   	# GNU Internationalization library and core utilities (PLUS LINK LIBS)
-glib2.0                   	# GNOME C function library (sources)
 gmp                       	# GMP is a free library for arbitrary precision arithmetic
 gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
 gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
@@ -376,11 +375,9 @@ jasper                    	# JPEG 2000 library - (utilities)
 jbigkit                   	# The JBIG lossless image compression library (utilities)
 jpeg                      	# A library for manipulating JPEG image format files
 lcms                      	# Little color management engine - (utilities)
-libGraphicsMagick0        	# GraphicsMagick. (runtime)
-libMagick6                	# ImageMagick. (runtime)
 libXaw3d-devel            	# A 3D version of the MIT Athena widget set for X - (development)
-libapr1                   	# Apache Portable Runtime core library (runtime)
 libapr1-devel             	# Apache Portable Runtime core library (Development)
+libaprutil1-devel         	# Apache Portable Runtime utility library (development)
 libboost                  	# Portable C++ libraries useful across a broad spectrum of applications.
 libexpat1-devel           	# Expat XML parser library (development)
 libfftw3-devel            	# Discrete Fourier transform library (development)
@@ -398,6 +395,7 @@ libpng12-devel            	# PNG library (development)
 libpthread-stubs          	# Pthread stubs pkg-config metadata
 libreadline5              	# GNU readline and history libraries (runtime)
 libreadline6              	# GNU readline and history libraries (runtime)
+libreadline7              	# GNU readline and history libraries (runtime)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c28             	# (runtime) A validating XML parser written in a portable subset of C++
 libxerces-c30             	# (runtime) A validating XML parser written in a portable subset of C++
@@ -410,7 +408,6 @@ openldap                  	# Lightweight Directory Access Protocol suite
 openldap-devel            	# Lightweight Directory Access Protocol suite - (development)
 openssl                   	# The OpenSSL runtime environment
 openssl-devel             	# The OpenSSL development environment
-openssl097                	# The OpenSSL 0.9.7 runtime environment
 popt                      	# Library for parsing cmdline parameters - docs and development
 python-crypto             	# Cryptographic algorithms and protocols for Python
 python-feedparser         	# Universal Feed Parser for Python
@@ -506,7 +503,6 @@ openldap                  	# Lightweight Directory Access Protocol suite
 openldap-devel            	# Lightweight Directory Access Protocol suite - (development)
 openssh                   	# The OpenSSH server and client programs
 openssl                   	# The OpenSSL runtime environment
-openssl097                	# The OpenSSL 0.9.7 runtime environment
 ping                      	# A basic network tool to test IP network conectivity
 proftpd                   	# A flexible, stable and highly-configurable FTP Server
 pure-ftpd                 	# Secure production-quality standard-conformant FTP server
@@ -554,7 +550,9 @@ tetex-x11                 	# The TeX text formatting system (X11 binaries).
 ## Python
 ##
 bzr                       	# Python based distributed version control system
-python                    	# An interactive object-oriented scripting language
+idle                      	# Python Tkinter-based IDE
+mercurial                 	# Python based distributed version control system (DVCS)
+python                    	# Python language interpreter
 python-crypto             	# Cryptographic algorithms and protocols for Python
 python-feedparser         	# Universal Feed Parser for Python
 python-gamin              	# File and directory monitoring system (Python bindings)
@@ -701,7 +699,6 @@ xrx                       	# X.Org RX document helper app and plugins
 ## X11
 ##
 X-start-menu-icons        	# Start menu icons for Cygwin/X programs
-Xaw3d                     	# A 3D version of the MIT Athena widget set for X - (source)
 cygwin-x-doc              	# Cygwin/X-specific documentation
 ddd                       	# Ddd
 editres                   	# X.Org resource editor
@@ -723,7 +720,6 @@ fontconfig                	# Font configuration library (utilities)
 fvwm                      	# F Virtual Window Manager
 gccmakedep                	# Xorg preprocessor dependency maker
 gtk-engines               	# Theme engines for GTK+ 1.2
-gtk2.0                    	# Multi-platform GUI toolkit (sources)
 gtk2.0-demo               	# Multi-platform GUI toolkit (demo)
 gtk2.0-engines-pixmap     	# Multi-platform GUI toolkit (Pixmap theme engine)
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
