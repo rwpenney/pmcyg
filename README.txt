@@ -51,6 +51,10 @@ automatically if you execute 'make install'. Running pmcyg without any
 command-line options will automatically start the GUI if the 'Tkinter'
 package is available.
 
+If you want to use pmcyg with the 3.x series of Python, you can use the
+'pmcyg-2to3.py' executable in place of 'pmcyg.py', or use the standard
+'2to3' conversion program available with recent versions of Python.
+
 
 Usage
 =====

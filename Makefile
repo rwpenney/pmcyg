@@ -9,6 +9,7 @@ DISTFILES = pmcyg.py example.pkgs \
 	Authors.txt ChangeLog.txt LICENSE.txt \
 	Makefile README.txt ToDo.txt \
 	test/testPMCyg.py $(shell ls test/tree-*)
+PY3EXE = pmcyg-2to3.py
 
 FQNAME = ${PKGNAME}-${VERSION}
 
@@ -30,6 +31,9 @@ dist-zip:	dist-dir
 dist-dir:
 	test -d ${FQNAME} || mkdir ${FQNAME}
 	tar -cf - ${DISTFILES} | tar -C ${FQNAME}/ -xpf -
+	sed '1s,python\(2[.0-9]*\)\?\>,python3,' pmcyg.py > ${FQNAME}/${PY3EXE}
+	chmod +x ${FQNAME}/${PY3EXE}
+	(cd ${FQNAME}; 2to3 -w -n ${PY3EXE} > /dev/null || rm ${PY3EXE})
 
 .PHONY:	test
 test:

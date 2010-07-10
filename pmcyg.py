@@ -228,7 +228,7 @@ class PMbuilder(object):
             catgroups = self._masterlist.GetCategories()
         finally:
             self._listLock.release()
-        catlist = [ c for c in catgroups.keys() if c != 'All' ]
+        catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
         catlist.sort()
 
         def descfix(s):
@@ -342,14 +342,14 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                         'tar', 'unzip', 'zip']
 
         if self._optiondict['AllPackages']:
-            userpkgs = [ pkg for pkg in pkgdict.keys()
+            userpkgs = [ pkg for pkg in pkgdict.iterkeys()
                                 if not pkg.startswith('_') ]
 
         pkgset.update(userpkgs)
 
         if self._optiondict['IncludeBase']:
             # Include all packages from 'Base' category:
-            for pkg, pkginfo in pkgdict.items():
+            for pkg, pkginfo in pkgdict.iteritems():
                 cats = pkginfo.get('category_curr', '').split()
                 if 'Base' in cats:
                     pkgset.add(pkg)
@@ -624,7 +624,7 @@ class MasterPackageList:
         allpkgs = []
         catlists = {}
 
-        for pkg, pkginfo in pkgdict.items():
+        for pkg, pkginfo in pkgdict.iteritems():
             allpkgs.append(pkg)
 
             cats = pkginfo.get('category_curr', '').split()
@@ -632,7 +632,7 @@ class MasterPackageList:
                 catlists.setdefault(ctg, []).append(pkg)
 
         catlists['All'] = allpkgs
-        for cats in catlists.values():
+        for cats in catlists.itervalues():
             cats.sort()
 
         return catlists
@@ -1189,12 +1189,12 @@ This is free software, and you are welcome to redistribute it under the terms of
         mirrordict = self.builder.ReadMirrorList()
         menu = Tk.Menu(self.mirror_btn, tearoff=0)
 
-        regions = list(mirrordict.keys())
+        regions = list(mirrordict.iterkeys())
         regions.sort()
         for region in regions:
             regmenu = Tk.Menu(menu, tearoff=0)
 
-            countries = list(mirrordict[region].keys())
+            countries = list(mirrordict[region].iterkeys())
             countries.sort()
             for country in countries:
                 cntmenu = Tk.Menu(regmenu, tearoff=0)
@@ -1425,20 +1425,28 @@ class GUIgarbageConfirmer(GarbageConfirmer):
         topwin = Tk.Toplevel()
         topwin.title('pmcyg - confirm deletion')
         topwin.protocol('WM_DELETE_WINDOW', self._onExit)
+        topwin.grid_columnconfigure(0, weight=1)
+        row = 0
 
-        lbl = Tk.Label(topwin, text='The following packages are no longer needed and will be deleted:')
-        lbl.pack(expand=1, fill=Tk.X)
+        lbl = Tk.Label(topwin, text='The following packages are no longer needed\nand will be deleted:')
+        lbl.grid(row=row, column=0, sticky=Tk.N)
+        row += 1
 
         # Construct scrolled window containing list of files for deletion:
-        txt = ScrolledText.ScrolledText(topwin, height=16)
+        txt = ScrolledText.ScrolledText(topwin, height=16, width=60)
         for fl in allfiles:
             txt.insert(Tk.END, fl + '\n')
-        txt.pack(expand=1, fill=Tk.BOTH)
+        txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=2, pady=4)
+        topwin.grid_rowconfigure(row, weight=1)
+        row += 1
 
-        btn = Tk.Button(topwin, text='Cancel', command=self._onCancel)
+        btnfrm = Tk.Frame(topwin)
+        btn = Tk.Button(btnfrm, text='Cancel', command=self._onCancel)
         btn.pack(side=Tk.RIGHT)
-        btn = Tk.Button(topwin, text='Ok', command=self._onOk)
+        btn = Tk.Button(btnfrm, text='Ok', command=self._onOk)
         btn.pack(side=Tk.RIGHT)
+        btnfrm.grid(row=row, column=0, sticky=Tk.S+Tk.E)
+        row += 1
 
         return topwin
 
