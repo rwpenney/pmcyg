@@ -1,12 +1,14 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 <!--
   pmcyg.sourceforge.net project page; written 10th July 2010
+  MakefileUUID: @MAKEFILE_UUID@
   (C) Copyright 2010 RW Penney
 -->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>pmcyg.sourceforge.net</title>
 <style type="text/css">
   <!--
@@ -36,7 +38,7 @@
 
   div.banner {
     width: 60%;
-    background-color: #00ff00;
+    background-color: lime;
     color: black;
     border-width: 1px;
     border-style: solid;
@@ -53,7 +55,7 @@
   }
 
   div.left {
-    width: 80%;
+    width: 78%;
     float: left;
   }
 
@@ -67,7 +69,7 @@
     background-color: #e0f0e0;
     color: black;
     font-size: 80%;
-    font-style: fixed;
+    font-family: fixed;
     padding: 4px;
     margin-left: 5%;
     margin-right: 15%;
@@ -85,19 +87,27 @@
     color: #404040;
   }
 
+  img.logo {
+    float: right;
+    margin: 2px;
+  }
+
+  img.scrnshot {
+    float: right;
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
+
   -->
 </style>
 </head>
 
 <body>
 
-<a href="http://sourceforge.net/projects/pmcyg">
-  <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=154099&amp;type=12" border="2" align="right" width="120" height="30" alt="Get pmcyg at SourceForge.net. Fast, secure and Free Open Source software downloads" />
-</a>
-<h1>pmcyg - a tool for generating stand-alone Cygwin installers</h1>
-
 
 <div class="left">
+
+<h1>pmcyg - a tool for generating stand-alone Cygwin installers</h1>
 
 <div class="banner">Overview</div>
 
@@ -105,10 +115,13 @@
 pmcyg is a tool for creating customized sets of
 <a href="http://cygwin.com">Cygwin</a>(TM) packages,
 e.g. for building self-contained installer on a cdrom or dvd.
-It takes a user-supplied list of Cygwin package names,
+It takes a user-supplied list of
+Cygwin <a href="http://cygwin.com/packages">package names</a>,
 and downloads only those packages and their dependencies
-from a Cygwin mirror site, to create a partial mirror of the Cygwin release.
+from a Cygwin <a href="http://cygwin.com/mirrors.html">mirror site</a>,
+to create a partial mirror of the Cygwin release.
 This avoids having to download over 4GB of the official Cygwin release,
+e.g. using <a href="http://www.gnu.org/software/wget">wget</a>,
 and allows minimalistic installations that can be as small as 20MB.
 </p>
 
@@ -119,7 +132,7 @@ and allows minimalistic installations that can be as small as 20MB.
 To use pmcyg, you will need a recent version of
 <a href="http://www.python.org">Python</a> installed.
 This is available on most GNU/Linux distributions,
-as part of <a href="www.cygwin.org">Cygwin</a> itself, or as
+as part of <a href="http://www.cygwin.com">Cygwin</a> itself, or as
 a <a href="http://www.python.org/download">native Windows application</a>.
 pmcyg has been developed using Python 2.x,
 and tested on Python versions 2.3-2.7.
@@ -143,13 +156,16 @@ the Tkinter toolkit by default.
 <p>
 To build your self-contained Cygwin installer,
 pmcyg will help you through the following steps:
+</p>
 <ul>
   <li>Assembling a list of Cygwin packages you need</li>
   <li>Selecting a mirror site from which to download Cygwin packages</li>
   <li>Prompting pmcyg to download packages and their dependencies</li>
 </ul>
-Thereafter, you can use a standard CD- or DVD-burning application to create
+<p>
+Thereafter, you can use a standard CD or DVD-burning application to create
 an off-line installer, optionally with autorun capability.
+You can even use pmcyg to download directly onto a USB key.
 </p>
 
 <p>
@@ -157,11 +173,11 @@ The package list can be based on
 a <a href="pmcyg-template.txt">template</a>
 which pmcyg will generate,
 or might be as simple as:
+</p>
 <pre class="prog">
 # Base packages
-cygwin
+bash
 cygwin-doc
-grep
 
 # Development packages
 cppunit
@@ -175,7 +191,15 @@ ed
 emacs-X11
 nedit
 vim
+
+# X11 Window system
+xcalc
+xorg-server
+xterm
 </pre>
+<p>
+If you prefer, you can ask pmcyg to simply mirror the entire Cygwin tree,
+optionally including source packages.
 </p>
 
 <p>
@@ -183,6 +207,17 @@ When used with its graphical user interface,
 pmcyg will automatically try to find the latest official list of
 Cygwin mirrors sites, and present a sorted selection based on
 geographical region.
+</p>
+
+<p>
+pmcyg will check that the versions of packages in your local directory,
+and update those packages with newer versions if available from
+your selected download site.
+This allows you to maintain a current version of all
+your favourite Cygwin packages
+and the '<a href="http://cygwin.com/setup.exe">setup.exe</a>' installer,
+which you could keep on a USB flash disk,
+ready for use as an offline installer on any PC without direct internet access.
 </p>
 
 
@@ -200,22 +235,35 @@ and is also listed on
 
 <div class="banner">Feedback</div>
 
+<p>
 The author would welcome any <em>constructive</em> feedback on pmcyg.
 This can be sent to
 rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 .
+</p>
 
 </div>
 
 <div class="right">
-  <a href="pmcyg-tkgui.png">
-    <img src="pmcyg-tkgui.png" width="100%" height="100%"
-      align="right" vspace="16px"/>
+  <p><a href="http://sourceforge.net/projects/pmcyg">
+    <img class="logo" src="http://sflogo.sourceforge.net/sflogo.php?group_id=259884&amp;type=12" width="120" height="30" alt="Get pmcyg at SourceForge.net. Fast, secure and Free Open Source software downloads" />
+  </a></p>
+  <p><a href="http://validator.w3.org/check?uri=referer">
+    <img class="logo" src="http://www.w3.org/Icons/valid-xhtml10"
+          height="31px" width="88px" alt="Valid XHTML 1.0 Strict"/>
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img class="logo" src="http://jigsaw.w3.org/css-validator/images/vcss"
+          height="31px" width="88px" alt="Valid CSS!"/>
+  </a></p>
+  <p><a href="pmcyg-tkgui.png">
+    <img class="scrnshot" src="pmcyg-tkgui.png" width="100%" height="100%"
+      alt="pmcyg with Tkinter GUI"/>
   </a>
   <a href="pmcyg-win32.png">
-    <img src="pmcyg-win32.png" width="100%" height="100%"
-      align="right" vspace="16px"/>
-  </a>
+    <img class="scrnshot" src="pmcyg-win32.png" width="100%" height="100%"
+      alt="pmcyg running on WinXP"/>
+  </a></p>
 </div>
 
 
@@ -223,7 +271,7 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 
 <hr class="norm"/>
 
-<p class="lupdate"/>
+<p class="lupdate">
 Last updated @DATE@<br/>
 &copy; Copyright RW Penney, 2010
 </p>

@@ -1,9 +1,11 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009-2010, RW Penney
 
+16Jun10 **** pmcyg-0.4 released ****
+
 03Jul10
     Added python-3 version of executable from '2to3' script to release files
-    Neatened resizing behaviour of outdate-package deletion window
+    Neatened resizing behaviour of outdated-package deletion window
 
 15Jun10
     Patched various url & file operations to prepare for Python-3.x
