@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.4'
+PMCYG_VERSION = '0.5'
 
 
 import  bz2, optparse, os, os.path, re, string, \
@@ -33,6 +33,7 @@ try:
     import Queue, ScrolledText, tkFileDialog
     HASGUI = True
 except:
+    class Tk: Canvas = object
     HASGUI = False
 
 
@@ -85,6 +86,8 @@ class PMbuilder(object):
             'IncludeSources':   False,
             'RemoveOutdated':   'no'
         }
+
+        self._fetchStats = FetchStats()
 
     def GetTargetDir(self):
         return self._tgtdir
@@ -197,9 +200,11 @@ class PMbuilder(object):
         self._cancelling = False
 
         packages = self._resolveDependencies(userpackages)
-        (downloads, totsize) = self._buildFetchList(packages)
+        downloads = self._buildFetchList(packages)
 
-        print 'Download size: %s from %s' % ( self._prettyfsize(totsize), self._mirror)
+        self._fetchStats = FetchStats(downloads)
+        sizestr = self._prettyfsize(self._fetchStats.TotalSize())
+        print 'Download size: %s from %s' % ( sizestr, self._mirror)
 
         self._garbage.IndexCurrentFiles(self._tgtdir, mindepth=1)
 
@@ -368,7 +373,6 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                                         for sfx in self._epochs ]
 
         downloads = []
-        totsize = 0
 
         for pkg in packages:
             pkginfo = pkgdict[pkg]
@@ -380,11 +384,10 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     pkgsize = int(flds[1])
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
-                    totsize += pkgsize
                 except KeyError:
                     print >>sys.stderr, 'Cannot find package filename for %s in variant \'%s\'' % (pkg, vrt)
 
-        return downloads, totsize
+        return downloads
 
 
     def _buildSetupFiles(self, packages):
@@ -476,9 +479,6 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         self._buildSetupFiles(packages)
 
-        successes = 0
-        newpkgs = 0
-        failures = 0
         for (pkgfile, pkgsize, pkghash) in downloads:
             if self._cancelling:
                 print '** Downloading cancelled **'
@@ -501,6 +501,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 succ_msg = None
                 if os.path.isfile(tgtpath) and os.path.getsize(tgtpath) == pkgsize:
                     succ_msg = 'already present'
+                    self._fetchStats.AddAlready(pkgfile, pkgsize)
                 else:
                     dlsize = 0
                     urllib.urlretrieve(mirpath, tgtpath)
@@ -508,23 +509,23 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     if dlsize != pkgsize:
                         raise IOError, 'Mismatched package size (deficit=%s)' \
                                         % ( self._prettyfsize(pkgsize - dlsize) )
-                    newpkgs += 1
                     succ_msg = 'done'
+                    self._fetchStats.AddNew(pkgfile, pkgsize)
 
                 if not self._hashCheck(tgtpath, pkghash):
                     os.remove(tgtpath)
                     raise IOError, 'Mismatched checksum'
 
                 print ' %s' % succ_msg
-                successes += 1
             except Exception, ex:
                 print ' FAILED\n  -- %s' % ( str(ex) )
-                failures += 1
+                self._fetchStats.AddFail(pkgfile, pkgsize)
 
-        if not failures:
-            print '%d package(s) mirrored, %d new' % ( successes, newpkgs )
+        counts = self._fetchStats.Counts()
+        if not counts['Fail']:
+            print '%d package(s) mirrored, %d new' % ( counts['Total'], counts['New'] )
         else:
-            print '%d/%d package(s) failed to download' % ( failures, (failures + successes) )
+            print '%d/%d package(s) failed to download' % ( counts['Failures'], counts['Total'] )
 
 
     def _hashCheck(self, tgtpath, pkghash):
@@ -575,7 +576,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
 
 """Database of available Cygwin packages built from 'setup.ini' file"""
-class MasterPackageList:
+class MasterPackageList(object):
     def __init__(self, iniURL=None):
         self.re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
         self.re_comment = re.compile(r'#(.*)$')
@@ -754,10 +755,58 @@ class MasterPackageList:
 
 
 ##
+## Download statistics
+##
+
+class FetchStats(object):
+    def __init__(self, downloads=None):
+        # Record of total bytes downloaded:
+        self._newSize = 0
+        self._alreadySize = 0
+        self._failSize = 0
+        self._totalSize = 0
+
+        # Record of total numbers of packages:
+        self._newCount = 0
+        self._alreadyCount = 0
+        self._failCount = 0
+        self._totalCount = 0
+
+        if downloads:
+            self._totalSize = sum([size for (ref, size, hash) in downloads])
+            self._totalCount = len(downloads)
+
+    def TotalSize(self):
+        return self._totalSize
+
+    def Counts(self):
+        return { 'Total': self._totalCount,
+                'New': self._newCount,
+                'Already': self._alreadyCount,
+                'Fail': self._failCount }
+
+    def Failures(self):
+        return self._failCount
+
+    def AddNew(self, pkg, size):
+        self._newSize += size
+        self._newCount += 1
+
+    def AddAlready(self, pkg, size):
+        self._alreadySize += size
+        self._alreadyCount += 1
+
+    def AddFail(self, pkg, size):
+        self._failSize += size
+        self._failCount += 1
+
+
+
+##
 ## Garbage-collection mechanisms
 ##
 
-class GarbageCollector:
+class GarbageCollector(object):
     def __init__(self, topdir=None):
         self._topdir = None
         self._topdepth = 0
@@ -986,11 +1035,15 @@ class TKgui(object):
         row += 1
 
         self.status_txt = ScrolledText.ScrolledText(rootwin, height=16)
-        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=8)
+        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=6)
         rootwin.grid_rowconfigure(row, weight=1)
         sys.stdout = GUIstream(self)
         sys.stderr = GUIstream(self, highlight=True)
         self.message_queue = Queue.Queue()
+        row += 1
+
+        self.progress_bar = GUIprogressBar(rootwin)
+        self.progress_bar.grid(row=row, column=0, sticky=Tk.E+Tk.W+Tk.S, padx=4, pady=2)
         row += 1
 
         self._state = GUIstate(self)
@@ -1247,6 +1300,9 @@ This is free software, and you are welcome to redistribute it under the terms of
             except Queue.Empty:
                 empty = True
 
+    def updateProgress(self):
+        self.progress_bar.Update(self.builder._fetchStats)
+
     def _txFields(self):
         """Transfer values of GUI controls to PMbuilder object"""
 
@@ -1259,7 +1315,7 @@ This is free software, and you are welcome to redistribute it under the terms of
 
 
 
-class GUIstate:
+class GUIstate(object):
     """Base class for processing state of GUI"""
     def __init__(self, parent):
         self._parent = parent
@@ -1299,6 +1355,7 @@ class GUIbuildState(GUIstate):
         self._buildthread = None
 
     def tick(self):
+        self._parent.updateProgress()
         if self._buildthread and not self._buildthread.isAlive():
             return GUItidyState(self._parent)
         return self
@@ -1335,7 +1392,7 @@ class GUItidyState(GUIstate):
 
 
 
-class GUIstream:
+class GUIstream(object):
     """Wrapper for I/O stream for use in GUI"""
 
     def __init__(self, parent, highlight=False):
@@ -1459,6 +1516,37 @@ class GUIgarbageConfirmer(GarbageConfirmer):
     def _onExit(self, response='no'):
         self._userresponse = response
         self.root.destroy()
+
+
+
+class GUIprogressBar(Tk.Canvas):
+    def __init__(self, *args, **kwargs):
+        Tk.Canvas.__init__(self, background='grey50', height=8,
+                            *args, **kwargs)
+
+        self._rectFail = None
+        self._rectAlready = None
+        self._rectNew = None
+
+    def Update(self, stats):
+        width, height = self.winfo_width(), self.winfo_height()
+
+        totsize = stats.TotalSize()
+
+        configs = [ ('_failSize',    '_rectFail',    'red'),
+                    ('_alreadySize', '_rectAlready', 'SpringGreen'),
+                    ('_newSize',     '_rectNew',     'green') ]
+        xpos = 0
+        for s_attr, b_attr, colour in configs:
+            oldrect = getattr(self, b_attr)
+            if oldrect:
+                self.delete(oldrect)
+            if totsize > 0:
+                barwidth = (width * getattr(stats, s_attr)) // totsize
+                newrect = self.create_rectangle(xpos, 1, xpos + barwidth, height - 1, fill=colour, width=0)
+                setattr(self, b_attr, newrect)
+                xpos += barwidth
+
 
 
 ##

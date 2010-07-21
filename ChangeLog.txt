@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009-2010, RW Penney
 
+20Jun10
+    Added download progress bar for GUI
+
+18Jun10
+    Added prototypical 'setup.py' installer script
+
 16Jun10 **** pmcyg-0.4 released ****
 
 03Jul10

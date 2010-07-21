@@ -136,8 +136,8 @@ as part of <a href="http://www.cygwin.com">Cygwin</a> itself, or as
 a <a href="http://www.python.org/download">native Windows application</a>.
 pmcyg has been developed using Python 2.x,
 and tested on Python versions 2.3-2.7.
-The up-coming 0.4 release of pmcyg is also targetting
-the latest <a href="http://wiki.python.org/moin/Python2orPython3">3.x</a>
+From release 0.4, pmcyg is also targeting the latest
+<a href="http://wiki.python.org/moin/Python2orPython3">3.x</a>
 series of Python.
 </p>
 
