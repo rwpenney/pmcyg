@@ -1035,7 +1035,7 @@ class TKgui(object):
         row += 1
 
         self.status_txt = ScrolledText.ScrolledText(rootwin, height=16)
-        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=6)
+        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=(6,2))
         rootwin.grid_rowconfigure(row, weight=1)
         sys.stdout = GUIstream(self)
         sys.stderr = GUIstream(self, highlight=True)
@@ -1533,19 +1533,23 @@ class GUIprogressBar(Tk.Canvas):
 
         totsize = stats.TotalSize()
 
-        configs = [ ('_failSize',    '_rectFail',    'red'),
-                    ('_alreadySize', '_rectAlready', 'SpringGreen'),
-                    ('_newSize',     '_rectNew',     'green') ]
+        configs = [ ('_failSize',    '_rectFail',    'OrangeRed'),
+                    ('_alreadySize', '_rectAlready', 'SeaGreen'),
+                    ('_newSize',     '_rectNew',     'LimeGreen') ]
         xpos = 0
         for s_attr, b_attr, colour in configs:
             oldrect = getattr(self, b_attr)
             if oldrect:
                 self.delete(oldrect)
-            if totsize > 0:
-                barwidth = (width * getattr(stats, s_attr)) // totsize
-                newrect = self.create_rectangle(xpos, 1, xpos + barwidth, height - 1, fill=colour, width=0)
-                setattr(self, b_attr, newrect)
-                xpos += barwidth
+
+            if totsize <= 0: continue
+
+            barwidth = (width * getattr(stats, s_attr)) // totsize
+            if barwidth <= 0: continue
+
+            newrect = self.create_rectangle(xpos, 1, xpos + barwidth, height - 1, fill=colour, width=0)
+            setattr(self, b_attr, newrect)
+            xpos += barwidth
 
 
 

@@ -32,7 +32,7 @@ audiofile                 	# Digital audio file library (utilities)
 cdda2wav                  	# Extract audio CD data (symlink to icedax)
 flac                      	# Free Lossless Audio Codec
 libaudiofile-devel        	# Digital audio file library (development)
-libogg                    	# Ogg Bitstream Library
+libogg-devel              	# Ogg Bitstream Library (Development)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 vorbis-tools              	# Several Ogg Vorbis Tools
 
@@ -67,6 +67,7 @@ which                     	# Prints out full path of executables
 ## Database
 ##
 gdbm                      	# GNU dbm database routines (utilities)
+libsqlite3-devel          	# An embeddable SQL database engine (3.x development)
 postgresql                	# PostgreSQL Data Base Management System
 postgresql-client         	# Front-end programs for PostgreSQL 8.x
 postgresql-contrib        	# Additional facilities for PostgreSQL 8.2
@@ -91,7 +92,7 @@ bison                     	# A parser generator that is compatible with YACC
 bzr                       	# Python based distributed version control system
 cmake                     	# A cross platform build manager
 colorgcc                  	# Colorizer for GCC warning/error messages
-cppunit                   	# A C++ unit testing framework. It started its life as a port of JUnit to C++ by Michael Feathers.
+cppunit                   	# C++ unit testing framework
 ctags                     	# A C programming language indexing and/or cross-reference tool
 cvs                       	# Concurrent Version System
 cvs2svn                   	# CVS to Subversion repository converter
@@ -101,8 +102,6 @@ cygport                   	# Cygwin source packaging tool
 ddd                       	# Ddd
 distcc                    	# A fast, free, distributed C/C++ compiler
 doxygen                   	# A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavors) and to some extent PHP, C#, and D.
-e2fsimage                 	# Utility for creating ext2 filesystem images.
-e2fsprogs                 	# Ext2 filesystem utilities
 flex                      	# A fast lexical analyzer generator
 gcc                       	# C compiler upgrade helper
 gcc-core                  	# C compiler
@@ -209,7 +208,7 @@ tetex-doc                 	# The TeX text formatting system (documentation).
 texinfo                   	# Documentation system for on-line information and printed output
 tiff-doc                  	# TIFF image library (API documentation)
 xerces-c                  	# A validating XML parser written in a portable subset of C++
-xmlto                     	# XML-to-any converter - a front-end to the DocBook XML toolchain
+xmlto                     	# Converts XML to various formats
 xorg-docs                 	# X.Org documentation
 xpdf                      	# An open source viewer for Portable Document Format (PDF) files
 
@@ -333,16 +332,17 @@ xemacs                    	# A powerful, highly customizable open source text ed
 ##
 ## KDE
 ##
+libQtCore4-devel          	# Qt4 Core library (libdevel)
+libQtGui4-devel           	# Qt4 Gui library (libdevel)
+libQtOpenGL4-devel        	# Qt4 OpenGL library (libdevel)
 libqt3                    	# C++ GUI application framework (runtime library)
 libqt3-devel              	# C++ GUI application framework (qmake/moc/uic, headers, import libraries)
-qt3-doc                   	# C++ GUI application framework (documentation)
 
 
 ##
 ## Libs
 ##
 autotrace                 	# A program for converting bitmap to vector graphics
-cppunit                   	# A C++ unit testing framework. It started its life as a port of JUnit to C++ by Michael Feathers.
 expat                     	# Expat XML parser library (xmlwf, docs)
 fftw3                     	# Discrete Fourier transform library
 fftw3-doc                 	# Pdf and html documentation for using the fftw3 libraries
@@ -386,6 +386,7 @@ libpthread-stubs          	# Pthread stubs pkg-config metadata
 libreadline5              	# GNU readline and history libraries (runtime)
 libreadline6              	# GNU readline and history libraries (runtime)
 libreadline7              	# GNU readline and history libraries (runtime)
+libsqlite3-devel          	# An embeddable SQL database engine (3.x development)
 libtiff-devel             	# TIFF image library (development)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c28             	# (runtime) A validating XML parser written in a portable subset of C++
@@ -481,7 +482,7 @@ apache                    	# The Apache HTTP (Web) Server
 apache2                   	# Apache HTTPD 2
 apache2-devel             	# Apache HTTPD 2 (Development package)
 apache2-manual            	# Apache HTTPD 2 (Manual)
-bind                      	# DNS libraries and utilities suite
+bind                      	# DNS utilities suite
 curl                      	# Multi-protocol file transfer command-line tool
 gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
 gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
@@ -542,9 +543,11 @@ tetex-x11                 	# The TeX text formatting system (X11 binaries).
 ##
 bzr                       	# Python based distributed version control system
 idle                      	# Python Tkinter-based IDE
+libboost_python1.43       	# Boost.Python runtime library
 mercurial                 	# Python based distributed version control system (DVCS)
 python                    	# Python language interpreter
 python-crypto             	# Cryptographic algorithms and protocols for Python
+python-doc                	# Python HTML documentation
 python-feedparser         	# Universal Feed Parser for Python
 python-gamin              	# File and directory monitoring system (Python bindings)
 python-gtk2.0             	# Python bindings for GTK2 and libglade (runtime)
@@ -554,6 +557,7 @@ python-libxml2            	# XML C parser and toolkit (Python bindings)
 python-libxslt            	# The GNOME XSLT C library (Python bindings)
 python-numpy              	# Python scientific computing module
 python-paramiko           	# SSH2 connection library for Python (library)
+python-pygtk              	# PyGTK runtime version selector
 python-pyrex              	# Compile native-code modules for Python from python-like syntax
 python-tkinter            	# Python Tkinter GUI module
 spambayes                 	# Python-based spam filter using statistical analysis
@@ -586,7 +590,10 @@ zsh                       	# The Z-Shell
 ##
 ## System
 ##
+e2fsimage                 	# Creates ext2 filesystem images
+e2fsprogs                 	# Ext2 filesystem utilities
 initscripts               	# A System-V-like collection of system initialization scripts
+libext2fs-devel           	# Ext2fs library (development)
 man                       	# Man, apropos and whatis
 ping                      	# A basic network tool to test IP network conectivity
 procps                    	# Utilities for monitoring your system and processes on your system.
@@ -599,6 +606,7 @@ util-linux                	# Random collection of Linux utilities
 ## Text
 ##
 a2ps                      	# Formats files for printing on a PostScript printer.
+antiword                  	# A free MS Word reader
 aspell                    	# A spell checker designed to eventually replace Ispell
 aspell-dev                	# A spell checker designed to eventually replace Ispell (Development)
 aspell-doc                	# A spell checker designed to eventually replace Ispell (Documentation)
@@ -621,7 +629,7 @@ texinfo                   	# Documentation system for on-line information and pr
 untex                     	# Remove LaTeX commands from input
 util-linux                	# Random collection of Linux utilities
 w3m                       	# A text based Web browser and pager
-xmlto                     	# XML-to-any converter - a front-end to the DocBook XML toolchain
+xmlto                     	# Converts XML to various formats
 xmore                     	# X.Org plain text browser
 
 

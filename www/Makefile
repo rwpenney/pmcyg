@@ -2,7 +2,7 @@
 # RW Penney, July 2010
 
 HTMLPAGES =	index.html
-IMAGES =	pmcyg-tkgui.png pmcyg-win32.png
+IMAGES =	pmcyg-tkgui.png pmcyg-win32.png pmcyg-update.png
 PMCYG =		../pmcyg.py
 TPLTFILE =	pmcyg-template.txt
 

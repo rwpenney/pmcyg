@@ -120,9 +120,10 @@ Cygwin <a href="http://cygwin.com/packages">package names</a>,
 and downloads only those packages and their dependencies
 from a Cygwin <a href="http://cygwin.com/mirrors.html">mirror site</a>,
 to create a partial mirror of the Cygwin release.
-This avoids having to download over 4GB of the official Cygwin release,
-e.g. using <a href="http://www.gnu.org/software/wget">wget</a>,
-and allows minimalistic installations that can be as small as 20MB.
+This avoids having to download many GB of the official Cygwin release,
+e.g. using <a href="http://www.gnu.org/software/wget">wget</a>.
+With pmcyg you can easily create a minimalistic installer
+that can be as small as 20MB.
 </p>
 
 
@@ -154,7 +155,7 @@ the Tkinter toolkit by default.
 <div class="banner">Usage</div>
 
 <p>
-To build your self-contained Cygwin installer,
+To build your off-line Cygwin installer,
 pmcyg will help you through the following steps:
 </p>
 <ul>
@@ -169,7 +170,10 @@ You can even use pmcyg to download directly onto a USB key.
 </p>
 
 <p>
-The package list can be based on
+You can simply mirror the entire set of Cygwin packages,
+which will occupy about 1.2GB,
+or you can list particular packages that you want to have available.
+This package list can be based on
 a <a href="pmcyg-template.txt">template</a>
 which pmcyg will generate,
 or might be as simple as:
@@ -198,8 +202,9 @@ xorg-server
 xterm
 </pre>
 <p>
-If you prefer, you can ask pmcyg to simply mirror the entire Cygwin tree,
-optionally including source packages.
+For the most complete Cygwin distribution,
+pmcyg can also optionally include Cygwin source packages
+(taking about 10.7GB if you mirror the entire Cygwin tree).
 </p>
 
 <p>
@@ -263,6 +268,10 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
   <a href="pmcyg-win32.png">
     <img class="scrnshot" src="pmcyg-win32.png" width="100%" height="100%"
       alt="pmcyg running on WinXP"/>
+  </a></p>
+  <a href="pmcyg-update.png">
+    <img class="scrnshot" src="pmcyg-update.png" width="100%" height="100%"
+      alt="pmcyg updating a pre-existing download"/>
   </a></p>
 </div>
 

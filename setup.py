@@ -1,27 +1,56 @@
 #!/usr/bin/python
-# (EXPERIMENTAL) Installation/setup script for Simple Python Fixed-Point Module
+# Installation/setup script for Simple Python Fixed-Point Module
 # RW Penney, July 2010
+
+# NOTE: this script is intended to run, without modification,
+#       under both Python-2.x and Python-3.x
 
 from distutils.core import setup
 import distutils.command.build_scripts as DIB
-import os
+
+import os, re, sys
+try: import lib2to3.main
+except: pass
+
 from pmcyg import PMCYG_VERSION
+
+pmcyg_scripts = [ 'pmcyg.py' ]
 
 
 class pmcyg_build_scripts(DIB.build_scripts):
+    """Helper class to strip filename suffixes when installing Python scripts on POSIX platforms"""
     def copy_scripts(self):
-        print 'COPY_SCRIPTS: %s' % self.scripts
+        self.mkPython3script()
         orig_scripts = self.scripts
         tempfiles = []
         if os.name == 'posix':
-            (self.scripts, tempfiles) = self._purgeSuffixes(orig_scripts)
-        print str(orig_scripts) + ' -> ' + str(self.scripts)
+            (self.scripts, tempfiles) = self._stripSuffixes(orig_scripts)
         DIB.build_scripts.copy_scripts(self)
         self.scripts = orig_scripts
         for tmp in tempfiles:
             os.remove(tmp)
 
-    def _purgeSuffixes(self, orig_scripts):
+    def mkPython3script(self):
+        """Attempt to generate Python-3.x script using '2to3' tool"""
+        P3EXE = 'pmcyg-2to3.py'
+        if not os.path.isfile(P3EXE):
+            stdout_bckp = sys.stdout
+            try:
+                src = open('pmcyg.py', 'rt').read()
+                re_version = re.compile(r'python(2[.0-9]*)?\b')
+                src = re_version.sub('python3', src, 1)
+                open(P3EXE, 'wt').write(src)
+                argv = ['-w', P3EXE]
+                sys.stdout = os.tmpfile()
+                lib2to3.main.main('lib2to3.fixes', argv)
+            except:
+                pass
+            sys.sdtout = stdout_bckp
+
+        if os.path.isfile(P3EXE):
+            self.scripts.append(P3EXE)
+
+    def _stripSuffixes(self, orig_scripts):
         """Remove .py suffix from Python scripts, e.g. for POSIX platforms"""
         newnames = []
         tempfiles = []
@@ -45,14 +74,21 @@ class pmcyg_build_scripts(DIB.build_scripts):
 setup(
     author = 'RW Penney',
     author_email = 'rwpenney@users.sourceforge.net',
-    description = 'Utility for creating self-contained Cygwin installer',
+    description = 'Utility for creating offline Cygwin installers',
     fullname = 'pmcyg - Cygwin partial mirror',
     keywords = 'Cygwin',
     license = 'GPL v3',
-    long_description = 'More here',
+    long_description = \
+        'pmcyg is a tool for creating offline Cygwin(TM) installers ' +
+        'containing customized collections of Cygwin packages. ' +
+        'This avoids having to download the entirety of a Cygwin release, ' +
+        'which might occupy many GB, instead allowing installers that ' +
+        'can be as small as 20MB. ' +
+        'pmcyg will help build a self-contained CD or DVD installer to setup ' +
+        'Cygwin on PCs without any internet access.',
     name = 'pmcyg',
     url = 'http://pmcyg.sourceforge.net',
     version = PMCYG_VERSION,
-    scripts = [ 'pmcyg.py' ],
+    scripts = pmcyg_scripts,
     cmdclass = { 'build_scripts': pmcyg_build_scripts }
 )
