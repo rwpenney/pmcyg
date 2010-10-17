@@ -12,8 +12,6 @@ import os, re, sys
 try: import lib2to3.main
 except: pass
 
-from pmcyg import PMCYG_VERSION
-
 pmcyg_scripts = [ 'pmcyg.py' ]
 
 
@@ -69,6 +67,17 @@ class pmcyg_build_scripts(DIB.build_scripts):
 
         return (newnames, tempfiles)
 
+
+
+# Extract version number from pmcyg.py script
+# NOTE that we cannot just 'from pmcyg import PMCYG_VERSION' because
+#   python3.x might reject the syntax of a python2.x script
+try:
+    PMCYG_VERSION = re.compile(r'^PMCYG_VERSION\s*=\s[\'"](.*)["\']$',
+                                re.MULTILINE) \
+                        .search(open('pmcyg.py', 'rt').read()).group(1)
+except:
+    PMCYG_VERSION = '0.x'
 
 
 setup(

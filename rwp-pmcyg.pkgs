@@ -123,10 +123,9 @@ gcc4                      	# GCC Release series 4 compiler (C & C++ install help
 gcc4-core                 	# Core C compiler subpackage
 gcc4-fortran              	# Fortran subpackage
 gcc4-g++                  	# G++ subpackage
-gcc4-java                 	# Java subpackage
-gcc4-objc                 	# Objective C and Objective C++ subpackage
 gccmakedep                	# Xorg preprocessor dependency maker
 gdb                       	# The GNU Debugger
+gendef                    	# Generates exports definitions by analyzing DLLs.
 gettext                   	# GNU Internationalization library and core utilities (PLUS LINK LIBS)
 gettext-devel             	# GNU Internationalization development utilities (but NOT LINK LIBS)
 git                       	# Fast Version Control System - core files
@@ -146,6 +145,7 @@ indent                    	# C/C++ language source code formatting program
 intltool                  	# GNOME source internalization scripts
 jikes                     	# Fast Java compiler adhering to language and VM specifications
 jlint                     	# A Java Program Checker
+lablgtk2                  	# OCaml interface to GTK2
 libXaw3d-devel            	# A 3D version of the MIT Athena widget set for X - (development)
 libboost                  	# Portable C++ libraries useful across a broad spectrum of applications.
 libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
@@ -153,6 +153,7 @@ libglut-devel             	# Open Source GLUT implementation - (development)
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
 libmng-devel              	# A library of functions for manipulating MNG format files - (development)
 libncurses-devel          	# (devel) libraries for terminal handling
+libogg-devel              	# Ogg Bitstream Library (Development)
 libpng12-devel            	# PNG library (development)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
@@ -187,6 +188,7 @@ subversion-tools          	# A version control system (miscellaneous tools)
 swig                      	# C/C++ wrapper generator
 tailor                    	# Migrate changesets between version control systems
 tetex-devel               	# The TeX text formatting system (headers and static libraries).
+xdelta                    	# Computes changes between binary files.
 xorg-cf-files             	# X.Org Imake config files
 zlib-devel                	# The zlib compression/decompression library (development)
 
@@ -202,6 +204,7 @@ libxml2-doc               	# XML C parser and toolkit (documentation)
 libxslt                   	# The GNOME XSLT C library (runtime)
 libxslt-doc               	# The GNOME XSLT C library (documentation)
 man                       	# Man, apropos and whatis
+perl_manpages             	# Perl manpages
 ploticus-doc              	# Command-line plot and graph generator (HTML documentation)
 python-doc                	# Python HTML documentation
 tetex-doc                 	# The TeX text formatting system (documentation).
@@ -277,6 +280,7 @@ GraphicsMagick            	# GraphicsMagick is the swiss army knife of image pro
 ImageMagick               	# Image manipulation software suite (utilities)
 autotrace                 	# A program for converting bitmap to vector graphics
 epstool                   	# Edit preview images and fix bounding boxes in EPS files
+exif                      	# Command-line utility to show EXIF information hidden in JPEG files
 freeglut                  	# Open Source GLUT implementation 
 ghostscript               	# An interpreter for the PostScript language and for PDF
 ghostscript-fonts-other   	# Miscellaneous fonts derived from the free Hershey fonts, with improvements for ghostscript
@@ -303,7 +307,9 @@ opengl                    	# OpenGL-related libraries
 perl-Graphics-Magick      	# GraphicsMagick Perl bind (PerlMagick)
 perl-Image-Magick         	# Image manipulation software suite (Perl bindings)
 ploticus                  	# Command-line plot and graph generator
+ploticus-doc              	# Command-line plot and graph generator (HTML documentation)
 plotutils                 	# 2-D scientific data plotting utilities
+potrace                   	# Utility to transform bitmaps into vector graphics
 python-lcms               	# Little color management engine - (Python bindings)
 sxpm                      	# X.Org X Pixmap utilities
 tiff                      	# TIFF image library (utilities)
@@ -380,6 +386,7 @@ libgmp-devel              	# Development library for GMP arbitrary precision ari
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
 libmng-devel              	# A library of functions for manipulating MNG format files - (development)
 libncurses-devel          	# (devel) libraries for terminal handling
+libogg-devel              	# Ogg Bitstream Library (Development)
 libpcre-devel             	# Perl-Compatible Regular Expressions library (C development)
 libpng12-devel            	# PNG library (development)
 libpthread-stubs          	# Pthread stubs pkg-config metadata
@@ -409,7 +416,6 @@ readline                  	# GNU readline and history libraries
 subversion-perl           	# A version control system (perl bindings)
 subversion-python         	# A version control system (python bindings)
 subversion-ruby           	# A version control system (ruby bindings)
-sunrpc                    	# Sun RPC (ONC/RPC) libraries and utilities.
 tcltk                     	# TCL/Tk libraries
 terminfo-extra            	# Additional database entries for ncurses-style terminal handling
 terminfo0                 	# (libncurses8-compat) database for ncurses-style terminal handling
@@ -460,6 +466,7 @@ singular-help             	# A computer algebra system for polynomial calculatio
 singular-icons            	# A computer algebra system for polynomial calculations (icons on desktop and start menu)
 singular-share            	# A computer algebra system for polynomial calculations (Libraries, emacs interface, Legal notices)
 singular-surf             	# Compiled surf program. Can display varieties up to dimension 2. (installed in singular)
+units                     	# Converts between different systems of units
 xcalc                     	# X.Org calculator
 
 
@@ -551,6 +558,7 @@ python-doc                	# Python HTML documentation
 python-feedparser         	# Universal Feed Parser for Python
 python-gamin              	# File and directory monitoring system (Python bindings)
 python-gtk2.0             	# Python bindings for GTK2 and libglade (runtime)
+python-gtk2.0-demo        	# Python bindings for GTK2 and libglade (demo app)
 python-gtk2.0-devel       	# Python bindings for GTK2 and libglade (development)
 python-lcms               	# Little color management engine - (Python bindings)
 python-libxml2            	# XML C parser and toolkit (Python bindings)
@@ -561,6 +569,7 @@ python-pygtk              	# PyGTK runtime version selector
 python-pyrex              	# Compile native-code modules for Python from python-like syntax
 python-tkinter            	# Python Tkinter GUI module
 spambayes                 	# Python-based spam filter using statistical analysis
+stgit                     	# Quilt functionality on top of git
 tailor                    	# Migrate changesets between version control systems
 urlgrabber                	# Python based URL grabber
 
@@ -611,6 +620,7 @@ aspell                    	# A spell checker designed to eventually replace Ispe
 aspell-dev                	# A spell checker designed to eventually replace Ispell (Development)
 aspell-doc                	# A spell checker designed to eventually replace Ispell (Documentation)
 aspell-en                 	# GNU Aspell 0.60 English Dictionary Package
+flip                      	# Convert text file line endings between Unix and DOS formats
 groff                     	# GNU troff text-formatting system
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
 less                      	# A file pager program, similar to more(1)
@@ -630,7 +640,6 @@ untex                     	# Remove LaTeX commands from input
 util-linux                	# Random collection of Linux utilities
 w3m                       	# A text based Web browser and pager
 xmlto                     	# Converts XML to various formats
-xmore                     	# X.Org plain text browser
 
 
 ##
@@ -778,7 +787,7 @@ xload                     	# X.Org system load display
 xlogo                     	# X.Org logo
 xlsatoms                  	# X.Org interned atoms lister
 xlsclients                	# X.Org display clients lister
-xlsfonts                  	# Xorg server font lister
+xlsfonts                  	# X.Org server font lister
 xman                      	# X.Org man page reader
 xmessage                  	# X.Org message displayer
 xmh                       	# X.Org frontend to MH mail handler
@@ -809,6 +818,7 @@ xtrans                    	# X.Org XTrans common code and headers
 xwd                       	# X.Org X window dumping utility
 xwininfo                  	# X.Org X window information utility
 xwinwm                    	# Window manager for experimental WindowsWM multi-window mode
+xwud                      	# X.Org X window dump displayer
 
 
 ##

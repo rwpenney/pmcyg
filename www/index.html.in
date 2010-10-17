@@ -112,12 +112,18 @@
 <div class="banner">Overview</div>
 
 <p>
-pmcyg is a tool for creating customized sets of
-<a href="http://cygwin.com">Cygwin</a>(TM) packages,
-e.g. for building self-contained installer on a cdrom or dvd.
-It takes a user-supplied list of
+pmcyg is a tool for creating a customized offline installer for
+<a href="http://cygwin.com">Cygwin</a>(TM),
+the Unix-like environment for Windows.
+This can be used to create a complete Cygwin installation system
+on a cdrom, dvd, or USB flash disk.
+</p>
+
+<p>
+pmcyg will assemble a collection of Cygwin packages
+based on a user-supplied list of
 Cygwin <a href="http://cygwin.com/packages">package names</a>,
-and downloads only those packages and their dependencies
+and download only those packages and their dependencies
 from a Cygwin <a href="http://cygwin.com/mirrors.html">mirror site</a>,
 to create a partial mirror of the Cygwin release.
 This avoids having to download many GB of the official Cygwin release,
@@ -221,7 +227,7 @@ your selected download site.
 This allows you to maintain a current version of all
 your favourite Cygwin packages
 and the '<a href="http://cygwin.com/setup.exe">setup.exe</a>' installer,
-which you could keep on a USB flash disk,
+which you could keep on a USB memory stick,
 ready for use as an offline installer on any PC without direct internet access.
 </p>
 
@@ -269,7 +275,7 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
     <img class="scrnshot" src="pmcyg-win32.png" width="100%" height="100%"
       alt="pmcyg running on WinXP"/>
   </a></p>
-  <a href="pmcyg-update.png">
+  <p><a href="pmcyg-update.png">
     <img class="scrnshot" src="pmcyg-update.png" width="100%" height="100%"
       alt="pmcyg updating a pre-existing download"/>
   </a></p>

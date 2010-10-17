@@ -525,7 +525,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         if not counts['Fail']:
             print '%d package(s) mirrored, %d new' % ( counts['Total'], counts['New'] )
         else:
-            print '%d/%d package(s) failed to download' % ( counts['Failures'], counts['Total'] )
+            print '%d/%d package(s) failed to download' % ( counts['Fail'], counts['Total'] )
 
 
     def _hashCheck(self, tgtpath, pkghash):

@@ -1,6 +1,11 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## (C)Copyright 2009-2010, RW Penney
 
+17Oct10 **** pmcyg-0.5 released ****
+
+07Aug10
+    Added automatic 2to3 translation facility to 'setup.py' installer script
+
 20Jun10
     Added download progress bar for GUI
 
