@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-15
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2010, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2011, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.5'
+PMCYG_VERSION = '0.6'
 
 
-import  bz2, optparse, os, os.path, re, string, \
+import  bz2, optparse, os, os.path, re, subprocess, string, \
         StringIO, sys, threading, time, urllib, urlparse
 try: from urllib.request import urlopen as URLopen
 except ImportError: from urllib2 import urlopen as URLopen
@@ -49,6 +49,37 @@ class PMCygException(Exception):
 
     def __init__(self, *args):
         Exception.__init__(self, *args)
+
+
+
+class SetupIniFetcher(object):
+    """Facade for fetching setup.ini from URL, with optional bz2-decompression"""
+    def __init__(self, URL):
+        self._stream = URLopen(URL)
+        if URL.endswith('.bz2'):
+            self._decompress = True
+            expander = bz2.BZ2Decompressor()
+            outbuff = StringIO.StringIO()
+            while True:
+                try:
+                    chunk = self._stream.read(1 << 16)
+                    bunzip = expander.decompress(chunk)
+                    outbuff.write(bunzip)
+                except:
+                    break
+            outbuff.seek(0)
+            self._stream = outbuff
+        else:
+            self._decompress = False
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        return self._stream.next()
+
+    def close(self):
+        self._stream.close()
 
 
 
@@ -120,7 +151,7 @@ class PMbuilder(object):
         if iniurl:
             self._iniurl = iniurl
         else:
-            self._iniurl = urlparse.urljoin(self._mirror, 'setup.ini')
+            self._iniurl = urlparse.urljoin(self._mirror, 'setup.bz2')
             reload = True
         try:
             self._listLock.acquire()
@@ -192,6 +223,27 @@ class PMbuilder(object):
             fp.close()
 
         return usrpkgs
+
+
+    def ListInstalled(self):
+        """Generate list of all packages on existing Cygwin installation"""
+        re_colhdr = re.compile(r'^Package\s+Version')
+        try:
+            pkgs = []
+            if sys.platform != 'cygwin':
+                raise PMCygException, 'Not cygwin platform'
+            proc = subprocess.Popen(['/bin/cygcheck', '-cd'],
+                                    shell=False, stdout=PIPE, close_fds=True)
+            inHeader = True
+            for line in proc.stdout:
+                if inHeader and re_colhdr.match(line):
+                    inHeader = False
+                    continue
+                if not inHeader:
+                    pkgs.append(line.split()[0])
+            return pkgs
+        except:
+            return []
 
 
     def BuildMirror(self, userpackages):
@@ -647,7 +699,7 @@ class MasterPackageList(object):
         self._ini_packages = {}
 
         try:
-            fp = URLopen(self._iniURL)
+            fp = SetupIniFetcher(self._iniURL)
         except Exception, ex:
             raise PMCygException, "Failed to open %s\n - %s" % ( self._iniURL, str(ex) )
 
@@ -1604,16 +1656,16 @@ def main():
                         version=PMCYG_VERSION)
     bscopts = optparse.OptionGroup(parser, 'Basic options')
     bscopts.add_option('--all', '-a', action='store_true', default=False,
-            help='include all available Cygwin packages')
+            help='include all available Cygwin packages (default=%default)')
     bscopts.add_option('--directory', '-d', type='string',
             default=os.path.join(os.getcwd(), 'cygwin'),
-            help='where to build local mirror')
+            help='where to build local mirror (default=%default)')
     bscopts.add_option('--dry-run', '-z', action='store_true',
             dest='dummy', default=False,
             help='do not actually download packages')
     bscopts.add_option('--mirror', '-m', type='string',
             default=builder.GetMirrorURL(),
-            help='URL of Cygwin archive or mirror site')
+            help='URL of Cygwin archive or mirror site (default=%default)')
     bscopts.add_option('--nogui', '-c', action='store_true', default=False,
             help='do not startup graphical user interface (if available)')
     bscopts.add_option('--generate-template', '-g', type='string',
@@ -1623,20 +1675,26 @@ def main():
     advopts = optparse.OptionGroup(parser, 'Advanced options')
     advopts.add_option('--epochs', '-e', type='string',
             default=','.join(builder.GetEpochs()),
-            help='comma-separated list of epochs, e.g. "curr,prev"')
+            help='comma-separated list of epochs, e.g. "curr,prev"'
+                ' (default=%default)')
     advopts.add_option('--exeurl', '-x', type='string',
             default=builder.GetExeURL(),
-            help='URL of "setup.exe" Cygwin installer')
+            help='URL of "setup.exe" Cygwin installer (default=%default)')
     advopts.add_option('--iniurl', '-i', type='string', default=None,
-            help='URL of "setup.ini" Cygwin database')
+            help='URL of "setup.ini" Cygwin database (default=%default)')
     advopts.add_option('--nobase', '-B', action='store_true', default=False,
-            help='do not automatically include all base packages')
-    advopts.add_option('--with-autorun', '-r', action='store_true', default=False,
-            help='create autorun.inf file in build directory')
-    advopts.add_option('--with-sources', '-s', action='store_true', default=False,
-            help='include source-code for of each package')
+            help='do not automatically include all base packages'
+                '(default=%default)')
+    advopts.add_option('--with-autorun', '-r',
+            action='store_true', default=False,
+            help='create autorun.inf file in build directory'
+                ' (default=%default)')
+    advopts.add_option('--with-sources', '-s',
+            action='store_true', default=False,
+            help='include source-code for of each package (default=%default)')
     advopts.add_option('--remove-outdated', '-o', type='string', default='no',
-            help='remove old versions of packages [no/yes/ask]')
+            help='remove old versions of packages [no/yes/ask]'
+                ' (default=%default)')
     parser.add_option_group(advopts)
     opts, remargs = parser.parse_args()
 

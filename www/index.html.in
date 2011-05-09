@@ -6,7 +6,7 @@
 <!--
   pmcyg.sourceforge.net project page; written 10th July 2010
   MakefileUUID: @MAKEFILE_UUID@
-  (C) Copyright 2010 RW Penney
+  (C) Copyright 2010-2011 RW Penney
 -->
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>pmcyg.sourceforge.net</title>
@@ -70,7 +70,8 @@
     color: black;
     font-size: 80%;
     font-family: fixed;
-    padding: 4px;
+    padding-top: 4px; padding-bottom: 4px;
+    padding-left: 16px; padding-right: 16px;
     margin-left: 5%;
     margin-right: 15%;
   }
@@ -208,6 +209,16 @@ xorg-server
 xterm
 </pre>
 <p>
+If you want to create a copy of all the packages installed
+on an existing Cygwin system, then you could generate
+the package list by using
+<a href="http://www.cygwin.com/cygwin-ug-net/using-utils.html#cygcheck">cygcheck</a>:
+<pre class="prog">
+cygcheck -cd | tail -n +3 | cut -f 1 -d " " &gt; mypackages.txt
+</pre>
+</p>
+
+<p>
 For the most complete Cygwin distribution,
 pmcyg can also optionally include Cygwin source packages
 (taking about 10.7GB if you mirror the entire Cygwin tree).
@@ -221,7 +232,7 @@ geographical region.
 </p>
 
 <p>
-pmcyg will check that the versions of packages in your local directory,
+pmcyg will check the versions of packages in your local directory,
 and update those packages with newer versions if available from
 your selected download site.
 This allows you to maintain a current version of all
@@ -288,10 +299,9 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 
 <p class="lupdate">
 Last updated @DATE@<br/>
-&copy; Copyright RW Penney, 2010
+&copy; Copyright RW Penney, 2010-2011
 </p>
 
 </body>
 
 </html>
-<!-- vim: set ts=2 sw=2 et: -->

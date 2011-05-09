@@ -1,3 +1,5 @@
+Add mode representation to optparse infrastructure
+Translate `cygcheck -cd` into package list
 Patch python-3.x handling of byte-strings in URLopen
 Improve error-checking
 Add download progress indicator

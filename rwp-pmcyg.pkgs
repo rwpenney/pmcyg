@@ -41,9 +41,8 @@ vorbis-tools              	# Several Ogg Vorbis Tools
 ## Base
 ##
 alternatives              	# A tool for managing package conflicts
-base-cygwin               	# Upgrade helper scripts from 1.5.x to 1.7.x
+base-cygwin               	# Initial base installation helper script.
 base-files                	# A set of important system configuration and setup files
-base-passwd               	# A script to set up initial passwords and groups
 bash                      	# The GNU Bourne Again SHell
 coreutils                 	# GNU core utilities (includes fileutils, sh-utils and textutils)
 cygwin                    	# The UNIX emulation engine
@@ -114,8 +113,7 @@ gcc-mingw                 	# Mingw32 GCC compiler upgrade helper
 gcc-mingw-core            	# Mingw32 support headers and libraries for GCC
 gcc-mingw-g++             	# Mingw32 support headers and libraries for GCC C++
 gcc-mingw-g77             	# Mingw32 support headers and libraries for GCC Fortran
-gcc-mingw-gdc             	# D compiler
-gcc-mingw-gpc             	# Mingw32 support headers and libraries for GCC Pascal
+gcc-mingw-gdc             	# Mingw32 support headers and libraries for GCC D compiler
 gcc-mingw-java            	# Mingw32 support headers and libraries for GCC Java
 gcc-mingw-objc            	# Mingw32 support headers and libraries for GCC ObjC
 gcc-objc                  	# ObjC compiler
@@ -163,7 +161,7 @@ makedepend                	# X.Org Makefile dependency tool
 mercurial                 	# Python based distributed version control system (DVCS)
 mingw-runtime             	# MinGW Runtime
 nasm                      	# The Netwide Assembler
-ocaml                     	# The Objective Caml compiler and runtime
+ocaml                     	# The Objective Caml compiler and runtime (install helper)
 openldap-devel            	# Lightweight Directory Access Protocol suite - (development)
 openssl-devel             	# The OpenSSL development environment
 patchutils                	# A small collection of programs that operate on patch files
@@ -187,7 +185,6 @@ subversion-ruby           	# A version control system (ruby bindings)
 subversion-tools          	# A version control system (miscellaneous tools)
 swig                      	# C/C++ wrapper generator
 tailor                    	# Migrate changesets between version control systems
-tetex-devel               	# The TeX text formatting system (headers and static libraries).
 xdelta                    	# Computes changes between binary files.
 xorg-cf-files             	# X.Org Imake config files
 zlib-devel                	# The zlib compression/decompression library (development)
@@ -328,7 +325,7 @@ gawk                      	# GNU awk, a pattern scanning and processing language
 guile                     	# The GNU extension language and Scheme interpreter - executables
 libxslt                   	# The GNOME XSLT C library (runtime)
 m4                        	# GNU implementation of the traditional Unix macro processor.
-ocaml                     	# The Objective Caml compiler and runtime
+ocaml                     	# The Objective Caml compiler and runtime (install helper)
 perl                      	# Larry Wall's Practical Extracting and Report Language
 python                    	# Python language interpreter
 ruby                      	# Interpreted object-oriented scripting language
@@ -362,7 +359,6 @@ gsl                       	# Runtime
 gsl-apps                  	# Application programs
 gsl-devel                 	# Developers tools
 gsl-doc                   	# Documentation
-guile-devel               	# The GNU extension language and Scheme interpreter - development
 jasper                    	# JPEG 2000 library - (utilities)
 jbigkit                   	# The JBIG lossless image compression library (utilities)
 jpeg                      	# A library for manipulating JPEG image format files
@@ -638,7 +634,7 @@ texi2html                 	# A highly customizable texinfo to HTML and other for
 texinfo                   	# Documentation system for on-line information and printed output
 untex                     	# Remove LaTeX commands from input
 util-linux                	# Random collection of Linux utilities
-w3m                       	# A text based Web browser and pager
+w3m                       	# A text-based Web browser and pager
 xmlto                     	# Converts XML to various formats
 
 
@@ -698,7 +694,7 @@ links                     	# Text mode WWW browser
 lynx                      	# Text-mode WWW Browser
 squid                     	# Web Proxy Cache
 subversion-apache2        	# A version control system (Apache 2 modules)
-w3m                       	# A text based Web browser and pager
+w3m                       	# A text-based Web browser and pager
 wget                      	# Utility to retrieve files from the WWW via HTTP and FTP
 xrx                       	# X.Org RX document helper app and plugins
 
@@ -765,7 +761,6 @@ nedit                     	# X multi-purpose text editor
 oclock                    	# Xorg round clock
 perl-Tk                   	# Perl interface for Tk (X11)
 proxymngr                 	# Xorg proxy manager
-qt3                       	# C++ GUI application framework (sources)
 setxkbmap                 	# X.Org keyboard settings utility
 sxpm                      	# X.Org X Pixmap utilities
 twm                       	# X.Org Tiny Window Manager

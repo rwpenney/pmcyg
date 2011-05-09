@@ -7,6 +7,59 @@ sys.path.insert(0, '..')
 from pmcyg import *
 
 
+class testSetupIniFetcher(unittest.TestCase):
+    """Test for opening of optionally compressed setup.ini via URL"""
+    def setUp(self):
+        self._tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self._tmpdir)
+
+    def testPlain(self):
+        seed = random.randint(0, 1<<31)
+        count = 1 << 16
+
+        tmpfile = os.path.join(self._tmpdir, 'raw.txt')
+        fp = open(tmpfile, 'wt')
+        self._generate(fp, seed, count)
+        fp.close()
+
+        self._validate(tmpfile, seed, count)
+
+    def testCompressed(self):
+        seed = random.randint(0, 1<<31)
+        count = 1 << 16
+
+        tmpfile = os.path.join(self._tmpdir, 'comp.bz2')
+        compressor = bz2.BZ2File(tmpfile, 'w')
+        self._generate(compressor, seed, count)
+        compressor.close()
+
+        self._validate(tmpfile, seed, count)
+
+    def _validate(self, filename, seed, count):
+        fetcher = SetupIniFetcher('file:' + filename)
+        nlines = 0
+        for q in fetcher:
+            val = int(q, 16)
+            self.assertEqual(val, seed)
+            seed = self._step(seed)
+            nlines += 1
+        self.assertEqual(nlines, count)
+
+    def _generate(self, handle, state, count):
+        for p in xrange(0, count):
+            handle.write('%8x\n' % state)
+            state = self._step(state)
+
+    def _step(self, state):
+        """Take step in linear congruential series (a la Park-Miller)"""
+        scale = 69632
+        dvsor = (1 << 31) - 1
+        return (state * scale) % dvsor
+
+
+
 class testMasterPackageList(unittest.TestCase):
     pkglist = MasterPackageList()
 

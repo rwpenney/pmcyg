@@ -34,7 +34,7 @@ Installation
 ============
 
 To run pmcyg, you will need to have a recent version of 'Python' installed
-(preferably version 2.3-2.6). This should be available by default on most
+(preferably version 2.4-2.7). This should be available by default on most
 GNU/Linux systems, or can be obtained from http://www.python.org
 
 In order to use pmcyg as a graphical (GUI) application, you will need

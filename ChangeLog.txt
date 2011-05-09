@@ -1,5 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
-## (C)Copyright 2009-2010, RW Penney
+## http://pmcyg.sourceforge.net
+## (C)Copyright 2009-2011, RW Penney
+
+09May11
+    Added support for using bz2-compressed version of setup.ini database
+
+10Apr11
+    Added facility to generate package-list to mirror running Cygwin installation
 
 17Oct10 **** pmcyg-0.5 released ****
 
