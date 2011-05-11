@@ -2,6 +2,10 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2011, RW Penney
 
+11May11
+    Refactored package dependency managment into new PackageDatabase class
+    Added facility to reduce list of packages to minimal install set
+
 09May11
     Added support for using bz2-compressed version of setup.ini database
 

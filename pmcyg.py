@@ -104,8 +104,8 @@ class PMbuilder(object):
         # URL of official list of Cygwin mirrors:
         self._mirrorlisturl = 'http://cygwin.com/mirrors.lst'
 
-        self._masterlist = MasterPackageList()
-        self._listLock = threading.Lock()
+        self._masterList = MasterPackageList(verbose=True)
+        self._pkgDB = PackageDatabase(self._masterList)
         self._garbage = GarbageCollector()
         self._cancelling = False
         self._mirrordict = None
@@ -153,11 +153,7 @@ class PMbuilder(object):
         else:
             self._iniurl = urlparse.urljoin(self._mirror, 'setup.bz2')
             reload = True
-        try:
-            self._listLock.acquire()
-            self._masterlist.SetSourceURL(self._iniurl, reload)
-        finally:
-            self._listLock.release()
+        self._masterList.SetSourceURL(self._iniurl, reload)
 
     def GetEpochs(self):
         return self._epochs
@@ -279,12 +275,8 @@ class PMbuilder(object):
     def MakeTemplate(self, stream, userpkgs=None):
         """Generate template package listing file"""
 
-        (header, pkgdict) = self._getPkgDict()
-        try:
-            self._listLock.acquire()
-            catgroups = self._masterlist.GetCategories()
-        finally:
-            self._listLock.release()
+        pkgdict = self._masterList.GetPackageDict()
+        catgroups = self._masterlist.GetCategories()
         catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
         catlist.sort()
 
@@ -303,27 +295,6 @@ class PMbuilder(object):
                 prefix = '#'
                 if userpkgs and pkg in userpkgs: prefix=''
                 print >>stream, '%s%-24s  \t# %s' % ( prefix, pkg, desc )
-
-
-    def _getPkgDict(self):
-        """Return, possibly cached, package dictionary from setup.ini file"""
-        (hdr, pkgs) = (None, None)
-        try:
-            self._listLock.acquire()
-            cached = self._masterlist.HasCachedData()
-            if not cached:
-                print 'Scanning mirror index at %s...' % self._masterlist.GetSourceURL(),
-                sys.stdout.flush()
-
-            (hdr, pkgs) = self._masterlist.GetHeaderAndPackages()
-
-            if not cached:
-                print ' done'
-        finally:
-            self._listLock.release()
-
-        return (hdr, pkgs)
-
 
     def _makeFallbackMirrorList(self):
             return StringIO.StringIO("""
@@ -346,49 +317,15 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
     def _resolveDependencies(self, usrpkgs=None):
         """Constuct list of packages, including all their dependencies"""
 
-        (hdr, pkgdict) = self._getPkgDict()
-
-        additions = self._extendPkgSelection(usrpkgs)
-        packages = set()
-        badpkgnames = []
-
-        while additions:
-            pkg = additions.pop()
-            packages.add(pkg)
-
-            pkginfo = pkgdict.get(pkg, None)
-            if not pkginfo:
-                badpkgnames.append(pkg)
-                continue
-
-            # Find dependencies of current package & add to stack:
-            for epoch in self._epochs:
-                try:
-                    key = 'requires' + '_' + epoch
-                    reqlist = pkginfo.get(key, '').split()
-                    for r in reqlist:
-                        if not r in packages:
-                            additions.add(r)
-                except:
-                    print >>sys.stderr, 'Cannot find epoch \'%s\' for %s' % (epoch, pkg)
-
-        if badpkgnames:
-            badpkgnames.sort()
-            raise PMCygException, \
-                "The following package names were not recognized:\n\t%s\n" \
-                % ( '\n\t'.join(badpkgnames) )
-
-        packages = list(packages)
-        packages.sort()
-
-        return packages
+        selected = self._extendPkgSelection(usrpkgs)
+        return self._pkgDB.ExpandDependencies(selected, self._epochs)
 
     def _extendPkgSelection(self, userpkgs=None):
         """Amend list of packages to include base or default packages"""
 
         pkgset = set()
 
-        (hdr, pkgdict) = self._getPkgDict()
+        pkgdict = self._masterList.GetPackageDict()
         if not pkgdict:
             return pkgset
 
@@ -415,7 +352,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
     def _buildFetchList(self, packages):
         """Convert list of packages into set of files to fetch from Cygwin server"""
-        (header, pkgdict) = self._getPkgDict()
+        pkgdict = self._masterList.GetPackageDict()
 
         # Construct list of compiled/source/current/previous variants:
         pkgtypes = ['install']
@@ -445,7 +382,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
     def _buildSetupFiles(self, packages):
         """Create top-level configuration files in local mirror"""
 
-        (header, pkgdict) = self._getPkgDict()
+        (header, pkgdict) = self._masterList.GetHeaderAndPackages()
         hashfiles = []
 
         (inibase, inipure) = self._urlbasename(self._iniurl)
@@ -626,10 +563,82 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return '%dB' % ( size )
 
 
+class PackageDatabase(object):
+    """Utilities for managing package dependencies based on parsed setup.ini"""
+    def __init__(self, masterList):
+        self._masterList = masterList
+        self._verbose = masterList._verbose
 
-"""Database of available Cygwin packages built from 'setup.ini' file"""
+    def ExpandDependencies(self, selected, epochs=['curr']):
+        """Expand list of packages to include all their dependencies"""
+        pkgdict = self._masterList.GetPackageDict()
+
+        additions = selected
+        packages = set()
+        badpkgnames = []
+
+        while additions:
+            pkg = additions.pop()
+            packages.add(pkg)
+
+            pkginfo = pkgdict.get(pkg, None)
+            if not pkginfo:
+                badpkgnames.append(pkg)
+                continue
+
+            # Find dependencies of current package & add to stack:
+            for epoch in epochs:
+                try:
+                    key = 'requires' + '_' + epoch
+                    reqlist = pkginfo.get(key, '').split()
+                    for r in reqlist:
+                        if not r in packages:
+                            additions.add(r)
+                except:
+                    if self._verbose:
+                        print >>sys.stderr, 'Cannot find epoch \'%s\' for %s' % (epoch, pkg)
+
+        if badpkgnames:
+            badpkgnames.sort()
+            raise PMCygException, \
+                "The following package names were not recognized:\n\t%s\n" \
+                % ( '\n\t'.join(badpkgnames) )
+
+        packages = list(packages)
+        packages.sort()
+
+        return packages
+
+    def ContractDependencies(self, pkglist, minvotes=6):
+        """Remove (most) automatically installed packages from list"""
+        dependencies = self._buildDependencies()
+        votes = dict([(p, 0) for p in pkglist])
+
+        # Find number of times each package is cited as a dependency:
+        for pkg in pkglist:
+            reqs = dependencies.get(pkg, [])
+            for req in reqs:
+                votes[req] = votes.get(req, 0) + 1
+
+        return [pkg for pkg,n in votes.iteritems()
+                    if n == 0 or n >= minvotes]
+
+    def _buildDependencies(self, epoch='curr'):
+        """Build lookup table of dependencies of each available package"""
+        pkgdict = self._masterList.GetPackageDict()
+        dependencies = {}
+        for pkg, pkginfo in pkgdict.iteritems():
+            try:
+                dependencies[pkg] = pkginfo.get('requires_curr', '').split()
+            except:
+                pass
+        return dependencies
+
+
+
 class MasterPackageList(object):
-    def __init__(self, iniURL=None):
+    """Database of available Cygwin packages built from 'setup.ini' file"""
+    def __init__(self, iniURL=None, verbose=False):
         self.re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
         self.re_comment = re.compile(r'#(.*)$')
         self.re_package = re.compile(r'^@\s+(\S+)$')
@@ -639,13 +648,19 @@ class MasterPackageList(object):
         self.all_regexps = [ self.re_setup, self.re_comment, self.re_blank,
                         self.re_package, self.re_epoch, self.re_field ]
 
+        self._verbose = verbose
+        self._pkgLock = threading.Lock()
         self._iniURL = None
         self.ClearCache()
         self.SetSourceURL(iniURL)
 
     def ClearCache(self):
-        self._ini_header = None
-        self._ini_packages = None
+        try:
+            self._pkgLock.acquire()
+            self._ini_header = None
+            self._ini_packages = None
+        finally:
+            self._pkgLock.release()
 
     def GetSourceURL(self):
         return self._iniURL
@@ -656,15 +671,15 @@ class MasterPackageList(object):
         self._iniURL = iniURL
 
     def GetHeaderInfo(self):
-        self._parseSource()
+        self._ingest()
         return self._ini_header
 
     def GetPackageDict(self):
-        self._parseSource()
+        self._ingest()
         return self._ini_packages
 
     def GetHeaderAndPackages(self):
-        self._parseSource()
+        self._ingest()
         return (self._ini_header, self._ini_packages)
 
     def HasCachedData(self):
@@ -690,11 +705,23 @@ class MasterPackageList(object):
 
         return catlists
 
-    def _parseSource(self):
-        # Check if cached result is available
-        if self._ini_header and self._ini_packages:
-            return
+    def _ingest(self):
+        try:
+            self._pkgLock.acquire()
+            if self._ini_header and self._ini_packages:
+                return
+            if self._verbose:
+                print 'Scanning mirror index at %s...' % self._iniURL,
+                sys.stdout.flush()
+            self._parseSource()
+            if self._verbose:
+                print ' done'
+                sys.stdout.flush()
+        finally:
+            self._pkgLock.release()
 
+    def _parseSource(self):
+        """Acquire setup.ini file from supplied URL and parse package info"""
         self._ini_header = {}
         self._ini_packages = {}
 
