@@ -7,6 +7,17 @@ sys.path.insert(0, '..')
 from pmcyg import *
 
 
+def getSetupURL():
+    if os.path.isfile('setup.ini'):
+        txdirsep = string.maketrans('\\', '/')
+        cwd = os.getcwd()
+        urlprefix = 'file://' + cwd.translate(txdirsep) + '/'
+        return urlparse.urljoin(urlprefix, 'setup.ini')
+    else:
+        return 'http://ftp.heanet.ie/pub/cygwin/setup.ini'
+
+
+
 class testSetupIniFetcher(unittest.TestCase):
     """Test for opening of optionally compressed setup.ini via URL"""
     def setUp(self):
@@ -64,18 +75,11 @@ class testMasterPackageList(unittest.TestCase):
     pkglist = MasterPackageList()
 
     def setUp(self):
-        if os.path.isfile('setup.ini'):
-            txdirsep = string.maketrans('\\', '/')
-            cwd = os.getcwd()
-            self.urlprefix = 'file://' + cwd.translate(txdirsep) + '/'
-            iniurl = urlparse.urljoin(self.urlprefix, 'setup.ini')
-        else:
-            iniurl = 'http://ftp.heanet.ie/pub/cygwin/setup.ini'
-
+        iniurl = getSetupURL()
         try:
             self.pkglist.SetSourceURL(iniurl)
         except:
-            self.fail('Failed to read setup.ini')
+            self.fail('Failed to read setup.ini (%s)' % iniurl)
 
     def tearDown(self):
         pass
@@ -178,6 +182,51 @@ class testMasterPackageList(unittest.TestCase):
 
                 for pkgname in members:
                     self.failUnless(pkgname in packages.iterkeys())
+
+
+
+class testPackageDatabase(unittest.TestCase):
+    def setUp(self):
+        self.masterList = MasterPackageList()
+        self.masterList.SetSourceURL(getSetupURL())
+
+    def testExpand(self):
+        pkgDB = PackageDatabase(self.masterList)
+
+        explist = pkgDB.ExpandDependencies([])
+        self.assertEqual(len(explist), 0)
+
+        explist = pkgDB.ExpandDependencies(['make'])
+        self.assertTrue(len(explist) > 6)
+        self.checkSubset(explist, ['make', 'bash', 'coreutils', 'cygwin',
+                                    'libgcc1', 'tzcode'])
+
+        explist = pkgDB.ExpandDependencies(['bash', 'boost', 'bvi'])
+        self.assertTrue(len(explist) > 20)
+        self.checkSubset(explist, ['bash', 'boost', 'bvi',
+                                    'boost-devel', 'cygwin', 'libboost',
+                                    'libexpat1', 'libgcc1', 'libncurses8',
+                                    'libreadline7', 'python', 'zlib'])
+
+    def testInverse(self):
+        """Check that contraction can be inverted by expansion"""
+        pkgdict = self.masterList.GetPackageDict()
+        pkglist = [p for p in pkgdict.iterkeys()]
+
+        for iterations in range(0, 100):
+            pkgDB = PackageDatabase(self.masterList)
+
+            selected = random.sample(pkglist, random.randint(1, 20))
+
+            full = pkgDB.ExpandDependencies(selected)
+            contracted = pkgDB.ContractDependencies(full)
+            expanded = pkgDB.ExpandDependencies(contracted)
+
+            self.assertEqual(full, expanded)
+
+    def checkSubset(self, entire, sub):
+        for p in sub:
+            self.assertTrue(p in entire)
 
 
 

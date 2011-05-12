@@ -573,7 +573,7 @@ class PackageDatabase(object):
         """Expand list of packages to include all their dependencies"""
         pkgdict = self._masterList.GetPackageDict()
 
-        additions = selected
+        additions = set(selected)
         packages = set()
         badpkgnames = []
 
@@ -620,8 +620,26 @@ class PackageDatabase(object):
             for req in reqs:
                 votes[req] = votes.get(req, 0) + 1
 
-        return [pkg for pkg,n in votes.iteritems()
-                    if n == 0 or n >= minvotes]
+        # Finding zero-vote packages would be sufficient if the graph of
+        # dependencies did not contain loops (e.g. gcc-mingw-g++ <-> gcc-g++).
+        # We add packages with many votes because they are probably worth
+        # listing explicitly, even if they would be installed as dependencies
+        # of zero-vote packages.
+        primaries = [pkg for pkg,n in votes.iteritems()
+                            if n == 0 or n >= minvotes]
+
+        # Preserve any packages not covered by the tree grown from
+        # the zero-vote packages, to handle segments of the dependency graph
+        # containing loops:
+        coverage = self.ExpandDependencies(primaries)
+        contracted = set(pkglist).difference(coverage)
+
+        packages = list(contracted.union(primaries))
+        packages.sort()
+
+        return packages
+        
+
 
     def _buildDependencies(self, epoch='curr'):
         """Build lookup table of dependencies of each available package"""
