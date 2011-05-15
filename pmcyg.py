@@ -36,6 +36,7 @@ except:
     class Tk: Canvas = object
     HASGUI = False
 
+HOST_IS_CYGWIN = (sys.platform == 'cygwin')
 
 broken_openfilenames = False
 if sys.platform.startswith('win') and sys.version.startswith('2.6.'):
@@ -55,31 +56,31 @@ class PMCygException(Exception):
 class SetupIniFetcher(object):
     """Facade for fetching setup.ini from URL, with optional bz2-decompression"""
     def __init__(self, URL):
-        self._stream = URLopen(URL)
+        self._buffer = StringIO.StringIO()
+        stream = URLopen(URL)
+        processor = lambda x: x
         if URL.endswith('.bz2'):
-            self._decompress = True
             expander = bz2.BZ2Decompressor()
-            outbuff = StringIO.StringIO()
-            while True:
-                try:
-                    chunk = self._stream.read(1 << 16)
-                    bunzip = expander.decompress(chunk)
-                    outbuff.write(bunzip)
-                except:
-                    break
-            outbuff.seek(0)
-            self._stream = outbuff
-        else:
-            self._decompress = False
+            processor = lambda x: expander.decompress(x)
+        while True:
+            try:
+                chunk = stream.read(1 << 16)
+                if not chunk: break
+                processed = processor(chunk)
+                self._buffer.write(processed.decode('ascii'))
+            except:
+                break
+        stream.close()
+        self._buffer.seek(0)
 
     def __iter__(self):
         return self
 
     def next(self):
-        return self._stream.next()
+        return self._buffer.next()
 
     def close(self):
-        self._stream.close()
+        self._buffer.close()
 
 
 
@@ -226,7 +227,7 @@ class PMbuilder(object):
         re_colhdr = re.compile(r'^Package\s+Version')
         try:
             pkgs = []
-            if sys.platform != 'cygwin':
+            if not HOST_IS_CYGWIN:
                 raise PMCygException, 'Not cygwin platform'
             proc = subprocess.Popen(['/bin/cygcheck', '-cd'],
                                     shell=False, stdout=PIPE, close_fds=True)
@@ -272,11 +273,11 @@ class PMbuilder(object):
         self._cancelling = flag
 
 
-    def MakeTemplate(self, stream, userpkgs=None):
-        """Generate template package listing file"""
+    def MakeTemplate(self, stream, userpkgs=None, terse=False):
+        """Generate template package-listing file"""
 
         pkgdict = self._masterList.GetPackageDict()
-        catgroups = self._masterlist.GetCategories()
+        catgroups = self._masterList.GetCategories()
         catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
         catlist.sort()
 
@@ -288,13 +289,31 @@ class PMbuilder(object):
         print >>stream, '# This file contains listings of cygwin package names, one per line.\n# Lines starting with \'#\' denote comments, with blank lines being ignored.\n# The dependencies of any package listed here should be automatically\n# included in the mirror by pmcyg.'
 
         for cat in catlist:
+            if terse and not set(catgroups[cat]).intersection(userpkgs):
+                continue
+
             print >>stream, '\n\n##\n## %s\n##' % cat
 
             for pkg in catgroups[cat]:
                 desc = descfix(pkgdict[pkg].get('sdesc_curr', ''))
-                prefix = '#'
-                if userpkgs and pkg in userpkgs: prefix=''
+                if userpkgs and pkg in userpkgs:
+                    prefix = ''
+                else:
+                    if terse: continue
+                    prefix = '#'
                 print >>stream, '%s%-24s  \t# %s' % ( prefix, pkg, desc )
+
+    def TemplateFromLists(self, outfile, pkgfiles, cygwinReplica=False):
+        """Wrapper for MakeTemplate() taking collection of package files"""
+        usrpkgs = []
+        if cygwinReplica:
+            usrpkgs = self.ListInstalled()
+        if pkgfiles:
+            usrpkgs.extend(self.ReadPackageLists(pkgfiles))
+
+        fp = open(outfile, 'wt')
+        self.MakeTemplate(fp, usrpkgs, terse=cygwinReplica)
+        fp.close()
 
     def _makeFallbackMirrorList(self):
             return StringIO.StringIO("""
@@ -758,7 +777,6 @@ class MasterPackageList(object):
         self._inquote = False
 
         for line in fp:
-            line = line.decode('ascii')
             lineno += 1
 
             if self._inquote and self._fieldname:
@@ -1187,6 +1205,8 @@ class TKgui(object):
         filemenu = Tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label='Clear history', command=self.clearHist)
         filemenu.add_command(label='Make template', command=self.mkTemplate)
+        if HOST_IS_CYGWIN:
+            filemenu.add_command(label='Make replica', command=self.mkReplica)
         filemenu.add_separator()
         filemenu.add_command(label='Quit', command=rootwin.quit)
         menubar.add_cascade(label='File', menu=filemenu)
@@ -1268,12 +1288,28 @@ class TKgui(object):
 
     def mkTemplate(self):
         """GUI callback for creating template package-list file"""
+        self.mkPackageList()
+
+    def mkReplica(self):
+        """GUI callback for creating replica of existing Cygwin package set"""
+        self.mkPackageList(cygwinReplica=True)
+
+    def mkPackageList(self, cygwinReplica=False):
+        """Callback helper for creating template package-list files"""
         self._txFields()
 
-        tpltname = tkFileDialog.asksaveasfilename(title='Create pmcyg package-listing template', initialfile='pmcyg-template.pkgs')
+        if cygwinReplica:
+            wintitle = 'Create pmcyg replica list'
+            filename = 'pmcyg-replica.pkgs'
+        else:
+            wintitle = 'Create pmcyg package-listing template'
+            filename = 'pmcyg-template.pkgs'
+
+        tpltname = tkFileDialog.asksaveasfilename(title=wintitle,
+                                                initialfile=filename)
         if not tpltname: return
 
-        thrd = GUItemplateThread(self, tpltname)
+        thrd = GUItemplateThread(self, tpltname, cygwinReplica)
         thrd.setDaemon(True)
         thrd.start()
 
@@ -1292,7 +1328,7 @@ class TKgui(object):
 - a tool for creating Cygwin(TM) partial mirrors
 Version %s
 
-Copyright © 2009-2010 RW Penney
+Copyright © 2009-2011 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
@@ -1529,21 +1565,17 @@ class GUIfetchThread(threading.Thread):
 
 class GUItemplateThread(threading.Thread):
     """Asynchronous generation of template list of packages"""
-    def __init__(self, parent, filename):
+    def __init__(self, parent, filename, cygwinReplica=False):
         threading.Thread.__init__(self, target=self.mktemplate)
         self.parent = parent
         self.filename = filename
+        self.cygwinReplica = cygwinReplica
 
     def mktemplate(self):
         builder = self.parent.builder
-        usrpkgs = None
-
         try:
-            if self.parent.pkgfiles:
-                usrpkgs = builder.ReadPackageLists(self.parent.pkgfiles)
-            fp = open(self.filename, 'wt')
-            builder.MakeTemplate(fp, usrpkgs)
-            fp.close()
+            builder.TemplateFromLists(self.filename, self.parent.pkgfiles,
+                                    self.cygwinReplica)
             print 'Generated template file "%s"' % ( self.filename )
         except Exception, ex:
             print >>sys.stderr, 'Failed to create "%s" - %s' % ( self.filename, str(ex) )
@@ -1671,16 +1703,10 @@ def PlainMain(builder, pkgfiles):
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
 
 
-def TemplateMain(builder, outfile, pkgfiles):
+def TemplateMain(builder, outfile, pkgfiles, cygwinReplica=False):
     """Subsidiary program entry-point for command-line list generation"""
 
-    usrpkgs = None
-    if pkgfiles:
-        usrpkgs = builder.ReadPackageLists(pkgfiles)
-
-    fp = open(outfile, 'wt')
-    builder.MakeTemplate(fp, usrpkgs)
-    fp.close()
+    builder.TemplateFromLists(outfile, pkgfiles, cygwinReplica)
 
 
 def GUImain(builder, pkgfiles):
@@ -1699,6 +1725,7 @@ def main():
                         usage='usage: %prog [options] [package_file...]',
                         description='pmcyg is a tool for generating customized Cygwin(TM) installers',
                         version=PMCYG_VERSION)
+
     bscopts = optparse.OptionGroup(parser, 'Basic options')
     bscopts.add_option('--all', '-a', action='store_true', default=False,
             help='include all available Cygwin packages (default=%default)')
@@ -1716,7 +1743,11 @@ def main():
     bscopts.add_option('--generate-template', '-g', type='string',
             dest='pkg_file', default=None,
             help='generate template package-listing')
+    bscopts.add_option('--generate-replica', '-R', type='string',
+            dest='cyg_list', default=None,
+            help='generate copy of existing Cygwin installation')
     parser.add_option_group(bscopts)
+
     advopts = optparse.OptionGroup(parser, 'Advanced options')
     advopts.add_option('--epochs', '-e', type='string',
             default=','.join(builder.GetEpochs()),
@@ -1741,6 +1772,7 @@ def main():
             help='remove old versions of packages [no/yes/ask]'
                 ' (default=%default)')
     parser.add_option_group(advopts)
+
     opts, remargs = parser.parse_args()
 
     builder.SetTargetDir(opts.directory)
@@ -1757,6 +1789,10 @@ def main():
 
     if opts.pkg_file:
         TemplateMain(builder, opts.pkg_file, remargs)
+    elif opts.cyg_list:
+        if not HOST_IS_CYGWIN:
+            print >>sys.stderr, 'WARNING: pmcyg attempting to create replica of non-Cygwin host'
+        TemplateMain(builder, opts.cyg_list, remargs, cygwinReplica=True)
     elif HASGUI and not opts.nogui:
         GUImain(builder, remargs)
     else:

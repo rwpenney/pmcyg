@@ -9,9 +9,8 @@ from pmcyg import *
 
 def getSetupURL():
     if os.path.isfile('setup.ini'):
-        txdirsep = string.maketrans('\\', '/')
         cwd = os.getcwd()
-        urlprefix = 'file://' + cwd.translate(txdirsep) + '/'
+        urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
         return urlparse.urljoin(urlprefix, 'setup.ini')
     else:
         return 'http://ftp.heanet.ie/pub/cygwin/setup.ini'
@@ -31,7 +30,7 @@ class testSetupIniFetcher(unittest.TestCase):
         count = 1 << 16
 
         tmpfile = os.path.join(self._tmpdir, 'raw.txt')
-        fp = open(tmpfile, 'wt')
+        fp = open(tmpfile, 'wb')
         self._generate(fp, seed, count)
         fp.close()
 
@@ -60,7 +59,7 @@ class testSetupIniFetcher(unittest.TestCase):
 
     def _generate(self, handle, state, count):
         for p in xrange(0, count):
-            handle.write('%8x\n' % state)
+            handle.write(('%8x\n' % state).encode('ascii'))
             state = self._step(state)
 
     def _step(self, state):
@@ -96,16 +95,16 @@ class testMasterPackageList(unittest.TestCase):
     def testIngestion(self):
         (header, packages) = self.pkglist.GetHeaderAndPackages()
 
-        self.failIf(header.get('setup-version') == None)
+        self.assertFalse(header.get('setup-version') == None)
         try:
             ts = long(header['setup-timestamp'])
-            self.failUnless(ts > (1L << 30))
-            self.failUnless(ts < (1L << 31))
+            self.assertTrue(ts > (1L << 30))
+            self.assertTrue(ts < (1L << 31))
         except:
             self.fail()
 
-        self.failIf(packages == None)
-        self.failUnless(len(packages) >= 1000)
+        self.assertFalse(packages == None)
+        self.assertTrue(len(packages) >= 1000)
 
     def testFieldPresence(self):
         fields = ['sdesc_curr', 'category_curr', 'version_curr',
@@ -126,12 +125,12 @@ class testMasterPackageList(unittest.TestCase):
                 except:
                     pass
 
-        self.failUnless(scores['sdesc_curr'] == numpkgs)
-        self.failUnless(scores['category_curr'] == numpkgs)
-        self.failUnless(scores['version_curr'] >= 0.8 * numpkgs)
-        self.failUnless(scores['install_curr'] >= 0.8 * numpkgs)
-        self.failUnless(scores['source_curr'] >= 0.75 * numpkgs)
-        self.failUnless(scores['install_prev'] >= 0.3 * numpkgs)
+        self.assertTrue(scores['sdesc_curr'] == numpkgs)
+        self.assertTrue(scores['category_curr'] == numpkgs)
+        self.assertTrue(scores['version_curr'] >= 0.8 * numpkgs)
+        self.assertTrue(scores['install_curr'] >= 0.8 * numpkgs)
+        self.assertTrue(scores['source_curr'] >= 0.75 * numpkgs)
+        self.assertTrue(scores['install_prev'] >= 0.3 * numpkgs)
 
     def testLongDescriptions(self):
         (header, packages) = self.pkglist.GetHeaderAndPackages()
@@ -156,10 +155,10 @@ class testMasterPackageList(unittest.TestCase):
                 if not line.strip():
                     blanks += 1
 
-            self.failIf(blanks > (desclen + 2) / 3)
+            self.assertFalse(blanks > (desclen + 2) / 3)
 
-        self.failUnless(numldesc >= 0.7 * numpkgs)
-        self.failUnless(totlines > 2 * numldesc)
+        self.assertTrue(numldesc >= 0.7 * numpkgs)
+        self.assertTrue(totlines > 2 * numldesc)
 
     def testCategories(self):
         packages = self.pkglist.GetPackageDict()
@@ -176,12 +175,12 @@ class testMasterPackageList(unittest.TestCase):
                         cats = pkginfo['category_curr'].split()
                     except:
                         cats = None
-                    self.failUnless(cat in cats)
+                    self.assertTrue(cat in cats)
             else:
                 self.assertEqual(len(members), len(packages))
 
                 for pkgname in members:
-                    self.failUnless(pkgname in packages.iterkeys())
+                    self.assertTrue(pkgname in packages.iterkeys())
 
 
 
@@ -227,6 +226,61 @@ class testPackageDatabase(unittest.TestCase):
     def checkSubset(self, entire, sub):
         for p in sub:
             self.assertTrue(p in entire)
+
+
+
+class testBuilder(unittest.TestCase):
+    def setUp(self):
+        self.builder = PMbuilder()
+        self.builder.SetIniURL(getSetupURL())
+        self.builder._masterList._verbose = False
+
+    def testTemplate(self):
+        topdir = tempfile.mkdtemp()
+        try:
+            tplt = os.path.join(topdir, 'templates.txt')
+            fp = open(tplt, 'wt')
+            self.builder.MakeTemplate(fp)
+            fp.close()
+
+            counts = self.templateCounts(tplt)
+            self.assertTrue(counts['categories'] >= 20)
+            self.assertTrue(counts['categories'] <= 100)
+            self.assertTrue(counts['packages'] >= 1000)
+
+        finally:
+            shutil.rmtree(topdir)
+
+    def testTerseTemplate(self):
+        topdir = tempfile.mkdtemp()
+        try:
+            tplt = os.path.join(topdir, 'terse.txt')
+            fp = open(tplt, 'wt')
+            self.builder.MakeTemplate(fp, ['bash', 'boost', 'tcsh', 'vim', 'zsh'], terse=True)
+            fp.close()
+
+            counts = self.templateCounts(tplt)
+            self.assertEqual(counts['categories'], 4)
+            self.assertEqual(counts['packages'], 6)
+
+        finally:
+            shutil.rmtree(topdir)
+
+    def templateCounts(self, tplt):
+        """Basic sanity checking on template package listing"""
+        re_category = re.compile(r'^## [^#]+$')
+        re_package = re.compile(r'^#?[a-zA-Z][^ ]*\s+#[^#]*$')
+        counts = { 'categories':0, 'packages':0 }
+
+        fp = open(tplt, 'rt')
+        for line in fp:
+            if re_category.match(line):
+                counts['categories'] += 1
+            if re_package.match(line):
+                counts['packages'] += 1
+        fp.close()
+
+        return counts
 
 
 
@@ -327,13 +381,14 @@ def makeGarbageTree(treefile, topdir='.'):
             except OSError:
                 pass
         elif ftype == 'F':
-            fp = open(fname, 'wb')
+            fp2 = open(fname, 'wt')
             flen = random.randint(0, 512)
-            fp.write(chr(0xaa) * flen)
-            fp.close()
+            print >>fp2, (chr(0x5a) * flen)
+            fp2.close()
             treedict['files'].append(fname)
         else:
             pass
+    fp.close()
 
     return treedict
 

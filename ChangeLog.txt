@@ -2,6 +2,12 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2011, RW Penney
 
+15May11
+    Adjusted unit-test suite to be cleaner when run with Python-3.x
+
+14May11
+    Added Cygwin-replication mechanisms into GUI & command-line options
+
 11May11
     Refactored package dependency managment into new PackageDatabase class
     Added facility to reduce list of packages to minimal install set
