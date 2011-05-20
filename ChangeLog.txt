@@ -2,6 +2,8 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2011, RW Penney
 
+20May11 **** pmcyg-0.6 released ****
+
 15May11
     Adjusted unit-test suite to be cleaner when run with Python-3.x
 

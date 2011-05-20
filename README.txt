@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, June 2010
+                        RW Penney, May 2011
 
 
 Introduction
@@ -11,7 +11,7 @@ a self-contained CD or DVD that can be used to install or upgrade Cygwin
 on computers that do not have network access to a Cygwin mirror site.
 
 pmcyg avoids having to download the entirety of a Cygwin release
-(about 4GB or more), and can create a minimal Cygwin installation within 20MB.
+(about 4GB or more), and can create a minimal Cygwin installation within 25MB.
 In general, pmcyg will take a user-supplied list of cygwin package names,
 work out which other packages they depend on, and only download those packages
 from a user-selected Cygwin mirror site.  It will then assemble a set of
@@ -27,7 +27,7 @@ Licensing
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2010 RW Penney <rwpenney@users.sourceforge.net>.
+and are Copyright 2009-2011 RW Penney <rwpenney@users.sourceforge.net>.
 
 
 Installation
@@ -140,6 +140,24 @@ would be dangerous. In these circumstances it will behave as though the user
 had selected the 'ask' setting. Naturally, these tests offer no guarantees
 that important files will not be deleted, so setting 'remove-outdated' to 'yes'
 is to be used with caution.
+
+
+Cloning and existing Cygwin installation
+========================================
+
+If you have an existing Cygwin setup that you would like to reproduce,
+pmcyg can construct a package list that can be used to create an off-line
+installer for the same set of packages. When pmcyg is run from within
+your Cygwin environment, you can use the '--generate-replica' command-line
+option or the 'Make replica' within the 'File' menu on the GUI.
+
+Note, that this facility will only create a set of Cygwin packages necessary
+to create a similar installation. The actual packages downloaded may be
+different (probably later) version, and any customization of configuration
+files will need to be performed manually.
+
+If you get an error message of the form "unable to remap" when using this
+facility, you may need to run Cygwin's "rebaseall" utility.
 
 
 Please note

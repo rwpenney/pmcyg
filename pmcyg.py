@@ -120,6 +120,7 @@ class PMbuilder(object):
         }
 
         self._fetchStats = FetchStats()
+        self._cygcheck_list = []
 
     def GetTargetDir(self):
         return self._tgtdir
@@ -224,13 +225,17 @@ class PMbuilder(object):
 
     def ListInstalled(self):
         """Generate list of all packages on existing Cygwin installation"""
+
+        if not HOST_IS_CYGWIN: return []
+        if self._cygcheck_list: return self._cygcheck_list
+
         re_colhdr = re.compile(r'^Package\s+Version')
+        pkgs = []
+
         try:
-            pkgs = []
-            if not HOST_IS_CYGWIN:
-                raise PMCygException, 'Not cygwin platform'
-            proc = subprocess.Popen(['/bin/cygcheck', '-cd'],
-                                    shell=False, stdout=PIPE, close_fds=True)
+            proc = subprocess.Popen(['/bin/cygcheck.exe', '-cd'],
+                                    shell=False, stdout=subprocess.PIPE,
+                                    close_fds=True)
             inHeader = True
             for line in proc.stdout:
                 if inHeader and re_colhdr.match(line):
@@ -238,9 +243,11 @@ class PMbuilder(object):
                     continue
                 if not inHeader:
                     pkgs.append(line.split()[0])
-            return pkgs
-        except:
-            return []
+            proc.wait()
+        except Exception, ex:
+            print >>sys.stderr, 'Listing installed packages failed - ', str(ex)
+        self._cygcheck_list = pkgs
+        return pkgs
 
 
     def BuildMirror(self, userpackages):
@@ -398,13 +405,14 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return downloads
 
 
-    def _buildSetupFiles(self, packages):
+    def _buildSetupFiles(self, packages, verbose=True):
         """Create top-level configuration files in local mirror"""
 
         (header, pkgdict) = self._masterList.GetHeaderAndPackages()
         hashfiles = []
 
-        (inibase, inipure) = self._urlbasename(self._iniurl)
+        (inifile, inipure) = self._urlbasename(self._iniurl)
+        inibase = inipure + '.ini'
         inibz2 = inipure + '.bz2'
         (exebase, exepure) = self._urlbasename(self._exeurl)
 
@@ -446,10 +454,12 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         tgtpath = os.path.join(self._tgtdir, exebase)
         hashfiles.append(exebase)
         try:
-            print 'Retrieving %s to %s...' % ( self._exeurl, tgtpath ),
+            if verbose:
+                print 'Retrieving %s to %s...' % ( self._exeurl, tgtpath ),
             sys.stdout.flush()
             urllib.urlretrieve(self._exeurl, tgtpath)
-            print ' done'
+            if verbose:
+                print ' done'
         except Exception, ex:
             raise PMCygException, "Failed to retrieve %s\n - %s" % ( self._exeurl, str(ex) )
 
@@ -1121,6 +1131,10 @@ class TKgui(object):
         self.builder = builder
         self.pkgfiles = pkgfiles
 
+        # Prompt PMBuilder to pre-cache outputs of 'cygcheck -cd' so that
+        # we don't fork a subprocess after Tkinter has been initialized:
+        self.builder.ListInstalled()
+
         rootwin = Tk.Tk()
         rootwin.minsize(300, 120)
         rootwin.title('pmcyg - Cygwin(TM) partial mirror')
@@ -1328,7 +1342,7 @@ class TKgui(object):
 - a tool for creating Cygwin(TM) partial mirrors
 Version %s
 
-Copyright © 2009-2011 RW Penney
+(C)Copyright 2009-2011 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))

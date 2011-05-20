@@ -1,7 +1,4 @@
-Add mode representation to optparse infrastructure
-Patch python-3.x handling of byte-strings in URLopen
 Improve error-checking
-Add download progress indicator
 Allow placing all packages in 'Base' category
 GUI:
     Add 'reset' option for URLs

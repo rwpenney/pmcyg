@@ -7,7 +7,6 @@
 alternatives
 ash
 base-files
-base-passwd
 bash
 bzip2
 coreutils

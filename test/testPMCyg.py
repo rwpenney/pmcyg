@@ -234,6 +234,38 @@ class testBuilder(unittest.TestCase):
         self.builder = PMbuilder()
         self.builder.SetIniURL(getSetupURL())
         self.builder._masterList._verbose = False
+        self.builder.SetTargetDir(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.builder.GetTargetDir())
+
+    def testBuildSetups(self):
+        """Check construction of setup.ini & setup.bz2 files"""
+        tgtdir = self.builder.GetTargetDir()
+        selected = ['bash', 'cmake', 'octave']
+        self.builder._buildSetupFiles(selected, verbose=False)
+
+        (f_ini, f_bz2, f_exe) = [ os.path.join(tgtdir, f) for f in ['setup.ini', 'setup.bz2', 'setup.exe'] ]
+
+        self.assertTrue(os.path.isfile(f_ini))
+        self.assertTrue(os.path.isfile(f_bz2))
+        self.assertTrue(os.path.isfile(f_exe))
+
+        self.assertTrue(os.path.getsize(f_ini) > (1 << 10))
+        self.assertTrue(os.path.getsize(f_bz2) > (1 << 9))
+        self.assertTrue(os.path.getsize(f_exe) > (1 << 18))
+
+        pkgs = []
+        re_pkg = re.compile(r'^@\s+(\S*)$')
+        fp = open(f_ini, 'rt')
+        for line in fp:
+            match = re_pkg.match(line)
+            if not match: continue
+            pkgs.append(match.group(1))
+        fp.close()
+        self.assertEqual(len(pkgs), len(selected))
+        for pkg in selected:
+            self.assertTrue(pkg in pkgs)
 
     def testTemplate(self):
         topdir = tempfile.mkdtemp()
@@ -256,7 +288,7 @@ class testBuilder(unittest.TestCase):
         try:
             tplt = os.path.join(topdir, 'terse.txt')
             fp = open(tplt, 'wt')
-            self.builder.MakeTemplate(fp, ['bash', 'boost', 'tcsh', 'vim', 'zsh'], terse=True)
+            self.builder.MakeTemplate(fp, ['bash', 'flex', 'tcsh', 'vim', 'zsh'], terse=True)
             fp.close()
 
             counts = self.templateCounts(tplt)

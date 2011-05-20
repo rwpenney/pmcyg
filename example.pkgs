@@ -12,7 +12,6 @@
 #
 alternatives              	# A tool for managing package conflicts
 base-files                	# A set of important system configuration and setup files
-base-passwd               	# A script to set up initial passwords and groups
 bash                      	# The GNU Bourne Again SHell
 bzip2                     	# A high-quality block-sorting file compressor (utilities)
 coreutils                 	# GNU core utilities (includes fileutils, sh-utils and textutils)
@@ -66,7 +65,7 @@ octave                    	# The GNU Octave language for numerical computations
 X-start-menu-icons        	# Start menu icons for Cygwin/X programs
 xinit                     	# X.Org X server initializer
 xorg-cf-files             	# X.Org Imake config files
-xorg-docs                 	# Xorg documentation
+xorg-docs                 	# X.Org documentation
 xorg-scripts              	# Xorg miscellaneous scripts
 xorg-server               	# X.Org X servers
 xpdf                      	# An open source viewer for Portable Document Format (PDF) files
