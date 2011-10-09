@@ -27,7 +27,7 @@ ${TPLTFILE}:
 .makefileUUID:	Makefile
 	sha256sum Makefile | sed -n 's%^\([0-9a-fA-F]*\).*$$%\1%p' > $@
 
-.PHONY:
+.PHONY:	clean
 clean:
 	rm -f index.html ${TPLTFILE} .makefileUUID
 

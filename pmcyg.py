@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: iso-8859-15
 # Partially mirror 'Cygwin' distribution
 # (C)Copyright 2009-2011, RW Penney <rwpenney@users.sourceforge.net>
 
@@ -17,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.6'
+PMCYG_VERSION = '0.6.1'
 
 
 import  bz2, optparse, os, os.path, re, subprocess, string, \
@@ -1338,11 +1337,11 @@ class TKgui(object):
             win.title('About pmcyg')
             msg = Tk.Message(win, name='pmcyg_about', justify=Tk.CENTER,
                         aspect=300, border=2, relief=Tk.GROOVE, text= \
-"""pmcyg
-- a tool for creating Cygwin(TM) partial mirrors
+u"""pmcyg
+- a tool for creating Cygwin\N{REGISTERED SIGN} partial mirrors
 Version %s
 
-(C)Copyright 2009-2011 RW Penney
+\N{COPYRIGHT SIGN}Copyright 2009-2011 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
