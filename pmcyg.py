@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2011, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2012, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -268,6 +268,21 @@ class PMbuilder(object):
         else:
             self._doDownloading(packages, downloads)
 
+    def BuildISO(self, isoname):
+        """Convert local downloads into an ISO image for burning to CD"""
+
+        argv = [ 'genisoimage', '-o', isoname, '-quiet',
+                '-V', 'Cygwin(pmcyg)-%s' % time.strftime('%d%b%y'),
+                '-r', '-J', self._tgtdir ]
+
+        print 'Generating ISO image in %s...' % ( isoname ),
+        sys.stdout.flush()
+        retcode = subprocess.call(argv, shell=False)
+        if not retcode:
+            print ' done'
+        else:
+            print ' FAILED (errno=%d)' % retcode
+
     def GetGarbage(self):
         if self._optiondict['DummyDownload']:
             return None
@@ -330,8 +345,8 @@ http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada
 ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
 ftp://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
 http://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
-ftp://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
-http://mirror.nyi.net/cygwin/;mirror.nyi.net;United States;New York
+ftp://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
+http://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
 ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK
 http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
 ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
@@ -591,6 +606,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         return '%dB' % ( size )
 
 
+
 class PackageDatabase(object):
     """Utilities for managing package dependencies based on parsed setup.ini"""
     def __init__(self, masterList):
@@ -666,8 +682,6 @@ class PackageDatabase(object):
         packages.sort()
 
         return packages
-        
-
 
     def _buildDependencies(self, epoch='curr'):
         """Build lookup table of dependencies of each available package"""
@@ -1070,6 +1084,7 @@ class GarbageCollector(object):
         return os.path.normpath(os.path.join(path, *suffixes))
 
 
+
 class GarbageConfirmer(object):
     """Mechanism for inviting user to confirm disposal of outdated files"""
 
@@ -1105,8 +1120,8 @@ class GarbageConfirmer(object):
             print '  %s' % fl
 
         try:
-            response = raw_input('Delete outdate files [YES/no]: ')
-            if response == 'YES':
+            response = raw_input('Delete outdate files [yes/NO]: ').lower()
+            if response == 'yes':
                 self._userresponse = 'yes'
             else:
                 self._userresponse = 'no'
@@ -1341,7 +1356,7 @@ u"""pmcyg
 - a tool for creating Cygwin\N{REGISTERED SIGN} partial mirrors
 Version %s
 
-\N{COPYRIGHT SIGN}Copyright 2009-2011 RW Penney
+\N{COPYRIGHT SIGN}Copyright 2009-2012 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
@@ -1350,7 +1365,6 @@ This is free software, and you are welcome to redistribute it under the terms of
         else:
             win.deiconify()
             win.tkraise()
-
 
     def setMirror(self, mirror):
         self.mirror_entry.delete(0, Tk.END)
@@ -1591,7 +1605,8 @@ class GUItemplateThread(threading.Thread):
                                     self.cygwinReplica)
             print 'Generated template file "%s"' % ( self.filename )
         except Exception, ex:
-            print >>sys.stderr, 'Failed to create "%s" - %s' % ( self.filename, str(ex) )
+            print >>sys.stderr, 'Failed to create "%s" - %s' \
+                    % ( self.filename, str(ex) )
 
 
 class GUImirrorThread(threading.Thread):
@@ -1712,6 +1727,7 @@ def PlainMain(builder, pkgfiles):
         confirmer = GarbageConfirmer(garbage,
                                 default=builder.GetOption('RemoveOutdated'))
         confirmer.ActionResponse()
+        #builder.BuildISO('/var/tmp/cygwin.iso')     # FIXME - testing only
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
 

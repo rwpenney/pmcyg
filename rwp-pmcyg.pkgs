@@ -96,6 +96,7 @@ cvs2svn                   	# CVS to Subversion repository converter
 cvsps                     	# Generates patchset information from a CVS repository
 cvsutils                  	# CVS client utilities for offline work.
 cygport                   	# Cygwin source packaging tool
+ddd                       	# Ddd
 distcc                    	# A fast, free, distributed C/C++ compiler
 doxygen                   	# A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavors) and to some extent PHP, C#, and D.
 flex                      	# A fast lexical analyzer generator
@@ -126,7 +127,6 @@ git-svn                   	# Fast Version Control System - git-svn conversions
 gitk                      	# Fast Version Control System - gitk viewer
 gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
 gperf                     	# Perfect hash function generator
-gtk-doc                   	# GTK+ DocBook Documentation Generator
 guile-devel               	# The GNU extension language and Scheme interpreter - development
 guilt                     	# Quilt for git; similar to Mercurial queues
 help2man                  	# Creates man pages from program output
@@ -136,7 +136,7 @@ indent                    	# C/C++ language source code formatting program
 intltool                  	# GNOME source internalization scripts
 jikes                     	# Fast Java compiler adhering to language and VM specifications
 jlint                     	# A Java Program Checker
-#lablgtk2                  	# OCaml interface to GTK2
+lablgtk2                  	# OCaml interface to GTK2
 libXaw3d-devel            	# A 3D version of the MIT Athena widget set for X - (development)
 libboost                  	# Portable C++ libraries useful across a broad spectrum of applications.
 libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
@@ -146,6 +146,7 @@ libmng-devel              	# A library of functions for manipulating MNG format 
 libncurses-devel          	# (devel) libraries for terminal handling
 libogg-devel              	# Ogg Bitstream Library (Development)
 libpng12-devel            	# PNG library (development)
+libpng14-devel            	# PNG library (development)
 libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
 libxml2-devel             	# XML C parser and toolkit (development)
@@ -153,7 +154,7 @@ make                      	# The GNU version of the 'make' utility
 makedepend                	# X.Org Makefile dependency tool
 mercurial                 	# Python based distributed version control system (DVCS)
 mingw-runtime             	# MinGW Runtime
-#ocaml                     	# The Objective Caml compiler and runtime (install helper)
+ocaml                     	# The OCaml compiler and runtime (install helper)
 openldap-devel            	# Lightweight Directory Access Protocol suite - (development)
 openssl-devel             	# The OpenSSL development environment
 patchutils                	# A small collection of programs that operate on patch files
@@ -163,7 +164,7 @@ python-pyrex              	# Compile native-code modules for Python from python-
 quilt                     	# Tool to work with series of patches
 rcs                       	# The Revision Control System
 readline                  	# GNU readline and history libraries
-ruby                      	# Interpreted object-oriented scripting language
+source-highlight          	# Syntax highlighting utilities
 splint                    	# Check C programs for security vulnerabilities and programming mistakes.
 stgit                     	# Quilt functionality on top of git
 subversion                	# A version control system
@@ -192,7 +193,7 @@ ploticus-doc              	# Command-line plot and graph generator (HTML documen
 texinfo                   	# Documentation system for on-line information and printed output
 tiff-doc                  	# TIFF image library (API documentation)
 xerces-c                  	# A validating XML parser written in a portable subset of C++
-xmlto                     	# Converts XML to various formats
+#xmlto                     	# Converts XML to various formats
 xorg-docs                 	# X.Org documentation
 xpdf                      	# An open source viewer for Portable Document Format (PDF) files
 
@@ -235,7 +236,7 @@ gtk2.0-engines            	# Standard theme engines for gtk+-2.x
 gtk2.0-engines-pixmap     	# Multi-platform GUI toolkit (Pixmap theme engine)
 gvim                      	# GTK interface to the Vim text editor
 intltool                  	# GNOME source internalization scripts
-#lablgtk2                  	# OCaml interface to GTK2
+lablgtk2                  	# OCaml interface to GTK2
 libatk1.0-devel           	# Accessibility Toolkit library (development)
 libaudiofile-devel        	# Digital audio file library (development)
 libglib2.0-devel          	# GNOME C function library (development)
@@ -282,6 +283,7 @@ libglut-devel             	# Open Source GLUT implementation - (development)
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
 libmng-devel              	# A library of functions for manipulating MNG format files - (development)
 libpng12-devel            	# PNG library (development)
+libpng14-devel            	# PNG library (development)
 libtiff-devel             	# TIFF image library (development)
 netpbm                    	# Toolkit for manipulation of graphic images
 opengl                    	# OpenGL-related libraries
@@ -304,12 +306,11 @@ xfig-lib                  	# An interactive drawing tool - (grahpic symbols libr
 ##
 ## Interpreters
 ##
-expect                    	# A program that 'talks' to other programs
 gawk                      	# GNU awk, a pattern scanning and processing language
 guile                     	# The GNU extension language and Scheme interpreter - executables
 libxslt                   	# The GNOME XSLT C library (runtime)
 m4                        	# GNU implementation of the traditional Unix macro processor.
-#ocaml                     	# The Objective Caml compiler and runtime (install helper)
+ocaml                     	# The OCaml compiler and runtime (install helper)
 perl                      	# Larry Wall's Practical Extracting and Report Language
 python                    	# Python language interpreter
 ruby                      	# Interpreted object-oriented scripting language
@@ -335,7 +336,6 @@ gettext                   	# GNU Internationalization library and core utilities
 gmp                       	# GMP is a free library for arbitrary precision arithmetic
 gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
 gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
-gnutls-doc                	# Library implementing TLS 1.0 and SSL 3.0 protocols - (documentation)
 gsl                       	# Runtime
 gsl-apps                  	# Application programs
 gsl-devel                 	# Developers tools
@@ -349,8 +349,6 @@ libapr1-devel             	# Apache Portable Runtime core library (Development)
 libaprutil1-devel         	# Apache Portable Runtime utility library (development)
 libboost                  	# Portable C++ libraries useful across a broad spectrum of applications.
 libboost-devel            	# Boost includes and link libraries
-libboost1.43              	# Boost runtime libraries (not including Boost.Python)
-libboost_python1.43       	# Boost.Python runtime library
 libbz2-devel              	# A high-quality block-sorting file compressor (development)
 libexpat1-devel           	# Expat XML parser library (development)
 libfftw3-devel            	# Discrete Fourier transform library (development)
@@ -364,8 +362,9 @@ libjpeg-devel             	# A library for manipulating JPEG image format files 
 libmng-devel              	# A library of functions for manipulating MNG format files - (development)
 libncurses-devel          	# (devel) libraries for terminal handling
 libogg-devel              	# Ogg Bitstream Library (Development)
-libpcre-devel             	# Perl-Compatible Regular Expressions library (C development)
+libpcre-devel             	# Perl-Compatible Regular Expressions library (development)
 libpng12-devel            	# PNG library (development)
+libpng14-devel            	# PNG library (development)
 libpthread-stubs          	# Pthread stubs pkg-config metadata
 libreadline5              	# GNU readline and history libraries (runtime)
 libreadline6              	# GNU readline and history libraries (runtime)
@@ -394,7 +393,6 @@ readline                  	# GNU readline and history libraries
 subversion-perl           	# A version control system (perl bindings)
 subversion-python         	# A version control system (python bindings)
 subversion-ruby           	# A version control system (ruby bindings)
-tcltk                     	# TCL/Tk libraries
 terminfo-extra            	# Additional database entries for ncurses-style terminal handling
 terminfo0                 	# (libncurses8-compat) database for ncurses-style terminal handling
 terminfo0-extra           	# (libncurses8-compat) additional database entries
@@ -455,7 +453,6 @@ mingw-zlib-devel          	# (mingw) The zlib compression and decompression libr
 ## Net
 ##
 apache                    	# The Apache HTTP (Web) Server
-apache2                   	# Apache HTTPD 2
 bind                      	# DNS utilities suite
 curl                      	# Multi-protocol file transfer command-line tool
 gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
@@ -500,13 +497,9 @@ perl-libwin32             	# Perl extensions for using the Win32 API
 ##
 jgraph                    	# A Filter for Plotting Graphs in Postscript
 pdftk                     	# PDF manipulation without Acrobat.
-psutils                   	# Postscript Utilities
-tetex                     	# The TeX text formatting system (install helper).
-tetex-base                	# The TeX text formatting system (basic libraries).
-tetex-bin                 	# The TeX text formatting system (binaries).
-tetex-extra               	# The TeX text formatting system (extra libraries).
-tetex-tiny                	# The TeX text formatting system (tiny libraries subset).
-tetex-x11                 	# The TeX text formatting system (X11 binaries).
+texlive-collection-basic  	# TeX Live basic packages
+texlive-collection-latex  	# TeX Live core LaTeX support
+#texlive-collection-pstricks  	# TeX Live PSTricks packages
 
 
 ##
@@ -514,7 +507,6 @@ tetex-x11                 	# The TeX text formatting system (X11 binaries).
 ##
 bzr                       	# Python based distributed version control system
 idle                      	# Python Tkinter-based IDE
-libboost_python1.43       	# Boost.Python runtime library
 mercurial                 	# Python based distributed version control system (DVCS)
 python                    	# Python language interpreter
 python-crypto             	# Cryptographic algorithms and protocols for Python
@@ -536,6 +528,12 @@ spambayes                 	# Python-based spam filter using statistical analysis
 stgit                     	# Quilt functionality on top of git
 tailor                    	# Migrate changesets between version control systems
 urlgrabber                	# Python based URL grabber
+
+
+##
+## Ruby
+##
+ruby                      	# Interpreted object-oriented scripting language
 
 
 ##
@@ -576,14 +574,22 @@ util-linux                	# Random collection of Linux utilities
 
 
 ##
+## Tcl
+##
+expect                    	# Tool for automating interactive applications
+tcl-tix                   	# Tk Interface eXtension
+tcl-tk                    	# Tcl X11 toolkit
+
+
+##
 ## Text
 ##
-a2ps                      	# Formats files for printing on a PostScript printer.
+#a2ps                      	# Anything to PostScript converter
 antiword                  	# A free MS Word reader
-aspell                    	# A spell checker designed to eventually replace Ispell
-aspell-dev                	# A spell checker designed to eventually replace Ispell (Development)
-aspell-doc                	# A spell checker designed to eventually replace Ispell (Documentation)
-aspell-en                 	# GNU Aspell 0.60 English Dictionary Package
+aspell                    	# A spell checker designed to eventually replace Ispell - (program and utilities)
+aspell-en                 	# GNU Aspell english dictionary
+catdoc                    	# Dump Word, Excel and Powerpoint files contents
+enscript                  	# A free replacement for the Adobe's enscript program
 flip                      	# Convert text file line endings between Unix and DOS formats
 groff                     	# GNU troff text-formatting system
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
@@ -592,18 +598,11 @@ libxslt                   	# The GNOME XSLT C library (runtime)
 patchutils                	# A small collection of programs that operate on patch files
 pcre                      	# Perl-Compatible Regular Expressions (utilities)
 python-pyrex              	# Compile native-code modules for Python from python-like syntax
-tetex                     	# The TeX text formatting system (install helper).
-tetex-base                	# The TeX text formatting system (basic libraries).
-tetex-bin                 	# The TeX text formatting system (binaries).
-tetex-extra               	# The TeX text formatting system (extra libraries).
-tetex-tiny                	# The TeX text formatting system (tiny libraries subset).
-tetex-x11                 	# The TeX text formatting system (X11 binaries).
 texi2html                 	# A highly customizable texinfo to HTML and other formats translator
 texinfo                   	# Documentation system for on-line information and printed output
 untex                     	# Remove LaTeX commands from input
 util-linux                	# Random collection of Linux utilities
 w3m                       	# A text-based Web browser and pager
-xmlto                     	# Converts XML to various formats
 
 
 ##
@@ -654,7 +653,7 @@ xdelta                    	# Computes changes between binary files.
 ## Web
 ##
 apache                    	# The Apache HTTP (Web) Server
-apache2                   	# Apache HTTPD 2
+apache2                   	# Apache web server
 curl                      	# Multi-protocol file transfer command-line tool
 links                     	# Text mode WWW browser
 lynx                      	# Text-mode WWW Browser
@@ -697,10 +696,10 @@ imake                     	# X.Org Imake legacy build system
 inputproto                	# X.Org XInput extension headers
 kbproto                   	# X.Org XKB extension headers
 lesstif                   	# Open-source Motif clone (utilities)
-libGL-devel               	# X11 OpenGL libraries (core libdevel)
-libGLU-devel              	# X11 OpenGL libraries (utility libdevel)
-libGLw-devel              	# X11 OpenGL libraries (widgets libdevel)
-libOSMesa-devel           	# X11 OpenGL libraries (OSMesa libdevel)
+libGL-devel               	# X11 OpenGL library (development)
+libGLU-devel              	# X11 OpenGL Utility library (development)
+libGLw-devel              	# OpenGL Motif widget library (development)
+libOSMesa-devel           	# Mesa Off-Screen rendering library (development)
 libX11-devel              	# X.Org X11 core library (development)
 libXaw-devel              	# X.Org Athena Widgets library (development)
 libXaw3d-devel            	# A 3D version of the MIT Athena widget set for X - (development)
