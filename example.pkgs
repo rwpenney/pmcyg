@@ -51,7 +51,6 @@ make                      	# The GNU version of the 'make' utility
 # Graphics packages:
 #
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
-psutils                   	# Postscript Utilities
 
 #
 # Maths/Scientific packages:

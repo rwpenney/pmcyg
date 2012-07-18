@@ -6,7 +6,7 @@
 <!--
   pmcyg.sourceforge.net project page; written 10th July 2010
   MakefileUUID: @MAKEFILE_UUID@
-  (C) Copyright 2010-2011 RW Penney
+  (C) Copyright 2010-2012 RW Penney
 -->
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>pmcyg.sourceforge.net</title>
@@ -299,7 +299,7 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 
 <p class="lupdate">
 Last updated @DATE@<br/>
-&copy; Copyright RW Penney, 2010-2011
+&copy; Copyright RW Penney, 2010-2012
 </p>
 
 </body>
