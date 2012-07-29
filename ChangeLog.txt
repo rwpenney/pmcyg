@@ -1,6 +1,18 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## http://pmcyg.sourceforge.net
-## (C)Copyright 2009-2011, RW Penney
+## (C)Copyright 2009-2012, RW Penney
+
+29Jul12 **** pmcyg-0.7 released ****
+
+22Jul12
+    Neatened reporting of download failure conditions
+    Added mechanisms for automatically reattempting failed downloads
+
+21Jul12
+    Removed spurious warnings about packages with empty 'install' metadata
+
+03Mar12
+    Added prototype support for building ISO images
 
 20May11 **** pmcyg-0.6 released ****
 

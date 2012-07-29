@@ -25,7 +25,7 @@ gzip                      	# The GNU compression utility
 less                      	# A file pager program, similar to more(1)
 login                     	# Sign on to a system
 man                       	# Man, apropos and whatis
-patch                     	# Apply a diff file to an original
+patch                     	# Utility for modifying/upgrading files
 perl                      	# Larry Wall's Practical Extracting and Report Language
 procps                    	# Utilities for monitoring your system and processes on your system.
 python                    	# An interactive object-oriented scripting language
@@ -42,7 +42,8 @@ zip                       	# Info-ZIP compression utility
 #
 autoconf                  	# Wrapper scripts for autoconf commands
 automake                  	# Wrapper scripts for automake and aclocal
-gcc                       	# C compiler upgrade helper
+gcc-core                  	# C compiler
+gcc-g++                   	# C++ compiler
 gdb                       	# The GNU Debugger
 git                       	# Fast Version Control System - core files
 make                      	# The GNU version of the 'make' utility

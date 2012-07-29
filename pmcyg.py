@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.6.1'
+PMCYG_VERSION = '0.7'
 
 
 import  bz2, optparse, os, os.path, re, subprocess, string, \
@@ -85,6 +85,12 @@ class SetupIniFetcher(object):
 
 class PMbuilder(object):
     """Utility class for constructing partial mirror of Cygwin(TM) distribution"""
+    DL_Success =        1
+    DL_AlreadyPresent = 2
+    DL_SizeError =      3
+    DL_HashError =      4
+    DL_Failure =        5
+
     def __init__(self):
         # Directory into which to assemble local mirror:
         self._tgtdir = '.'
@@ -93,7 +99,8 @@ class PMbuilder(object):
         self._exeurl = 'http://sourceware.redhat.com/cygwin/setup.exe'
 
         # URL of Cygwin mirror site, hosting available packages:
-        self._mirror = 'ftp://cygwin.com/pub/cygwin/'
+        #self._mirror = 'ftp://cygwin.com/pub/cygwin/'
+        self._mirror = 'http://cygwin.cict.fr/'
 
         # URL of Cygwin package database file (derived from _mirror if 'None'):
         self._iniurl = None
@@ -115,7 +122,8 @@ class PMbuilder(object):
             'IncludeBase':      True,
             'MakeAutorun':      False,
             'IncludeSources':   False,
-            'RemoveOutdated':   'no'
+            'RemoveOutdated':   'no',
+            'ISOfilename':      None
         }
 
         self._fetchStats = FetchStats()
@@ -371,7 +379,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         if userpkgs == None:
             # Setup minimalistic set of packages
-            userpkgs = ['ash', 'base-files', 'base-passwd',
+            userpkgs = ['ash', 'base-cygwin', 'base-files',
                         'bash', 'bzip2', 'coreutils', 'gzip',
                         'tar', 'unzip', 'zip']
 
@@ -406,14 +414,18 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         for pkg in packages:
             pkginfo = pkgdict[pkg]
 
+            requires = pkginfo.get('requires_curr', None)
+
             for vrt in variants:
+                installs = pkginfo.get(vrt, None)
+                if not installs and requires: continue
                 try:
-                    flds = pkginfo[vrt].split()
+                    flds = installs.split()
                     pkgref = flds[0]
                     pkgsize = int(flds[1])
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
-                except KeyError:
+                except:
                     print >>sys.stderr, 'Cannot find package filename for %s in variant \'%s\'' % (pkg, vrt)
 
         return downloads
@@ -511,47 +523,47 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         self._buildSetupFiles(packages)
 
-        for (pkgfile, pkgsize, pkghash) in downloads:
-            if self._cancelling:
-                print '** Downloading cancelled **'
-                break
+        augdownloads = self._preparePaths(downloads)
 
-            if os.path.isabs(pkgfile):
-                raise SyntaxError, '%s is an absolute path' % ( pkgfile )
-            tgtpath = os.path.join(self._tgtdir, pkgfile)
-            tgtdir = os.path.dirname(tgtpath)
-            if not os.path.isdir(tgtdir):
-                os.makedirs(tgtdir)
-            self._garbage.RescueFile(tgtpath)
-            mirpath = urlparse.urljoin(self._mirror, pkgfile)
+        retries = 3     # FIXME make this tunable
+        while augdownloads and retries > 0:
+            retrydownloads = []
+            retries -= 1
 
-            print '  %s (%s)...' % ( os.path.basename(pkgfile),
-                                    self._prettyfsize(pkgsize) ),
-            sys.stdout.flush()
+            for DLsummary in augdownloads:
+                (pkgfile, pkgsize, pkghash, tgtpath) = DLsummary
+                if self._cancelling:
+                    print '** Downloading cancelled **'
+                    break
 
-            try:
-                succ_msg = None
-                if os.path.isfile(tgtpath) and os.path.getsize(tgtpath) == pkgsize:
-                    succ_msg = 'already present'
+                mirpath = urlparse.urljoin(self._mirror, pkgfile)
+
+                print '  %s (%s)...' % ( os.path.basename(pkgfile),
+                                        self._prettyfsize(pkgsize) ),
+                sys.stdout.flush()
+
+                (outcome, errmsg) = self._downloadSingle(mirpath, pkgsize,
+                                                        pkghash, tgtpath)
+
+                if outcome == self.DL_Success:
+                    print ' done'
+                    self._fetchStats.AddNew(pkgfile, pkgsize)
+                elif outcome == self.DL_AlreadyPresent:
+                    print ' already present'
                     self._fetchStats.AddAlready(pkgfile, pkgsize)
                 else:
-                    dlsize = 0
-                    urllib.urlretrieve(mirpath, tgtpath)
-                    dlsize = os.path.getsize(tgtpath)
-                    if dlsize != pkgsize:
-                        raise IOError, 'Mismatched package size (deficit=%s)' \
-                                        % ( self._prettyfsize(pkgsize - dlsize) )
-                    succ_msg = 'done'
-                    self._fetchStats.AddNew(pkgfile, pkgsize)
+                    print ' FAILED (%s)' % errmsg
+                    if os.path.isfile(tgtpath):
+                        os.remove(tgtpath)
+                    if retries > 0:
+                        retrydownloads.append(DLsummary)
+                    else:
+                        self._fetchStats.AddFail(pkgfile, pkgsize)
 
-                if not self._hashCheck(tgtpath, pkghash):
-                    os.remove(tgtpath)
-                    raise IOError, 'Mismatched checksum'
-
-                print ' %s' % succ_msg
-            except Exception, ex:
-                print ' FAILED\n  -- %s' % ( str(ex) )
-                self._fetchStats.AddFail(pkgfile, pkgsize)
+            if retries > 0 and retrydownloads:
+                print '\n** Retrying %d download(s) **' % len(retrydownloads)
+                time.sleep(10)
+            augdownloads = retrydownloads
 
         counts = self._fetchStats.Counts()
         if not counts['Fail']:
@@ -559,6 +571,52 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         else:
             print '%d/%d package(s) failed to download' % ( counts['Fail'], counts['Total'] )
 
+    def _downloadSingle(self, mirpath, pkgsize, pkghash, tgtpath):
+        """Attempt to download and validate a single package from the mirror"""
+        outcome = self.DL_Failure
+        errmsg = None
+
+        if os.path.isfile(tgtpath) and os.path.getsize(tgtpath) == pkgsize:
+            outcome = self.DL_AlreadyPresent
+        else:
+            try:
+                dlsize = 0
+                urllib.urlretrieve(mirpath, tgtpath)
+                dlsize = os.path.getsize(tgtpath)
+                if dlsize == pkgsize:
+                    outcome = self.DL_Success
+                else:
+                    outcome = self.DL_SizeError
+                    errmsg = 'mismatched size: %s vs %s' % \
+                                ( self._prettyfsize(dlsize),
+                                    self._prettyfsize(pkgsize) )
+            except Exception, ex:
+                errmsg = str(ex)
+
+        if outcome == self.DL_AlreadyPresent or outcome == self.DL_Success:
+            if not self._hashCheck(tgtpath, pkghash):
+                outcome = self.DL_HashError
+                errmsg = 'mismatched checksum'
+
+        return (outcome, errmsg)
+
+    def _preparePaths(self, downloads):
+        """Setup directories for packages due to be downloaded"""
+        augdownloads = []
+
+        for (pkgfile, pkgsize, pkghash) in downloads:
+            if os.path.isabs(pkgfile):
+                raise SyntaxError, '%s is an absolute path' % ( pkgfile )
+
+            tgtpath = os.path.join(self._tgtdir, pkgfile)
+            tgtdir = os.path.dirname(tgtpath)
+            if not os.path.isdir(tgtdir):
+                os.makedirs(tgtdir)
+
+            self._garbage.RescueFile(tgtpath)
+            augdownloads.append((pkgfile, pkgsize, pkghash, tgtpath))
+
+        return augdownloads
 
     def _hashCheck(self, tgtpath, pkghash):
         """Check md5 hash-code of downloaded package"""
@@ -573,6 +631,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 if not chunk:
                     break
                 hasher.update(chunk)
+            fp.close()
         except:
             return False
 
@@ -1727,7 +1786,10 @@ def PlainMain(builder, pkgfiles):
         confirmer = GarbageConfirmer(garbage,
                                 default=builder.GetOption('RemoveOutdated'))
         confirmer.ActionResponse()
-        #builder.BuildISO('/var/tmp/cygwin.iso')     # FIXME - testing only
+
+        isofile = builder.GetOption('ISOfilename')
+        if isofile:
+            builder.BuildISO(isofile)
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
 
@@ -1800,6 +1862,9 @@ def main():
     advopts.add_option('--remove-outdated', '-o', type='string', default='no',
             help='remove old versions of packages [no/yes/ask]'
                 ' (default=%default)')
+    advopts.add_option('--iso-filename', '-I', type='string', default=None,
+            help='filename for generating ISO image for burning to CD/DVD'
+                ' (default=%default)')
     parser.add_option_group(advopts)
 
     opts, remargs = parser.parse_args()
@@ -1815,6 +1880,7 @@ def main():
     builder.SetOption('MakeAutorun', opts.with_autorun)
     builder.SetOption('IncludeSources', opts.with_sources)
     builder.SetOption('RemoveOutdated', opts.remove_outdated)
+    builder.SetOption('ISOfilename', opts.iso_filename)
 
     if opts.pkg_file:
         TemplateMain(builder, opts.pkg_file, remargs)

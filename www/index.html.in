@@ -144,9 +144,9 @@ as part of <a href="http://www.cygwin.com">Cygwin</a> itself, or as
 a <a href="http://www.python.org/download">native Windows application</a>.
 pmcyg has been developed using Python 2.x,
 and tested on Python versions 2.3-2.7.
-From release 0.4, pmcyg is also targeting the latest
+pmcyg is able to operate with the latest
 <a href="http://wiki.python.org/moin/Python2orPython3">3.x</a>
-series of Python.
+series of Python (after translation by the 2to3 tool).
 </p>
 
 <p>
@@ -178,7 +178,7 @@ You can even use pmcyg to download directly onto a USB key.
 
 <p>
 You can simply mirror the entire set of Cygwin packages,
-which will occupy about 1.2GB,
+which will occupy about 4GB,
 or you can list particular packages that you want to have available.
 This package list can be based on
 a <a href="pmcyg-template.txt">template</a>
@@ -221,7 +221,7 @@ cygcheck -cd | tail -n +3 | cut -f 1 -d " " &gt; mypackages.txt
 <p>
 For the most complete Cygwin distribution,
 pmcyg can also optionally include Cygwin source packages
-(taking about 10.7GB if you mirror the entire Cygwin tree).
+(taking about 20GB if you mirror the entire Cygwin tree).
 </p>
 
 <p>
