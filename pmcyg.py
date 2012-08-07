@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.7'
+PMCYG_VERSION = '0.7.1'
 
 
 import  bz2, optparse, os, os.path, re, subprocess, string, \
@@ -324,7 +324,7 @@ class PMbuilder(object):
             print >>stream, '\n\n##\n## %s\n##' % cat
 
             for pkg in catgroups[cat]:
-                desc = descfix(pkgdict[pkg].get('sdesc_curr', ''))
+                desc = descfix(pkgdict[pkg].GetAny('sdesc'))
                 if userpkgs and pkg in userpkgs:
                     prefix = ''
                 else:
@@ -384,15 +384,19 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                         'tar', 'unzip', 'zip']
 
         if self._optiondict['AllPackages']:
-            userpkgs = [ pkg for pkg in pkgdict.iterkeys()
-                                if not pkg.startswith('_') ]
+            userpkgs = []
+            for pkg, pkginfo in pkgdict.iteritems():
+                if pkg.startswith('_'): continue
+                cats = pkginfo.GetAny('category').split()
+                if '_obsolete' in cats: continue
+                userpkgs.append(pkg)
 
         pkgset.update(userpkgs)
 
         if self._optiondict['IncludeBase']:
             # Include all packages from 'Base' category:
             for pkg, pkginfo in pkgdict.iteritems():
-                cats = pkginfo.get('category_curr', '').split()
+                cats = pkginfo.GetAny('category').split()
                 if 'Base' in cats:
                     pkgset.add(pkg)
 
@@ -403,22 +407,22 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         pkgdict = self._masterList.GetPackageDict()
 
         # Construct list of compiled/source/current/previous variants:
-        pkgtypes = ['install']
-        if self._optiondict['IncludeSources']:
-            pkgtypes.append('source')
-        variants = [ pfx + '_' + sfx for pfx in pkgtypes
-                                        for sfx in self._epochs ]
-
         downloads = []
 
         for pkg in packages:
             pkginfo = pkgdict[pkg]
 
-            requires = pkginfo.get('requires_curr', None)
+            hasDependencies = pkginfo.HasDependencies()
 
-            for vrt in variants:
-                installs = pkginfo.get(vrt, None)
-                if not installs and requires: continue
+            pkgtypes = set([pkginfo.GetDefaultFile()])
+            if self._optiondict['IncludeSources']:
+                pkgtypes.add('source')
+            variants = [ (pt, ep) for pt in pkgtypes
+                                        for ep in self._epochs ]
+
+            for (ptype, epoch) in variants:
+                installs = pkginfo.GetAny(ptype, [epoch])
+                if not installs and hasDependencies: continue
                 try:
                     flds = installs.split()
                     pkgref = flds[0]
@@ -426,7 +430,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
                 except:
-                    print >>sys.stderr, 'Cannot find package filename for %s in variant \'%s\'' % (pkg, vrt)
+                    print >>sys.stderr, 'Cannot find package filename for %s in variant \'%s:%s\'' % (pkg, ptype, epoch)
 
         return downloads
 
@@ -467,7 +471,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             fp.write(msg)
         for pkg in packages:
             fp.write('\n')
-            fp.write(pkgdict[pkg]['TEXT'])
+            fp.write(pkgdict[pkg].GetAny('TEXT'))
         fp.close()
         fp = open(spath, 'rb')
         hashfiles.append(inibz2)
@@ -692,13 +696,12 @@ class PackageDatabase(object):
             # Find dependencies of current package & add to stack:
             for epoch in epochs:
                 try:
-                    key = 'requires' + '_' + epoch
-                    reqlist = pkginfo.get(key, '').split()
+                    reqlist = pkginfo.GetAny('requires', [epoch]).split()
                     for r in reqlist:
                         if not r in packages:
                             additions.add(r)
                 except:
-                    if self._verbose:
+                    if self._verbose and not pkginfo.HasFileContent():
                         print >>sys.stderr, 'Cannot find epoch \'%s\' for %s' % (epoch, pkg)
 
         if badpkgnames:
@@ -748,7 +751,7 @@ class PackageDatabase(object):
         dependencies = {}
         for pkg, pkginfo in pkgdict.iteritems():
             try:
-                dependencies[pkg] = pkginfo.get('requires_curr', '').split()
+                dependencies[pkg] = pkginfo.GetAny('requires', [epoch]).split()
             except:
                 pass
         return dependencies
@@ -814,7 +817,7 @@ class MasterPackageList(object):
         for pkg, pkginfo in pkgdict.iteritems():
             allpkgs.append(pkg)
 
-            cats = pkginfo.get('category_curr', '').split()
+            cats = pkginfo.GetAny('category').split()
             for ctg in cats:
                 catlists.setdefault(ctg, []).append(pkg)
 
@@ -852,7 +855,7 @@ class MasterPackageList(object):
         lineno = 0
         self._pkgname = None
         self._pkgtxt = []
-        self._pkgdict = {}
+        self._pkgdict = PackageSummary()
         self._epoch = None
         self._fieldname = None
         self._fieldlines = None
@@ -876,7 +879,8 @@ class MasterPackageList(object):
         trimmed = line.rstrip()
         if trimmed.endswith('"'):
             self._fieldlines.append(trimmed[0:-1])
-            self._pkgdict[self._fieldname] = '\n'.join(self._fieldlines)
+            self._pkgdict.Set(self._fieldname,
+                                '\n'.join(self._fieldlines), self._epoch)
             self._fieldname = None
             self._inquote = False
         else:
@@ -904,12 +908,13 @@ class MasterPackageList(object):
         elif regexp == self.re_epoch:
             self._epoch = matches.group(1)
         elif regexp == self.re_field:
-            self._fieldname = matches.group(1) + '_' + self._epoch
+            self._fieldname = matches.group(1)
             self._fieldtext = matches.group(2)
             quotepos = matches.group(2).find('"')
             if quotepos < 0:
                 # Field value appears without quotation marks on single line:
-                self._pkgdict[self._fieldname] = self._fieldtext
+                self._pkgdict.Set(self._fieldname,
+                                    self._fieldtext, self._epoch)
             if quotepos >= 0:
                 if quotepos > 0:
                     # Field value contains additional metadata prefix:
@@ -918,7 +923,8 @@ class MasterPackageList(object):
                     self._fieldtext = self._fieldtext[(quotepos+1):]
                 if self._fieldtext[1:].endswith('"'):
                     # Quoted string starts and ends on current line:
-                    self._pkgdict[self._fieldname] = self._fieldtext[1:-1]
+                    self._pkgdict.Set(self._fieldname,
+                                        self._fieldtext[1:-1], self._epoch)
                 else:
                     # Quoted string starts on current line, presumably ending later:
                     self._fieldlines = [ self._fieldtext[1:] ]
@@ -926,12 +932,14 @@ class MasterPackageList(object):
 
             if self._fieldtext.startswith('"'):
                 if self._fieldtext[1:].endswith('"'):
-                    self._pkgdict[self._fieldname] = self._fieldtext[1:-1]
+                    self._pkgdict.Set(self._fieldname,
+                                        self._fieldtext[1:-1], self._epoch)
                 else:
                     self._fieldlines = [ self._fieldtext[1:] ]
                     self._inquote = True
             else:
-                self._pkgdict[self._fieldname] = self._fieldtext
+                self._pkgdict.Set(self._fieldname,
+                                    self._fieldtext, self._epoch)
 
     def _finalizePackage(self):
         """Final assembly of text & field records describing single package"""
@@ -942,13 +950,70 @@ class MasterPackageList(object):
         pkgtxt = self._pkgtxt
         while pkgtxt and pkgtxt[-1].isspace():
             pkgtxt.pop()
-        self._pkgdict['TEXT'] = "".join(pkgtxt)
+        self._pkgdict.Set('TEXT', "".join(pkgtxt))
         self._ini_packages[self._pkgname] = self._pkgdict
 
         self._pkgname = None
         self._pkgtxt = []
-        self._pkgdict = {}
+        self._pkgdict = PackageSummary()
 
+
+
+class PackageSummary(object):
+    """Dictionary-like container of package information,
+    specialized to cope with multiple epochs"""
+
+    def __init__(self):
+        self._pkginfo = {}
+        self._epochs = set()
+
+    def GetAny(self, field, epochset=[]):
+        """Lookup value of a particular field,
+        for a given set of possible epochs.
+        An empty set of allowed epochs matches current or default epoch"""
+
+        value = None
+        if not epochset:
+            epochset = ( None, 'curr' )
+        if not None in epochset:
+            epochset = list(epochset)
+            epochset.append(None)
+        for epoch in epochset:
+            value = self._pkginfo.get((field, epoch), None)
+            if value: break
+        return value
+
+    def GetAll(self, field, epochset=[]):
+        values = []
+        if not epochset:
+            epochset = self._epochs
+        for epoch in epochset:
+            val = self._pkginfo.get((field, epoch), None)
+            if val: values.append(val)
+        return values
+
+    def HasFileContent(self):
+        """Determine whether package has non-empty binary or source file"""
+        for variant in ('install', 'source'):
+            if self.GetAny(variant, self._epochs):
+                return True
+        return False
+
+    def GetDefaultFile(self):
+        for variant in ('install', 'source'):
+            if self.GetAny(variant):
+                return variant
+        return None
+
+    def HasDependencies(self):
+        if self.GetAny('requires'):
+            return True
+        return False
+
+    def Set(self, field, value, epoch=None):
+        """Record field=value for a particular epoch (e.g. curr/prev/None)"""
+        self._pkginfo[(field, epoch)] = value
+        self._epochs.add(epoch)
 
 
 ##
@@ -1202,7 +1267,6 @@ class TKgui(object):
     def __init__(self, builder=None, pkgfiles=[]):
         if not builder: builder = PMbuilder()
         self.builder = builder
-        self.pkgfiles = pkgfiles
 
         # Prompt PMBuilder to pre-cache outputs of 'cygcheck -cd' so that
         # we don't fork a subprocess after Tkinter has been initialized:
@@ -1248,6 +1312,7 @@ class TKgui(object):
         self.progress_bar.grid(row=row, column=0, sticky=Tk.E+Tk.W+Tk.S, padx=4, pady=2)
         row += 1
 
+        self.updatePkgSelection(pkgfiles)
         self._state = GUIstate(self)
         self._updateState(GUIconfigState(self))
 
@@ -1339,7 +1404,9 @@ class TKgui(object):
         pkgpanel = Tk.Frame(parampanel)
         pkgs_btn = Tk.Button(pkgpanel, text='Browse', command=self.pkgsSelect)
         pkgs_btn.pack(side=Tk.LEFT)
-        pkgpanel.grid(row=idx+1, column=1, stick=Tk.W)
+        self.stats_label = Tk.Label(pkgpanel, text='')
+        self.stats_label.pack(side=Tk.RIGHT)
+        pkgpanel.grid(row=idx+1, column=1, stick=Tk.E+Tk.W)
         idx += 2
 
         Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
@@ -1440,13 +1507,20 @@ This is free software, and you are welcome to redistribute it under the terms of
                 else: return None
 
         pkgfiles = opendlg(title='pmcyg user-package lists')
+        self.updatePkgSelection(pkgfiles)
 
-        if pkgfiles:
+    def updatePkgSelection(self, pkgfiles):
+        try:
             self.pkgfiles = [ os.path.normpath(pf) for pf in pkgfiles ]
-            self.pkgs_entry.config(state=Tk.NORMAL)
-            self.pkgs_entry.delete(0, Tk.END)
-            self.pkgs_entry.insert(0, '; '.join(self.pkgfiles))
-            self.pkgs_entry.config(state='readonly')
+        except Exception:
+            self.pkgfiles = []
+        self.pkgs_entry.config(state=Tk.NORMAL)
+        self.pkgs_entry.delete(0, Tk.END)
+        self.pkgs_entry.insert(0, '; '.join(self.pkgfiles))
+        self.pkgs_entry.config(state='readonly')
+
+        usrpkgs = self.builder.ReadPackageLists(self.pkgfiles)
+        self.stats_label.config(text='%d packages selected' % ( len(usrpkgs) ))
 
     def cacheSelect(self):
         """Callback for selecting directory into which to download packages"""
@@ -1792,6 +1866,7 @@ def PlainMain(builder, pkgfiles):
             builder.BuildISO(isofile)
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
+        #import traceback; traceback.print_exc()
 
 
 def TemplateMain(builder, outfile, pkgfiles, cygwinReplica=False):

@@ -107,8 +107,9 @@ class testMasterPackageList(unittest.TestCase):
         self.assertTrue(len(packages) >= 1000)
 
     def testFieldPresence(self):
-        fields = ['sdesc_curr', 'category_curr', 'version_curr',
-                'install_curr', 'source_curr', 'install_prev']
+        fields = [ ('sdesc', 'curr'), ('category', None),
+                    ('version', 'curr'), ('install', 'curr'),
+                    ('source', 'curr'), ('install', 'prev') ]
         scores = {}
         for field in fields:
             scores[field] = 0
@@ -118,19 +119,19 @@ class testMasterPackageList(unittest.TestCase):
         numpkgs = 0
         for pkgname, pkgdict in packages.iteritems():
             numpkgs += 1
-            for field in fields:
+            for (field, epoch) in fields:
                 try:
-                    fieldval = pkgdict[field]
-                    scores[field] += 1
+                    fieldval = pkgdict.GetAny(field, [epoch])
+                    scores[(field, epoch)] += 1
                 except:
                     pass
 
-        self.assertTrue(scores['sdesc_curr'] == numpkgs)
-        self.assertTrue(scores['category_curr'] == numpkgs)
-        self.assertTrue(scores['version_curr'] >= 0.8 * numpkgs)
-        self.assertTrue(scores['install_curr'] >= 0.8 * numpkgs)
-        self.assertTrue(scores['source_curr'] >= 0.75 * numpkgs)
-        self.assertTrue(scores['install_prev'] >= 0.3 * numpkgs)
+        self.assertTrue(scores[('sdesc', 'curr')] == numpkgs)
+        self.assertTrue(scores[('category', None)] == numpkgs)
+        self.assertTrue(scores[('version', 'curr')] >= 0.8 * numpkgs)
+        self.assertTrue(scores[('install', 'curr')] >= 0.8 * numpkgs)
+        self.assertTrue(scores[('source', 'curr')] >= 0.75 * numpkgs)
+        self.assertTrue(scores[('install', 'prev')] >= 0.3 * numpkgs)
 
     def testLongDescriptions(self):
         (header, packages) = self.pkglist.GetHeaderAndPackages()
@@ -140,12 +141,11 @@ class testMasterPackageList(unittest.TestCase):
         totlines = 0
         for pkgname, pkgdict in packages.iteritems():
             numpkgs += 1
-            try:
-                ldesc = pkgdict['ldesc_curr']
+            ldesc = pkgdict.GetAny('ldesc', ['curr'])
+            if ldesc:
                 numldesc += 1
-            except:
+            else:
                 ldesc = ""
-                pass
 
             lines = ldesc.split('\n')
             desclen = len(lines)
@@ -172,7 +172,7 @@ class testMasterPackageList(unittest.TestCase):
                 for pkgname in members:
                     try:
                         pkginfo = packages[pkgname]
-                        cats = pkginfo['category_curr'].split()
+                        cats = pkginfo.GetAny('category').split()
                     except:
                         cats = None
                     self.assertTrue(cat in cats)
