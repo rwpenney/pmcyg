@@ -16,7 +16,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.7.1'
+PMCYG_VERSION = '0.8'
+
+DEFAULT_INSTALLER_URL = 'http://sourceware.redhat.com/cygwin/setup.exe'
+#DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
+DEFAULT_CYGWIN_MIRROR = 'http://cygwin.cict.fr'
 
 
 import  bz2, optparse, os, os.path, re, subprocess, string, \
@@ -91,16 +95,17 @@ class PMbuilder(object):
     DL_HashError =      4
     DL_Failure =        5
 
-    def __init__(self):
+    def __init__(self, BuildDirectory='.',
+                MirrorSite=DEFAULT_CYGWIN_MIRROR,
+                CygwinInstaller=DEFAULT_INSTALLER_URL, **kwargs):
         # Directory into which to assemble local mirror:
-        self._tgtdir = '.'
+        self._tgtdir = BuildDirectory
 
         # URL of source of Cygwin installation program 'setup.exe':
-        self._exeurl = 'http://sourceware.redhat.com/cygwin/setup.exe'
+        self._exeurl = CygwinInstaller
 
         # URL of Cygwin mirror site, hosting available packages:
-        #self._mirror = 'ftp://cygwin.com/pub/cygwin/'
-        self._mirror = 'http://cygwin.cict.fr/'
+        self._mirror = MirrorSite
 
         # URL of Cygwin package database file (derived from _mirror if 'None'):
         self._iniurl = None
@@ -128,25 +133,28 @@ class PMbuilder(object):
 
         self._fetchStats = FetchStats()
         self._cygcheck_list = []
+        for (opt, val) in kwargs.iteritems():
+            self.SetOption(opt, val)
 
     def GetTargetDir(self):
         return self._tgtdir
 
     def SetTargetDir(self, tgtdir):
+        """Set the root directory beneath which packages will be downloaded"""
         self._tgtdir = tgtdir
 
     def GetExeURL(self):
         return self._exeurl
 
     def SetExeURL(self, exesrc):
+        """Set the location of the setup.exe Cygwin installer"""
         self._exeurl = exesrc
 
     def GetMirrorURL(self):
         return self._mirror
 
     def SetMirrorURL(self, mirror, resetiniurl=True):
-        if not mirror.endswith('/'):
-            mirror += '/'
+        """Set the URL from which to download Cygwin packages"""
         self._mirror = mirror
 
         if resetiniurl:
@@ -156,13 +164,9 @@ class PMbuilder(object):
         return self._iniurl
 
     def SetIniURL(self, iniurl):
-        reload = False
-        if iniurl:
-            self._iniurl = iniurl
-        else:
-            self._iniurl = urlparse.urljoin(self._mirror, 'setup.bz2')
-            reload = True
-        self._masterList.SetSourceURL(self._iniurl, reload)
+        """Set the location of the setup.ini/setup.bz2 official package list"""
+        self._iniurl = iniurl
+        self._fillinIniURL()
 
     def GetEpochs(self):
         return self._epochs
@@ -179,8 +183,7 @@ class PMbuilder(object):
             oldval = self._optiondict[optname]
             self._optiondict[optname] = value
         except:
-            # Option-name is not valid:
-            raise
+            raise PMCygException, 'Invalid configuration option "%s" for PMBuilder' % optname
         return oldval
 
 
@@ -262,6 +265,7 @@ class PMbuilder(object):
 
         self._cancelling = False
 
+        self._fillinIniURL()
         packages = self._resolveDependencies(userpackages)
         downloads = self._buildFetchList(packages)
 
@@ -305,6 +309,7 @@ class PMbuilder(object):
     def MakeTemplate(self, stream, userpkgs=None, terse=False):
         """Generate template package-listing file"""
 
+        self._fillinIniURL()
         pkgdict = self._masterList.GetPackageDict()
         catgroups = self._masterList.GetCategories()
         catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
@@ -361,6 +366,16 @@ ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 """)
 
+    def _fillinIniURL(self):
+        """Ensure that URL of setup.ini file is either set explicitly,
+        or is derived from the URL of the mirror site"""
+        if not self._mirror.endswith('/'):
+            self._mirror += '/'
+        reload = False
+        if not self._iniurl:
+            self._iniurl = urlparse.urljoin(self._mirror, 'setup.bz2')
+            reload = True
+        self._masterList.SetSourceURL(self._iniurl, reload)
 
     def _resolveDependencies(self, usrpkgs=None):
         """Constuct list of packages, including all their dependencies"""
@@ -850,7 +865,7 @@ class MasterPackageList(object):
         try:
             fp = SetupIniFetcher(self._iniURL)
         except Exception, ex:
-            raise PMCygException, "Failed to open %s\n - %s" % ( self._iniURL, str(ex) )
+            raise PMCygException, "Failed to open %s - %s" % ( self._iniURL, str(ex) )
 
         lineno = 0
         self._pkgname = None
@@ -1847,7 +1862,7 @@ class GUIprogressBar(Tk.Canvas):
 ## Application entry-points
 ##
 
-def PlainMain(builder, pkgfiles):
+def ProcessPackageFiles(builder, pkgfiles):
     """Subsidiary program entry-point if used as command-line application"""
 
     usrpkgs = None
@@ -1966,7 +1981,7 @@ def main():
     elif HASGUI and not opts.nogui:
         GUImain(builder, remargs)
     else:
-        PlainMain(builder, remargs)
+        ProcessPackageFiles(builder, remargs)
 
 
 if __name__ == "__main__":

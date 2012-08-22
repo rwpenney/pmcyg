@@ -2,6 +2,13 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2012, RW Penney
 
+10Aug12
+    Improved usability as Python add-on module
+    Added Python-based script for downloading and package updating
+
+06Aug12
+    Improved handling of source-only packages (e.g. boost, pixman, etc.)
+
 29Jul12 **** pmcyg-0.7 released ****
 
 22Jul12

@@ -118,6 +118,10 @@ pmcyg is a tool for creating a customized offline installer for
 the Unix-like environment for Windows.
 This can be used to create a complete Cygwin installation system
 on a cdrom, dvd, or USB flash disk.
+pmcyg can be used on a wide variety of operating systems
+(e.g. Linux, MacOS, FreeBSD, Windows),
+allowing one to build the installation media
+without needing a Windows system with internet access.
 </p>
 
 <p>
@@ -213,10 +217,10 @@ If you want to create a copy of all the packages installed
 on an existing Cygwin system, then you could generate
 the package list by using
 <a href="http://www.cygwin.com/cygwin-ug-net/using-utils.html#cygcheck">cygcheck</a>:
+</p>
 <pre class="prog">
 cygcheck -cd | tail -n +3 | cut -f 1 -d " " &gt; mypackages.txt
 </pre>
-</p>
 
 <p>
 For the most complete Cygwin distribution,

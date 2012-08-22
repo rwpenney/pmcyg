@@ -1,12 +1,21 @@
-#!/bin/sh
+#!/usr/bin/python
 # Helper script for automatic 'pmcyg' updating
 # RW Penney, May 2011
 
-INST_HOST=http://sourceware.redhat.com/cygwin
-PKG_HOST=http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin
+from pmcyg import PMbuilder, ProcessPackageFiles
 
-exec python ./pmcyg.py -c -d ./cygwin -o ask \
-    -x ${INST_HOST}/setup.exe -m ${PKG_HOST} -i ${PKG_HOST}/setup.bz2 \
-    ${HOME}/projects/pmcyg/rwp-pmcyg.pkgs
 
-# vim: set ts=4 sw=4 et:
+PKG_HOST = 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
+PKG_LISTS = [ 'example.pkgs' ]
+
+builder = PMbuilder(MirrorSite=PKG_HOST,
+                    BuildDirectory='./cygwin',
+                    AllPackages=False,
+                    IncludeSources=False,
+                    RemoveOutdated='ask',
+                    ISOfilename='./cygwin-pmcyg.iso',
+                    DummyDownload=True)
+
+ProcessPackageFiles(builder, PKG_LISTS)
+
+# vim: set ts=4 sw=4 et syntax=python:

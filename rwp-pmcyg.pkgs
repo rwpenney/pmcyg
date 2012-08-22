@@ -149,6 +149,7 @@ libncurses-devel          	# (devel) libraries for terminal handling
 #libogg-devel              	# Ogg Bitstream Library (Development)
 libpng12-devel            	# PNG library (development)
 libpng14-devel            	# PNG library (development)
+libtool                   	# A shared library generation tool
 #libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
 libxml2-devel             	# XML C parser and toolkit (development)
@@ -253,7 +254,7 @@ python-gtk2.0-demo        	# Python bindings for GTK2 and libglade (demo app)
 python-gtk2.0-devel       	# Python bindings for GTK2 and libglade (development)
 python-libxml2            	# XML C parser and toolkit (Python bindings)
 python-libxslt            	# The GNOME XSLT C library (Python bindings)
-#python-pygtk              	# PyGTK runtime version selector
+python-pygtk              	# PyGTK runtime version selector
 
 
 ##
@@ -447,7 +448,6 @@ mingw-zlib-devel          	# (mingw) The zlib compression and decompression libr
 ##
 ## Net
 ##
-apache                    	# The Apache HTTP (Web) Server
 bind                      	# DNS utilities suite
 curl                      	# Multi-protocol file transfer command-line tool
 gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
@@ -647,11 +647,12 @@ xdelta                    	# Computes changes between binary files.
 ##
 ## Web
 ##
-apache                    	# The Apache HTTP (Web) Server
-apache2                   	# Apache web server
+#apache2                   	# Apache web server
 curl                      	# Multi-protocol file transfer command-line tool
+dhttpd                    	# Minimal secure webserver without cgi-bin support
 links                     	# Text mode WWW browser
 lynx                      	# Text-based Web browser
+micro-httpd               	# Extremely small Unix-based HTTP server
 w3m                       	# A text-based Web browser and pager
 wget                      	# Utility to retrieve files from the WWW via HTTP and FTP
 xrx                       	# X.Org RX document helper app and plugins
