@@ -128,7 +128,7 @@ git-completion            	# Fast Version Control System - git bash completion
 git-gui                   	# Fast Version Control System - git-gui viewer
 git-svn                   	# Fast Version Control System - git-svn conversions
 gitk                      	# Fast Version Control System - gitk viewer
-gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
+gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 gperf                     	# Perfect hash function generator
 guile-devel               	# The GNU extension language and Scheme interpreter - development
 guilt                     	# Quilt for git; similar to Mercurial queues
@@ -147,8 +147,7 @@ libjpeg-devel             	# A library for manipulating JPEG image format files 
 libmng-devel              	# A library of functions for manipulating MNG format files - (development)
 libncurses-devel          	# (devel) libraries for terminal handling
 #libogg-devel              	# Ogg Bitstream Library (Development)
-libpng12-devel            	# PNG library (development)
-libpng14-devel            	# PNG library (development)
+libpng-devel              	# PNG library (development)
 libtool                   	# A shared library generation tool
 #libvorbis-devel           	# The Vorbis General Audio Compression Codec (Development)
 libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
@@ -167,7 +166,6 @@ python-pyrex              	# Compile native-code modules for Python from python-
 quilt                     	# Tool to work with series of patches
 rcs                       	# The Revision Control System
 readline                  	# GNU readline and history libraries
-source-highlight          	# Syntax highlighting utilities
 splint                    	# Check C programs for security vulnerabilities and programming mistakes.
 stgit                     	# Quilt functionality on top of git
 subversion                	# A version control system
@@ -233,16 +231,14 @@ sudoku                    	# Console based sudoku
 audiofile                 	# Digital audio file library (utilities)
 gnome-keyring             	# GNOME Desktop password management system (daemon and client)
 gtk-engines               	# Theme engines for GTK+ 1.2
-gtk2.0-demo               	# Multi-platform GUI toolkit (demo)
 gtk2.0-engines            	# Standard theme engines for gtk+-2.x
-gtk2.0-engines-pixmap     	# Multi-platform GUI toolkit (Pixmap theme engine)
-gvim                      	# GTK interface to the Vim text editor
+gtk2.0-engines-pixmap     	# Pixmap theme engine for GTK+
 intltool                  	# GNOME source internalization scripts
 lablgtk2                  	# OCaml interface to GTK2
 libatk1.0-devel           	# Accessibility Toolkit library (development)
 libaudiofile-devel        	# Digital audio file library (development)
-libglib2.0-devel          	# GNOME C function library (development)
-libgtk2.0-devel           	# Multi-platform GUI toolkit (development)
+libglib2.0-devel          	# GNOME core C function library (development)
+libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
 libpango1.0-devel         	# GNOME text layout and rendering library (development)
 libxml2-devel             	# XML C parser and toolkit (development)
 #libxml2-doc               	# XML C parser and toolkit (documentation)
@@ -266,7 +262,7 @@ autotrace                 	# A program for converting bitmap to vector graphics
 epstool                   	# Edit preview images and fix bounding boxes in EPS files
 exif                      	# Command-line utility to show EXIF information hidden in JPEG files
 freeglut                  	# Open Source GLUT implementation 
-ghostscript               	# An interpreter for the PostScript language and for PDF
+ghostscript               	# GPL PostScript interpreter (utilities)
 ghostscript-fonts-other   	# Miscellaneous fonts derived from the free Hershey fonts, with improvements for ghostscript
 ghostscript-fonts-std     	# 35 commercial-quality Type 1 basic PostScript fonts for ghostscript
 giflib                    	# GIF file manipulation library (utilities and docs)
@@ -284,8 +280,7 @@ libMagick-devel           	# Image manipulation software suite (development)
 libglut-devel             	# Open Source GLUT implementation - (development)
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
 libmng-devel              	# A library of functions for manipulating MNG format files - (development)
-libpng12-devel            	# PNG library (development)
-libpng14-devel            	# PNG library (development)
+libpng-devel              	# PNG library (development)
 libtiff-devel             	# TIFF image library (development)
 netpbm                    	# Toolkit for manipulation of graphic images
 perl-Graphics-Magick      	# GraphicsMagick Perl bind (PerlMagick)
@@ -333,8 +328,8 @@ fftw3-doc                 	# Pdf and html documentation for using the fftw3 libr
 freeglut                  	# Open Source GLUT implementation 
 gettext                   	# GNU Internationalization library and core utilities (PLUS LINK LIBS)
 gmp                       	# GMP is a free library for arbitrary precision arithmetic
-gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
-gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
+gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
+gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 gsl                       	# Runtime
 gsl-apps                  	# Application programs
 gsl-devel                 	# Developers tools
@@ -352,7 +347,7 @@ libfftw3-devel            	# Discrete Fourier transform library (development)
 libgcrypt                 	# A general purpose crypto library based on the code from GnuPG.
 libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
 libgcrypt11               	# A general purpose crypto library based on the code from GnuPG - (runtime)
-libglib2.0-devel          	# GNOME C function library (development)
+libglib2.0-devel          	# GNOME core C function library (development)
 libglut-devel             	# Open Source GLUT implementation - (development)
 libgmp-devel              	# Development library for GMP arbitrary precision arithmetic library
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
@@ -360,8 +355,7 @@ libmng-devel              	# A library of functions for manipulating MNG format 
 libncurses-devel          	# (devel) libraries for terminal handling
 #libogg-devel              	# Ogg Bitstream Library (Development)
 libpcre-devel             	# Perl-Compatible Regular Expressions library (development)
-libpng12-devel            	# PNG library (development)
-libpng14-devel            	# PNG library (development)
+libpng-devel              	# PNG library (development)
 libpthread-stubs          	# Pthread stubs pkg-config metadata
 libreadline5              	# GNU readline and history libraries (runtime)
 libreadline6              	# GNU readline and history libraries (runtime)
@@ -449,9 +443,9 @@ mingw-zlib-devel          	# (mingw) The zlib compression and decompression libr
 ## Net
 ##
 bind                      	# DNS utilities suite
-curl                      	# Multi-protocol file transfer command-line tool
-gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols - (utilities)
-gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols - (development)
+curl                      	# Multi-protocol file transfer tool
+gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
+gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 inetutils                 	# Common networking clients and servers
 lftp                      	# Sophisticated file transfer program
 nc                        	# Reads and writes data across network connections using TCP or UDP
@@ -511,6 +505,7 @@ python-gamin              	# File and directory monitoring system (Python bindin
 python-gtk2.0             	# Python bindings for GTK2 and libglade (runtime)
 python-gtk2.0-demo        	# Python bindings for GTK2 and libglade (demo app)
 python-gtk2.0-devel       	# Python bindings for GTK2 and libglade (development)
+python-imaging            	# Python Imaging Library
 python-lcms               	# Little color management engine - (Python bindings)
 python-libxml2            	# XML C parser and toolkit (Python bindings)
 python-libxslt            	# The GNOME XSLT C library (Python bindings)
@@ -519,6 +514,7 @@ python-paramiko           	# SSH2 connection library for Python (library)
 python-pygtk              	# PyGTK runtime version selector
 python-pyrex              	# Compile native-code modules for Python from python-like syntax
 python-tkinter            	# Python Tkinter GUI module
+python3                   	# Py3K language interpreter
 spambayes                 	# Python-based spam filter using statistical analysis
 stgit                     	# Quilt functionality on top of git
 tailor                    	# Migrate changesets between version control systems
@@ -593,6 +589,7 @@ libxslt                   	# The GNOME XSLT C library (runtime)
 patchutils                	# A small collection of programs that operate on patch files
 pcre                      	# Perl-Compatible Regular Expressions (utilities)
 python-pyrex              	# Compile native-code modules for Python from python-like syntax
+source-highlight          	# Syntax highlighting utilities
 texi2html                 	# A highly customizable texinfo to HTML and other formats translator
 texinfo                   	# Documentation system for on-line information and printed output
 untex                     	# Remove LaTeX commands from input
@@ -648,7 +645,7 @@ xdelta                    	# Computes changes between binary files.
 ## Web
 ##
 #apache2                   	# Apache web server
-curl                      	# Multi-protocol file transfer command-line tool
+curl                      	# Multi-protocol file transfer tool
 dhttpd                    	# Minimal secure webserver without cgi-bin support
 links                     	# Text mode WWW browser
 lynx                      	# Text-based Web browser
@@ -681,12 +678,11 @@ font-bitstream-vera-ttf   	# Bitstream Vera font family
 font-encodings            	# X.Org font encodings
 font-misc-misc            	# X.Org miscellaneous fonts
 font-util                 	# X.Org font utilities and font maps
-fontconfig                	# Font configuration library (utilities)
+fontconfig                	# Font configuration utilities
 fvwm                      	# Window manager for X11
 gccmakedep                	# Xorg preprocessor dependency maker
 gtk-engines               	# Theme engines for GTK+ 1.2
-gtk2.0-demo               	# Multi-platform GUI toolkit (demo)
-gtk2.0-engines-pixmap     	# Multi-platform GUI toolkit (Pixmap theme engine)
+gtk2.0-engines-pixmap     	# Pixmap theme engine for GTK+
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
 imake                     	# X.Org Imake legacy build system
 inputproto                	# X.Org XInput extension headers
@@ -702,9 +698,9 @@ libXaw3d-devel            	# Three-dimensional Athena widget library (developmen
 libXmu-devel              	# X.Org miscellaneous utility libraries (development)
 libXt-devel               	# X.Org X Toolkit library (development)
 libfltk-devel             	# Fast Light Toolkit (development, for X11)
-libfreetype-devel         	# High-quality software font engine (development files)
-libfreetype6              	# High-quality software font engine (runtime library)
-libgtk2.0-devel           	# Multi-platform GUI toolkit (development)
+libfreetype-devel         	# FreeType font engine
+libfreetype6              	# FreeType font engine
+libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
 libqt3                    	# C++ GUI application framework (runtime library)
 libqt3-devel              	# C++ GUI application framework (qmake/moc/uic, headers, import libraries)
 listres                   	# X.Org widget resource lister

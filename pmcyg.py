@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.8'
+PMCYG_VERSION = '0.9'
 
 DEFAULT_INSTALLER_URL = 'http://sourceware.redhat.com/cygwin/setup.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -36,7 +36,7 @@ try:
     import Queue, ScrolledText, tkFileDialog
     HASGUI = True
 except:
-    class Tk: Canvas = object
+    class Tk: Canvas = object; Button = object
     HASGUI = False
 
 HOST_IS_CYGWIN = (sys.platform == 'cygwin')
@@ -1296,7 +1296,6 @@ class TKgui(object):
         self._boolopts = [
             ( 'dummy_var',   'DummyDownload',  False, 'Dry-run' ),
             ( 'nobase_var',  'IncludeBase',    True,  'Omit base packages' ),
-            ( 'allpkgs_var', 'AllPackages',    False, 'Include all packages' ),
             ( 'incsrcs_var', 'IncludeSources', False, 'Include sources'),
             ( 'autorun_var', 'MakeAutorun',    False, 'Create autorun.inf')
         ]
@@ -1304,15 +1303,18 @@ class TKgui(object):
             tkvar = Tk.IntVar()
             tkvar.set(flip ^ builder.GetOption(opt))
             self.__setattr__(attr, tkvar)
-        self.rmvold_var = Tk.StringVar()
-        self.rmvold_var.set(builder.GetOption('RemoveOutdated'))
 
         menubar = self.mkMenuBar(rootwin)
         rootwin.config(menu=menubar)
 
         self.mirror_menu = None
-        parampanel = self.mkParamPanel(rootwin)
-        parampanel.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.W)
+
+        frm = Tk.Frame(rootwin)
+        parampanel = self.mkParamPanel(frm)
+        parampanel.pack(side=Tk.LEFT, expand=True, fill=Tk.X)
+        btnpanel = self.mkButtonPanel(frm)
+        btnpanel.pack(side=Tk.RIGHT, fill=Tk.Y)
+        frm.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.W)
         row += 1
 
         self.status_txt = ScrolledText.ScrolledText(rootwin, height=16)
@@ -1378,22 +1380,11 @@ class TKgui(object):
         filemenu.add_command(label='Quit', command=rootwin.quit)
         menubar.add_cascade(label='File', menu=filemenu)
 
-        # 'Build' menu:
-        self.buildmenu = Tk.Menu(menubar, tearoff=0)
-        self.buildmenu.add_command(label='Start', command=self.doBuildMirror)
-        self.buildmenu.add_command(label='Cancel', command=self.doCancel)
-        menubar.add_cascade(label='Build', menu=self.buildmenu)
-
         # 'Options' menu:
         optmenu = Tk.Menu(menubar, tearoff=0)
         for attr, opt, flip, descr in self._boolopts:
             tkvar = self.__getattribute__(attr)
             optmenu.add_checkbutton(label=descr, variable=tkvar)
-        rmvmenu = Tk.Menu(optmenu, tearoff=0)
-        for opt in [ 'no', 'ask', 'yes' ]:
-            rmvmenu.add_radiobutton(label=opt, variable=self.rmvold_var,
-                                value=opt, command=self.setRemoveOld)
-        optmenu.add_cascade(label='Remove outdated', menu=rmvmenu)
         menubar.add_cascade(label='Options', menu=optmenu)
 
         # 'Help' menu:
@@ -1403,12 +1394,12 @@ class TKgui(object):
 
         return menubar
 
-    def mkParamPanel(self, rootwin):
+    def mkParamPanel(self, parent):
         """Construct GUI components for entering user parameters (e.g. mirror URL)"""
         margin = 4
         entwidth = 30
 
-        parampanel = Tk.Frame(rootwin)
+        parampanel = Tk.Frame(parent)
         parampanel.grid_columnconfigure(1, weight=1)
         idx = 0
 
@@ -1417,8 +1408,9 @@ class TKgui(object):
         self.pkgs_entry.config(state='readonly')
         self.pkgs_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
         pkgpanel = Tk.Frame(parampanel)
-        pkgs_btn = Tk.Button(pkgpanel, text='Browse', command=self.pkgsSelect)
-        pkgs_btn.pack(side=Tk.LEFT)
+        self.pkgs_btn = Tk.Button(pkgpanel, text='Browse',
+                                    command=self.pkgsSelect)
+        self.pkgs_btn.pack(side=Tk.LEFT)
         self.stats_label = Tk.Label(pkgpanel, text='')
         self.stats_label.pack(side=Tk.RIGHT)
         pkgpanel.grid(row=idx+1, column=1, stick=Tk.E+Tk.W)
@@ -1448,6 +1440,63 @@ class TKgui(object):
         idx += 2
 
         return parampanel
+
+    def mkButtonPanel(self, parent):
+        """Construct GUI buttons for triggering downloads etc"""
+
+        btnpanel = Tk.Frame(parent)
+        xmargin = 4
+        ymargin = 2
+
+        self._img_download = GUIimagery.GetImage('download')
+        self._img_cancel = GUIimagery.GetImage('cancel')
+        self.btn_download = Tk.Button(parent, image=self._img_download,
+                                        command=self.doBuildMirror)
+        self.btn_download.pack(side=Tk.BOTTOM, padx=xmargin, pady=ymargin)
+
+        # FIXME - wire-up these buttons
+        self._img_allpkgs = GUIimagery.GetImage('allpkgs')
+        self._img_userpkgs = GUIimagery.GetImage('userpkgs')
+        allstate = self.builder.GetOption('AllPackages')
+        self.btn_allpkgs = ImageButton(parent,
+                                        { True: self._img_allpkgs,
+                                            False: self._img_userpkgs },
+                                        [ allstate, not allstate ],
+                                        callback=self.onClickAllPkgs)
+        self.btn_allpkgs.pack(side=Tk.BOTTOM, padx=xmargin, pady=ymargin)
+
+        self._img_rplc_never = GUIimagery.GetImage('replace_never')
+        self._img_rplc_ask = GUIimagery.GetImage('replace_ask')
+        self._img_rplc_kill = GUIimagery.GetImage('replace_kill')
+        replstate = self.builder.GetOption('RemoveOutdated')
+        self._btn_replace = ImageButton(parent,
+                                        { 'no': self._img_rplc_never,
+                                            'ask': self._img_rplc_ask,
+                                            'yes': self._img_rplc_kill },
+                                        [ 'no', 'ask', 'yes' ],
+                                        callback=self.onClickReplace)
+        self._btn_replace.SetState(replstate)
+        self._btn_replace.pack(side=Tk.BOTTOM, padx=xmargin, pady=ymargin)
+
+        return btnpanel
+
+    def onClickAllPkgs(self, idx, allstate):
+        self.builder.SetOption('AllPackages', allstate)
+        if allstate:
+            self.pkgs_btn.config(state='disabled')
+        else:
+            self.pkgs_btn.config(state='normal')
+
+    def onClickReplace(self, idx, replstate):
+        self.builder.SetOption('RemoveOutdated', replstate)
+
+    def setupDownloadButton(self, start=True):
+        if start:
+            self.btn_download.config(image=self._img_cancel)
+            self.btn_download.config(command=self.doCancel)
+        else:
+            self.btn_download.config(image=self._img_download)
+            self.btn_download.config(command=self.doBuildMirror)
 
     def clearHist(self):
         """Clear history window"""
@@ -1575,9 +1624,6 @@ This is free software, and you are welcome to redistribute it under the terms of
 
         return menu
 
-    def setRemoveOld(self):
-        self.builder.SetOption('RemoveOutdated', self.rmvold_var.get())
-
     def doBuildMirror(self):
         self._txFields()
         self._updateState(GUIbuildState(self))
@@ -1641,20 +1687,16 @@ class GUIstate(object):
 class GUIconfigState(GUIstate):
     def __init__(self, parent):
         GUIstate.__init__(self, parent)
-        def btn(state):
-            # Update 'build' button to avoid multiple builder threads:
-            buttonId = parent.buildmenu.index('Start')
-            parent.buildmenu.entryconfig(buttonId, state=state)
-        self._buttonConfig = btn
+        self._buttonConfig = parent.setupDownloadButton
 
     def tick(self):
         return self
 
     def enter(self):
-        self._buttonConfig(Tk.NORMAL)
+        self._buttonConfig(False)
 
     def leave(self):
-        self._buttonConfig(Tk.DISABLED)
+        self._buttonConfig(True)
 
 
 class GUIbuildState(GUIstate):
@@ -1855,6 +1897,190 @@ class GUIprogressBar(Tk.Canvas):
             newrect = self.create_rectangle(xpos, 1, xpos + barwidth, height - 1, fill=colour, width=0)
             setattr(self, b_attr, newrect)
             xpos += barwidth
+
+
+
+class ImageButton(Tk.Button):
+    def __init__(self, parent, images={}, states=[], callback=None):
+        Tk.Button.__init__(self, parent, command=self._onClick)
+
+        self._images = images
+        self._states = states
+        self._onPress = callback
+
+        self._counter = 0
+        self._depth = len(images)
+        self.SetState(states[self._counter])
+
+    def SetState(self, newstate):
+        self.config(image=self._images[newstate])
+
+    def GetState(self):
+        return (self._counter, self._states[self._counter])
+
+    def _onClick(self):
+        self._counter = (self._counter + 1) % self._depth
+        newstate = self._states[self._counter]
+        self.SetState(newstate)
+
+        if self._onPress:
+            self._onPress(self._counter, newstate)
+
+
+
+class GUIimagery(object):
+    """Generator of Tkinter PhotoImage objects for embedded icon imagery"""
+
+    @classmethod
+    def GetImage(cls, ident):
+        base64data = cls.__getattribute__(cls, ident)
+        photo = Tk.PhotoImage(data=base64data)
+        return photo
+
+    download = """
+R0lGODlhIAAgAPUAACDAICHAISLAIiPAIyXAJSrAKizALC3ALTPAMzTANDvAO0fAR0/AT1XAVV/A
+X2DAYGbAZm3AbW7AbnnAeXrAev/gAIHAgYLAgoTAhInAiYrAipbAlqLAoqbApqzArLPAs7XAtbbA
+trrAur7AvsDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAACQALAAAAAAgACAAAAaoQJJw
+SBQCjshjcclcJpPNKPOJlFqHVOXVmgVsudmvtCuOksskTGO97rLXmKuH0O0SPNtIPRv5ihB7SQki
+YhmBSBpoC4cLaCQchxyOJA97D5MkHwddBR+YJBRdFJ8kIwpUCiOkJBtUG6tCDEkMsEIdSAQdtUIQ
+RxC7QiEFB4RiFccVURcXUcjJQ85RI6pN0dDImNZC2mjczt/g4eBE4uXmz9vn6t7r7UJBADs=
+"""
+
+    cancel = """
+R0lGODlhIAAgAPZMAP8AAP8BAf4CAv8CAv4DA/0FBf4EBP4FBf8sLP8vL+FdXf9TU/9bW/9cXN9h
+Yd9jY95kZN5lZd1mZt1padtsbNtubtpvb9tvb9xsbNpxcdlzc9pycth1ddh3d9d5edd7e9Z8fNZ9
+fdV/f9Z+fuBgYP9paf9xcf9ycv9zc9WCgtSDg9OHh9SEhP+MjP+Njf+Ojsimpsinp8epqcerq8as
+rMatrcWvr8aursavr8ipqcWwsMWxscWyssSzs8O1tcO2tsS0tMK4uMO4uMK6usK7u8G8vMG9vcC+
+vsC/v//6+v/8/P/+/v///8DAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5
+BAEAAE0ALAAAAAAgACAAAAf+gE2Cg4SFhoeIhjQwjDQ9QEBHiZODIQGXmJmXE5SGFZqgmA+dg5+h
+pxCkpqenF5QQmAmssZgaiQ+YLUwlsyVMLbWHuJe6TLunvsbAlx+FCpgIScZMSQygDNLGSQiYIYNH
+mgvZxryYydoLmQc0gkWg4tPHAefU6Zo57aHw0yX0SfaaZgj6cWpfPHSn2DUhWHDctH+sFPaYZbDe
+LCCCJrKiR25WD0E0Nh7kx+oHSGTxkjgsB6qIoBmh/C2oyDKTyyYwQMm8ZDBJzUuSmtA4kGknJpqa
+gjZJAS2lNU0MUsq6pKAQC0wmEOrLZgITJ0NML5mAyEpc10u2EH2gNSvA1AAnaRN1aBuKgyq6mbyR
+anIBb4AUewcNY3VgRWBCPRIrZsRY4eHHhwIBADs=
+"""
+
+    allpkgs = """
+R0lGODlhIAAgAPcAAACAgAGAgAKAgAOAgAKBgQOBgQSBgQWBgQaBgQWCggaCggeCggiCggiDgwmD
+gwqDgwuDgwqEhAuEhAyEhA2EhA6EhA6FhQ+FhRCFhRGFhRCGhhGGhhKGhhOGhhKHhxOHhxSGhhSH
+hxWHhxeHhxaIiBeIiBiIiBmIiBqIiBqJiRuJiRyJiR2JiR6Kih+KiiCKiiCLiyKLiyOLiyGMjCSM
+jCWMjCWNjSaMjCaNjSeNjSiNjSmOjiyOjiyPjy2Pjy6Pjy+Pjy6QkC+QkDGQkDGRkTKQkDKRkTOR
+kTOSkjWRkTSSkjaSkjeSkjeTkziSkjiTkzmTkzqTkz2UlD6UlD6VlT+VlUCVlUGWlkKWlkSWlkSX
+l0WXl0aXl0WYmEaYmEeYmEiYmEmYmEuZmUyZmU2amk6bm1Cbm1Gbm1Kbm1CcnFGcnFadnVednVid
+nVmdnVmenluenlyfn12fn16fn1+goGCgoGKhoWOhoWShoWWiomaiomeiomijo2mjo2ykpG+lpXCl
+pXCmpnGmpnKmpnOmpnSmpnSnp3anp3WoqHaoqHeoqHioqHmoqHipqXmpqXqpqXupqX6qqn+qqn6r
+q3+rq4Crq4Grq4OsrISsrIWsrIWtrYatrYetrYitrYiuromurouvr4yvr42vr4+wsJCwsJGwsJKx
+sZOxsZSyspWyspezs5mzs5m0tJq0tJu0tJy0tJ21tZ61taC1taC2tqO2tqO3t6S3t6W3t6a3t6a4
+uKe4uKi4uKu5uay5ua26uq66uq+6uq+7u7C7u7G7u7K7u7K8vLO8vLS8vLS9vbW9vbe9vbi9vbi+
+vrm+vru+vrq/v7u/v7y/v76/v77AwL/AwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAANUALAAAAAAgACAA
+AAj+AKsJHEiwoMGDCA/SwrOkxYWHS/DQSkhRWiWHFzw0UVMC44UWlahRLEipgoEAAQxIcZTLgTNn
+lUp80aED1UiBbgJI8STClzFHQQw4KOGgQgUAOZYEcDMyTgBH1eLEcYYHQ44TJ2LYEshmi5sLSxN6
+MpBIoB0kGL7EqoZhVyAMlaqxsVPNWZCnB31dOCGQVo4AmQT6wiCwFYavuwRSA5vLoJgnYqp5qhCo
+EgY8xi5FEWiMTYAxBMWcWFKQFoZAWxxVECVw15cLGE4gcSiGVInAArEEurB1IBs6uTBgWEuQGpI4
+o2KJrIaqbbVpHnLFYSpQ2gVXuwyANhjDlcFAOqj+2ZFSzdWFgagMVFtCRwTU4i4NGt8iIjG1AKoE
+JjLgqYW0WCeMIcxAg+UlRQDeCWTAe4EYEAQlAiXjBgZjkOIMKTwQ5MwoYhy2BR2cGRCIQHicEB+B
+eORgwAkljDGGFCrmgEcw1ZgmTTV+xICHQIGo6MtByaDxhCGJUIKKMwUhkclgUoxYTSYoLKGDMQex
+0QdFfmChQx9PeCJQLBcw4kYLCYb2HkKULEVNCxMpqEY1iVzAxo8DLeFlXl85IMwohA0kggiCsXEB
+FpUMmEMrBQlDCRZyCtOCLUHkQJAjALAmkDCMLPGRA1K4KMYSJ1SwhCHJCBSDIQFYOpCJZSpmGh6W
+gRgSiCdtEoSBA0gYZAtsgSznJ50HUdMHABX0VlAmIsjAgyc3CoQBsMVlwsOtdx5kRw49loDGks8S
+tEsmaJyQgx0GoDGSHyL0QctZYImrA0ZI2EFLHwZ8cVM1hhiAAYTV8OCIK63QQiclGOB1bzXJKOVA
+DjN8IYooYqpoQBSlHjyQM37wAFYAABhwAQ9+IGnxyCSXfFBAADs=
+"""
+
+    userpkgs = """
+R0lGODlhIAAgAPcAAAMDAwMEBAsLCwkPDw0NDQ4ODg4PDw8PDw4QEA8QEAwTEw0TEw4TEw0VFQ8X
+FwwZGQ8ZGQ8fHxAQEBERERETExISEhEUFBIUFBQUFBYWFhcXFxIbGxYfHxkZGRoaGhwcHB0dHR0e
+Hh4fHwgtLQssLBQkJBcmJhcnJxMpKRQsLBQtLRopKQkzMws9PQk/PxsxMR83Nx49PSAgICMjIyUl
+JSYmJicnJygoKCoqKisrKywsLCM3NyU0NCI/PzIyMjMzMzQ0NDU1NTY2Njg4ODw8PD09PT4+Pj8/
+PwpHRxdCQgdSUhJbWyBBQSlHRyVKSiNNTSlLSypLSylMTCNRUSJSUiNSUiRSUipRUStUVCZZWSNc
+XClYWChcXC5eXjJTUw1iYgtwcAh1dQN/fwV/fwd+fgZ/fwh4eAl5eQt7ewh+fjNlZTFnZzNmZjJn
+ZzZlZTVmZjNtbTVvbzltbTlubipycitycixxcSp1dSN5eSd6ejFycjN3dzd1dTB5eTB+fjN+fjp6
+ekBAQEFBQUJCQkNDQ0BFRUREREVFRUdHR0hISElJSUtLS0lMTExMTE1NTU5OTklQUFZWVldXV11d
+XV9fX2BgYGNjY2ZmZmlpaWpqamtra2xsbG1tbXR0dHl5eXt7e3x8fH19fX5+fn9/fwCAgAGAgAKA
+gAKBgQaAgAaBgQeBgQeCggiCgg6EhA6FhRKFhRKGhhKHhxSFhRWHhxaHhxeHhx+HhyOFhSCHhyKH
+hyeGhieHhy2Dgy+FhSCJiSKIiCOJiSWIiCeIiCaKijGCgjaAgICAgIODg4iIiI+Pj5OTk5SUlJWV
+lZaWlpeXl5iYmJqampycnJ2dnZ6enp+fn6CgoKOjo6Wlpaenp6ioqKmpqaqqqqysrK6urq+vr7Cw
+sLGxsbOzs7S0tLW1tbe3t7i4uLm5ubu7u7y8vL29vb6+vsDAwAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAOsALAAAAAAgACAA
+AAj+ANcJHEiwoMGDCBMqXKgwXTNQmDaBapaOocJoggrQEHRjyZkvLApFs1jQ2yENm7wJnJSmVKlV
+ZZAwUkkSmgZJ5AhaKuPS5aozKEYyjFYAFMFvoIKAEbOq50sSQhN602BUYDMfBTgy0eIiTFOXrFR8
+U0jE0UBMEjpVnBSn1CxALniKKXVGUMJmBSRYOoeJxraBltq6/JWEaRkSBaAhPITJmyMJAv4KdBbE
+iS6XYn6NUALJG6ZDB88VoHnDA41m5ASFuMFjBZVZumKc0CFwW4GKBZXdEOhNwjljGjQIOldpTiwv
+JUoUg9Vg7LrTBj+BXgeKiEBlBQpUmgSHDgIEvVz+YjEmUNAng5gkCUy/vo0wKgACSPnVBo/LN5gE
+SspfkP06/5i4Bx8AUeBS33387WcQKHZRZ906yAgggSfbfSIBAry4dAV56whSFUHN0MBbAedcgoAK
+iBC31yAmRHDHLA/QNINiBaUjgWQ0SCCFMK9wEQIOOIRgyDjWDGGBiOtcIwFuBTFmzQ8eSCBMKWKI
+gcsTP9C4jm0n+GANJoogRI0ABey1yQu/9ERHJQNdE0IfrtiBgADXJETEIgNt8gAfs5RChyXr8GVB
+Hj2p8SBC3njwITVCSLDFDjgEcgAVtvTkhwfOJRSNBB+u8w0yQzRBzCxzuUSMBFFd5AFOOunRkxg7
+s7TxQaoLkaOIBCkJVNxgfGywSE4kDRTNYzc0gQMPWcAggSK0BitQOs6MsolE0DDp7LXYZqvtttwS
+FBAAOw==
+"""
+
+    replace_never = """
+R0lGODlhIAAgAPUAACUAACgoP0QAAFBQf2BgYGZmZoAAAAD/AAH/AQL/AgT+BAX+BQf9Bwn8CQv8
+Cw37DRH5ERD6EBb4Fhv2GyL0Ii3wLS7wLjLuMjPuM0HqQU3lTU3mTVjiWFriWmbdZmbeZmzbbG3b
+bXrXenzWfJCQkJeXl4XUhYjSiInSiZPPk5TOlJ7LnqbIpqnHqbDFsLfDt7TEtLXEtb3Bvb7Bvr/A
+v6Cg/8DAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAADYALAAAAAAgACAAAAb+QJtw
+SCwaj0USYclsLknIqI0QGFiv2ABBiiQMauCweLDlGr3idI1s+7g/I9VLilaH2Ye8noFJdb92YGQy
+eoV5HUd1gYMdjR0ZFIUiZ4CLZUUtF3kTMkWKdmxGLSsOeSYsLkOfaqFFKA0NeQ8NKKqVoJdFFoUW
+RKtprUUsEHkQLL5VWMpaURoHDBpJTtMEUEgxEhIxZtxEISHd4TYznUUlBejp6uglnktT70xCBQAC
+9vf4AAVEJFdrVv+s2CggwIDBgwgF7LMVSNDAgggjKvR1i9XDiBIXCvmV5iLGgxOJNHRI8CNIjVMq
+AvNoMuRGlWNYfnSZcmQNmRhp2rA5AGciRooje5Y0aYAmxzsD6+Fbqo+iv6cCz62b2o6fvKvvxIUL
+AgA7
+"""
+
+    replace_ask = """
+R0lGODlhIAAgAPcAAAAAAAEBAQICAQUDAwYDAwUFBQcHBwwGBgsLCw4JCQ4KChELCxcKChMODhQP
+DxkJCRsMDBUbAxYWFhkUFCoAACQLCyoICDQAADwAAD0AADwEBDAICDEJCTMICDQKCiAZGSMdHSYf
+Hy8vLygoPzIyMjk5OUEBAUQAAEgBAUoAAFMBAV4AAGQAAG0AAHAAAHIAAHsAAHwAAH8AAEA6OkU/
+P0xlAVl2AEJCQkhERFFRUVlXV11bW15bW1BQf2BgYGJiYmZmZmdnZ25tbW9vb3V1dYAAAGqKCG+T
+ALztJ8D/AMD/AcD+AsD+BMD9B8D7C8D8CMD9CMD8CcD8CsD6EMD5E8D4FsD4F8D3GsD1HcD1H8D0
+IMDyJ8DyKcDxKsDwLcDwL8DvMMDtNcDsOsDsO8DrPL3WccDqQcDmS8DnS8DmTMDlT8DkU8DfYsDd
+ZsDeZsDbbcDbbsDWfoWFhYaGhoiIiI6OjpCQkJWVlZaWlpeXl5ubm6GhobCwsLGxsbKysrW1tbi4
+uLm5ubu7u76+vr+/v8DUgsDTiMDSicDSi8DQjsDRjsDOlMDOlcDNmcDLncDLn8DQkcDKoMDKocDJ
+pMDJpcDHq8DGrMDGrsDIqMDEs8DDt8DDuMDBvcDAv6Cg/8DAwAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAJ8ALAAAAAAgACAA
+AAj+AD8JHEiwoMGDBe34WMiw4UI7CCN+8jGih8WLGEf4kIjQRw9PIEOK7LGRo0GPIlN6IvkJEaWB
+c0QYQHDDz8mPKkOypJLECppFJOb88ZOjxM2cOn1gSsKUKRdFAgEZOIp0pQ9JZng2TRLGUhAJVJGy
+/NRpUZooTY0EABI259iBltI0ORKgRpm2Kt8SbBTBBtO7BFFW1UswABKmT14OFCy2pMEAmbAwBdNp
+cUWMmDVKdNSEKaKBCh2KhngwgMA1TMeYXG36EyWmTSqvnn2FqSOCeYbkETTbIBimUAXuWcABgoEJ
+OITkAdSbC9NFUSeoKFIEBgsUHiAM+IBDD8dNaJOsVBK4wwL18+dlsMAAYhBCOIjaMNUicFCCF+jR
+yygi40Gdg2w08UVTcAhERwX5JVgECjQYtEZ4TG0hWxAaKJhfCw0Q1MlZW2FhyUA6nGChfgYwJ5Bc
+W5GhCUE7mDAiegfYRJYkbWxhBVppFEQEBy9SJ0MA7hWkSSFjhFGQHg/0WMQKIfRG1gIv7JeelNRZ
+IISTn5RAAQZcdunlBQ6Y2FseQZRp5pll5oHlmrMFBAA7
+"""
+
+    replace_kill = """
+R0lGODlhIAAgAPcAAAUDAwYDAwwGBg4JCQ4KChELCxcKChMODhQPDxkJCRsMDBkUFCoAACQLCyoI
+CDQAADwAAD0AADwEBDAICDEJCTMICDQKCiAZGSMdHSYfHygoP0EBAUQAAEgBAUoAAFMBAV4AAGQA
+AG0AAHAAAHIAAHsAAHwAAH8AAEA6OkU/P0hERFlXV11bW15bW1BQf2BgYGZmZm5tbW9vb3V1dYAA
+AP8AAP8CAv4DA/0FBf4EBP4FBf0HB/wICPwJCfsMDPsNDfoPD/cXF/kREfoQEPkSEvkTE/cZGfYa
+GvcaGvUeHvMjI/MlJfMmJvAtLe8xMe01Ne40NOw7O+pBQehFRehHR+ZLS+ZMTOVPT+ZOTuRTU+NV
+Vd5mZtxqatpxcdlyctl0dNl1ddh2dtV+foiIiI6OjpCQkJWVlZaWlpeXl5ubm6GhobCwsLi4uLm5
+ubu7u76+vr+/v9WCgtOHh9GLi9GMjNGNjc+Tk82Xl86Wls2YmMycnMqhocqiosmlpcepqceqqser
+q8Wvr8avr8WxscWyssSzs8O1tcO4uMG7u8K6usK7u8G8vMC+vsG+vsC/v6Cg/8DAwAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAJAALAAAAAAgACAA
+AAj+ACEJHEiwoMGDBcu8WMiw4cIyCCNCeqHBhcWLGDW8kIjwhYtHIEOKdLGRo0GPIlM+IgkJTBw9
+hkxO/KgyJMseNXIqwQKmUESUNUGSLJSzaNEmXhCdpBmUpCAsUJDgMJoziJiCQJuWFNjoDhcoVKs0
+Gpi1JsuDhbYIKYqFLFOzWw8imlK0jsCyKs9GbCQlZ5S7b/PGRbgnp5C7FTEq1mjSUM4eAhU6nAyR
+Y52cSWRqhgS2hpbNJr0U7UMQjQw0bDYrhSRnao0sBNUUoKAAwAUVMVBHvDOlpeslqyGxWfCBBo0S
+ITxYqH0bTUFESH50roEEEEEWDoxr124iBIQMYweGYqG6xPrANwNIbF9Pw0QCMgPtrGV7qOCYBuzZ
+e0ghELpRJwfBIEF+64mAgEBe9CDEgkL08IdBK3BA4HYmBJAaV4X0kUcdDxbEwgYTbifAGpvNYEGI
+xpkAwBubpZEAijSAkAFocKSHogMxgAYJCgxA4OOPQD6AwIWboQHDkUgmeaRzOjYpU0AAOw==
+"""
 
 
 

@@ -2,6 +2,14 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2012, RW Penney
 
+07Oct12
+    Added GUI buttons for selecting all packages and setting update policy
+
+01Oct12
+    Moved download/cancel buttons from popup menu to front panel of GUI
+
+22Aug12 **** pmcyg-0.8 released ****
+
 10Aug12
     Improved usability as Python add-on module
     Added Python-based script for downloading and package updating
