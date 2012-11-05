@@ -175,7 +175,7 @@ pmcyg will help you through the following steps:
   <li>Prompting pmcyg to download packages and their dependencies</li>
 </ul>
 <p>
-Thereafter, you can use a standard CD or DVD-burning application to create
+After that, you can use a standard CD or DVD-burning application to create
 an off-line installer, optionally with autorun capability.
 You can even use pmcyg to download directly onto a USB key.
 </p>

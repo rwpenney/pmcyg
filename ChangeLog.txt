@@ -2,6 +2,12 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2012, RW Penney
 
+05Nov12 **** pmcyg-0.9 released ****
+
+31Oct12
+    Updated URL of setup.exe from sourceware.redhat.com to cygwin.com
+    Improved handling of packages with missing descriptions in setup.ini
+
 07Oct12
     Added GUI buttons for selecting all packages and setting update policy
 
