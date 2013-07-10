@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## http://pmcyg.sourceforge.net
-## (C)Copyright 2009-2012, RW Penney
+## (C)Copyright 2009-2013, RW Penney
+
+10Jul13
+    Patched setup.ini parsing mechanisms to allow UTF-8 content
 
 05Nov12 **** pmcyg-0.9 released ****
 

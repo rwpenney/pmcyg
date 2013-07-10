@@ -16,7 +16,8 @@ pmcyg_scripts = [ 'pmcyg.py' ]
 
 
 class pmcyg_build_scripts(DIB.build_scripts):
-    """Helper class to strip filename suffixes when installing Python scripts on POSIX platforms"""
+    """Helper class to strip filename suffixes when
+    installing Python scripts on POSIX platforms"""
     def copy_scripts(self):
         self.mkPython3script()
         orig_scripts = self.scripts
@@ -97,7 +98,8 @@ setup(
         'Cygwin on PCs without any internet access.',
     name = 'pmcyg',
     url = 'http://pmcyg.sourceforge.net',
-    download_url = 'http://sourceforge.net/projects/pmcyg/files/pmcyg/pmcyg-' + PMCYG_VERSION + '/pmcyg-' + PMCYG_VERSION + '.tgz/download',
+    download_url = 'http://sourceforge.net/projects/pmcyg/files/pmcyg/pmcyg-' \
+                + PMCYG_VERSION + '/pmcyg-' + PMCYG_VERSION + '.tgz/download',
     version = PMCYG_VERSION,
     scripts = pmcyg_scripts,
     cmdclass = { 'build_scripts': pmcyg_build_scripts }
