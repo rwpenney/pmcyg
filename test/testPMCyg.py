@@ -2,7 +2,8 @@
 # Unit-tests for Cygwin Partial Mirror (pmcyg)
 # RW Penney, August 2009
 
-import os, random, re, shutil, string, sys, tempfile, unittest, urlparse
+import codecs, os, random, re, shutil, string, sys, \
+        tempfile, unittest, urlparse
 sys.path.insert(0, '..')
 from pmcyg import *
 
@@ -56,6 +57,7 @@ class testSetupIniFetcher(unittest.TestCase):
             seed = self._step(seed)
             nlines += 1
         self.assertEqual(nlines, count)
+        fetcher.close()
 
     def _generate(self, handle, state, count):
         for p in xrange(0, count):
@@ -271,7 +273,7 @@ class testBuilder(unittest.TestCase):
         topdir = tempfile.mkdtemp()
         try:
             tplt = os.path.join(topdir, 'templates.txt')
-            fp = open(tplt, 'wt')
+            fp = codecs.open(tplt, 'w', 'utf-8')
             self.builder.MakeTemplate(fp)
             fp.close()
 
@@ -287,7 +289,7 @@ class testBuilder(unittest.TestCase):
         topdir = tempfile.mkdtemp()
         try:
             tplt = os.path.join(topdir, 'terse.txt')
-            fp = open(tplt, 'wt')
+            fp = codecs.open(tplt, 'w', 'utf-8')
             self.builder.MakeTemplate(fp, ['bash', 'flex', 'tcsh', 'vim', 'zsh'], terse=True)
             fp.close()
 
@@ -313,6 +315,49 @@ class testBuilder(unittest.TestCase):
         fp.close()
 
         return counts
+
+
+
+class testPackageLists(unittest.TestCase):
+    def setUp(self):
+        re_cfg = re.compile(r'^setup.*\.ini$')
+        cwd = os.getcwd()
+        dirlist = os.listdir(cwd)
+        self._configs = [ f for f in dirlist if re_cfg.match(f)
+                                                and os.path.isfile(f) ]
+        self._urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
+
+    def testIO(self):
+        """Test that setup.ini files of various generations,
+        and containing various mixes of ascii/latin-1/utf-8 characters
+        can be parsed and rewritten without exceptions or glaring errors"""
+        for cfg in self._configs:
+            url = urlparse.urljoin(self._urlprefix, cfg)
+            tmpdir = tempfile.mkdtemp()
+
+            builder = PMbuilder()
+            builder.SetIniURL(url)
+            builder._masterList._verbose = False
+            builder.SetTargetDir(tmpdir)
+
+            builder._optiondict['AllPackages'] = True
+            pkglist = builder._extendPkgSelection()
+            self.assertTrue(len(pkglist) > 4)
+
+            (f_ini, f_tplt) = [ os.path.join(tmpdir, f)
+                                for f in [os.path.basename(cfg), 'tplt.txt'] ]
+
+            self.assertFalse(os.path.isfile(f_ini))
+            builder._buildSetupFiles(pkglist, verbose=False)
+            self.assertTrue(os.path.isfile(f_ini))
+
+            self.assertFalse(os.path.isfile(f_tplt))
+            fp = codecs.open(f_tplt, 'w', 'utf-8')
+            builder.MakeTemplate(fp)
+            self.assertTrue(fp.tell() > 100)
+            fp.close()
+
+            shutil.rmtree(tmpdir)
 
 
 

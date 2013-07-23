@@ -8,7 +8,7 @@ VERSION = $(shell ${PYTHON} -c 'import pmcyg; print pmcyg.PMCYG_VERSION')
 DISTFILES = pmcyg.py example.pkgs \
 	Authors.txt ChangeLog.txt LICENSE.txt \
 	Makefile README.txt ToDo.txt MANIFEST.in setup.py update \
-	test/testPMCyg.py $(shell ls test/tree-*)
+	test/testPMCyg.py test/setup-awkward.ini $(shell ls test/tree-*)
 PY3EXE = pmcyg-2to3.py
 
 FQNAME = ${PKGNAME}-${VERSION}

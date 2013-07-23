@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2012, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2013, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,14 +16,19 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '0.9.1'
+PMCYG_VERSION = '1.0'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
 DEFAULT_CYGWIN_MIRROR = 'http://ftp.heanet.ie/pub/cygwin'
 
+# Character encoding used by the setup.ini file.
+# This should probably by 'ascii', but occasional unicode characters
+# have been observed within official set.ini files.
+SI_TEXT_ENCODING = 'utf-8'
 
-import  bz2, optparse, os, os.path, re, subprocess, string, \
+
+import  bz2, codecs, optparse, os, os.path, re, subprocess, \
         StringIO, sys, threading, time, urllib, urlparse
 try: from urllib.request import urlopen as URLopen
 except ImportError: from urllib2 import urlopen as URLopen
@@ -47,6 +52,7 @@ if sys.platform.startswith('win') and sys.version.startswith('2.6.'):
     broken_openfilenames = True
 
 
+
 def ConcatShortDescription(desc):
     """Concatenate multi-line short package description into single line"""
     if desc:
@@ -66,23 +72,23 @@ class PMCygException(Exception):
 
 
 class SetupIniFetcher(object):
-    """Facade for fetching setup.ini from URL, with optional bz2-decompression"""
+    """Facade for fetching setup.ini from URL,
+    with optional bz2-decompression"""
+    MaxIniFileLength = 1 << 24
+
     def __init__(self, URL):
-        self._buffer = StringIO.StringIO()
         stream = URLopen(URL)
-        processor = lambda x: x
+        expander = lambda x: x
         if URL.endswith('.bz2'):
-            expander = bz2.BZ2Decompressor()
-            processor = lambda x: expander.decompress(x)
-        while True:
-            try:
-                chunk = stream.read(1 << 16)
-                if not chunk: break
-                processed = processor(chunk)
-                self._buffer.write(processed.decode('utf-8'))
-            except:
-                break
-        self._buffer.seek(0)
+            expander = bz2.decompress
+        rawfile = expander(stream.read(self.MaxIniFileLength))
+        stream.close()
+
+        self._buffer = StringIO.StringIO(rawfile.decode(SI_TEXT_ENCODING,
+                                                        'ignore'))
+
+    def __del__(self):
+        self._buffer.close()
 
     def __iter__(self):
         return self
@@ -96,7 +102,8 @@ class SetupIniFetcher(object):
 
 
 class PMbuilder(object):
-    """Utility class for constructing partial mirror of Cygwin(TM) distribution"""
+    """Utility class for constructing partial mirror
+    of Cygwin(TM) distribution"""
     DL_Success =        1
     DL_AlreadyPresent = 2
     DL_SizeError =      3
@@ -191,7 +198,8 @@ class PMbuilder(object):
             oldval = self._optiondict[optname]
             self._optiondict[optname] = value
         except:
-            raise PMCygException, 'Invalid configuration option "%s" for PMBuilder' % optname
+            raise PMCygException, 'Invalid configuration option "%s"' \
+                                    ' for PMBuilder' % optname
         return oldval
 
 
@@ -206,14 +214,16 @@ class PMbuilder(object):
         try:
             fp = URLopen(self._mirrorlisturl)
         except:
-            print >>sys.stderr, 'Failed to read list of Cygwin mirrors from %s' % self._mirrorlisturl
+            print >>sys.stderr, 'Failed to read list of Cygwin mirrors' \
+                                ' from %s' % self._mirrorlisturl
             fp = self._makeFallbackMirrorList()
 
         for line in fp:
-            line = line.decode('ascii').strip()
+            line = line.decode('ascii', 'ignore').strip()
             if not line: continue
             (url, ident, region, country) = line.split(';')
-            self._mirrordict.setdefault(region,{}).setdefault(country,[]).append((ident, url))
+            regdict = self._mirrordict.setdefault(region, {})
+            regdict.setdefault(country, []).append((ident, url))
 
         fp.close()
         return self._mirrordict
@@ -225,7 +235,7 @@ class PMbuilder(object):
         usrpkgs = []
 
         for fn in filenames:
-            fp = open(fn, 'rt')
+            fp = codecs.open(fn, 'r', SI_TEXT_ENCODING)
 
             for line in fp:
                 idx = line.find('#')
@@ -249,13 +259,13 @@ class PMbuilder(object):
         self._fillinIniURL()
         pkgdict = self._masterList.GetPackageDict()
 
-        re_pkg = re.compile('^(#?)([A-Za-z0-9]\S*)(\s+#+\s+)\S+')
+        re_pkg = re.compile(r'^(#?)([A-Za-z0-9]\S*)(\s+#+\s+)\S+')
 
         for fn in filenames:
             newfn = fn + ".new"
 
-            fin = open(fn, 'rt')
-            fout = open(newfn, 'wt')
+            fin = codecs.open(fn, 'r', SI_TEXT_ENCODING)
+            fout = codecs.open(newfn, 'w', SI_TEXT_ENCODING)
             for line in fin:
                 line = line.rstrip()
                 matches = re_pkg.match(line)
@@ -354,7 +364,10 @@ class PMbuilder(object):
 
 
     def MakeTemplate(self, stream, userpkgs=None, terse=False):
-        """Generate template package-listing file"""
+        """Generate template package-listing file,
+        emitting this via the supplied output stream.
+        Note that this stream may need to be able to support
+        UTF-8 multi-byte characters."""
 
         self._fillinIniURL()
         pkgdict = self._masterList.GetPackageDict()
@@ -362,8 +375,20 @@ class PMbuilder(object):
         catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
         catlist.sort()
 
-        print >>stream, '# Package listing for pmcyg (Cygwin(TM) Partial Mirror)\n# Autogenerated on %s\n# from: %s\n' % ( time.asctime(), self.GetIniURL() )
-        print >>stream, '# This file contains listings of cygwin package names, one per line.\n# Lines starting with \'#\' denote comments, with blank lines being ignored.\n# The dependencies of any package listed here should be automatically\n# included in the mirror by pmcyg.'
+        lines = [ \
+            '# Package listing for pmcyg (Cygwin(TM) Partial Mirror)',
+            '# Autogenerated on %s' % time.asctime(),
+            '# from: %s' % self.GetIniURL(),
+            '',
+            '# This file contains listings of cygwin package names,' \
+                ' one per line.',
+            '# Lines starting with \'#\' denote comments,' \
+                ' with blank lines being ignored.',
+            '# The dependencies of any package listed here should be' \
+                ' automatically',
+            '# included in the mirror by pmcyg.'
+        ]
+        print >>stream, '\n'.join(lines)
 
         for cat in catlist:
             if terse and not set(catgroups[cat]).intersection(userpkgs):
@@ -378,7 +403,7 @@ class PMbuilder(object):
                 else:
                     if terse: continue
                     prefix = '#'
-                print >>stream, '%s%-24s  \t# %s' % ( prefix, pkg, desc )
+                stream.write('%s%-24s  \t# %s\n' % ( prefix, pkg, desc ))
 
     def TemplateFromLists(self, outfile, pkgfiles, cygwinReplica=False):
         """Wrapper for MakeTemplate() taking collection of package files"""
@@ -388,12 +413,15 @@ class PMbuilder(object):
         if pkgfiles:
             usrpkgs.extend(self.ReadPackageLists(pkgfiles))
 
-        fp = open(outfile, 'wt')
+        fp = codecs.open(outfile, 'w', SI_TEXT_ENCODING)
         self.MakeTemplate(fp, usrpkgs, terse=cygwinReplica)
         fp.close()
 
     def _makeFallbackMirrorList(self):
-            return StringIO.StringIO("""
+        """Supply a static list of official Cygwin mirror sites,
+        as a fall-back in case the live listing of mirrors cannot
+        be downloaded."""
+        return StringIO.StringIO("""
 ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
 http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
 ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
@@ -488,7 +516,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
                 except:
-                    print >>sys.stderr, 'Cannot find package filename for %s in variant \'%s:%s\'' % (pkg, ptype, epoch)
+                    print >>sys.stderr, 'Cannot find package filename for %s' \
+                                ' in variant \'%s:%s\'' % (pkg, ptype, epoch)
 
         return downloads
 
@@ -514,19 +543,19 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         # Reconstruct setup.ini file:
         spath = os.path.join(self._tgtdir, inibase)
         hashfiles.append(inibase)
-        fp = open(spath, 'wt')
+        fp = codecs.open(spath, 'w', SI_TEXT_ENCODING)
         now = time.localtime()
         msgs = [
-                '# This file was automatically generated by',
-                ' "pmcyg" (version %s),\n' % ( PMCYG_VERSION ),
-                '# %s,\n' % ( time.asctime(now) ),
-                '# based on %s\n' % ( self.GetIniURL() ),
-                '# Manual edits may be overwritten\n',
-                'setup-timestamp: %d\n' % ( int(time.time()) ),
-                'setup-version: %s\n' % ( header['setup-version'] )
+                '# This file was automatically generated by' \
+                    ' "pmcyg" (version %s),' % ( PMCYG_VERSION ),
+                '# %s,' % ( time.asctime(now) ),
+                '# based on %s' % ( self.GetIniURL() ),
+                '# Manual edits may be overwritten',
+                'setup-timestamp: %d' % ( int(time.time()) ),
+                'setup-version: %s' % ( header['setup-version'] ),
+                ''
         ]
-        for msg in msgs:
-            fp.write(msg)
+        fp.write('\n'.join(msgs))
         for pkg in packages:
             fp.write('\n')
             fp.write(pkgdict[pkg].GetAny('TEXT'))
@@ -549,7 +578,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             if verbose:
                 print ' done'
         except Exception, ex:
-            raise PMCygException, "Failed to retrieve %s\n - %s" % ( self._exeurl, str(ex) )
+            raise PMCygException, "Failed to retrieve %s\n - %s" \
+                                    % ( self._exeurl, str(ex) )
 
         # (Optionally) create auto-runner batch file:
         if self._optiondict['MakeAutorun']:
@@ -774,7 +804,9 @@ class PackageDatabase(object):
         return packages
 
     def ContractDependencies(self, pkglist, minvotes=6):
-        """Remove (most) automatically installed packages from list"""
+        """Remove (most) automatically installed packages from list,
+        such that an initial selection of packages can be reduced to
+        a minimal subset that has the same effect after dependency expansion."""
         dependencies = self._buildDependencies()
         votes = dict([(p, 0) for p in pkglist])
 
@@ -789,7 +821,7 @@ class PackageDatabase(object):
         # We add packages with many votes because they are probably worth
         # listing explicitly, even if they would be installed as dependencies
         # of zero-vote packages.
-        primaries = [pkg for pkg,n in votes.iteritems()
+        primaries = [pkg for pkg, n in votes.iteritems()
                             if n == 0 or n >= minvotes]
 
         # Preserve any packages not covered by the tree grown from
@@ -819,14 +851,14 @@ class PackageDatabase(object):
 class MasterPackageList(object):
     """Database of available Cygwin packages built from 'setup.ini' file"""
     def __init__(self, iniURL=None, verbose=False):
-        self.re_setup = re.compile(r'^(setup-\S+):\s+(\S+)$')
-        self.re_comment = re.compile(r'#(.*)$')
-        self.re_package = re.compile(r'^@\s+(\S+)$')
-        self.re_epoch = re.compile(r'^\[([a-z]+)\]$')
-        self.re_field = re.compile(r'^([a-z]+):\s+(.*)$')
-        self.re_blank = re.compile(r'^\s*$')
-        self.all_regexps = [ self.re_setup, self.re_comment, self.re_blank,
-                        self.re_package, self.re_epoch, self.re_field ]
+        self.re_dbline = re.compile(r'''
+              ((?P<setup>^setup-\S+) : \s+ (?P<setupParam>\S+) $)
+            | (?P<comment>\# .* $)
+            | (?P<package>^@ \s+ (?P<pkgName>\S+) $)
+            | (?P<epoch>^\[ (?P<epochName>[a-z]+) \] $)
+            | ((?P<field>^[a-zA-Z]+) : \s+ (?P<fieldVal>.*) $)
+            | (?P<blank>^\s* $)
+            ''', re.VERBOSE)
 
         self._verbose = verbose
         self._pkgLock = threading.Lock()
@@ -946,29 +978,26 @@ class MasterPackageList(object):
 
     def _ingestOrdinaryLine(self, line, lineno=None):
         """Classify current line as package definition/field etc"""
-        matches = None
-        for regexp in self.all_regexps:
-            matches = regexp.match(line)
-            if matches: break
+        matches = self.re_dbline.match(line)
         if not matches:
             raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
 
-        if regexp == self.re_setup:
-            self._ini_header[matches.group(1)] = matches.group(2)
-        elif regexp == self.re_comment:
+        if matches.group('setup'):
+            self._ini_header[matches.group('setup')] = matches.group('setupParam')
+        elif matches.group('comment'):
             pass
-        elif regexp == self.re_package:
+        elif matches.group('package'):
             self._finalizePackage()
 
-            self._pkgname = matches.group(1)
+            self._pkgname = matches.group('pkgName')
             self._epoch = 'curr'
             self._fieldname = None
-        elif regexp == self.re_epoch:
-            self._epoch = matches.group(1)
-        elif regexp == self.re_field:
-            self._fieldname = matches.group(1)
-            self._fieldtext = matches.group(2)
-            quotepos = matches.group(2).find('"')
+        elif matches.group('epoch'):
+            self._epoch = matches.group('epochName')
+        elif matches.group('field'):
+            self._fieldname = matches.group('field')
+            self._fieldtext = matches.group('fieldVal')
+            quotepos = self._fieldtext.find('"')
             if quotepos < 0:
                 # Field value appears without quotation marks on single line:
                 self._pkgdict.Set(self._fieldname,
@@ -1026,7 +1055,7 @@ class PackageSummary(object):
         self._epochs = set()
 
     def GetAny(self, field, epochset=[]):
-        """Lookup value of a particular field,
+        """Lookup the value of a particular field,
         for a given set of possible epochs.
         An empty set of allowed epochs matches current or default epoch"""
 
@@ -1042,6 +1071,8 @@ class PackageSummary(object):
         return value
 
     def GetAll(self, field, epochset=[]):
+        """Lookup the values of a particular field,
+        across all possible epochs in the supplied list."""
         values = []
         if not epochset:
             epochset = self._epochs
@@ -1058,12 +1089,15 @@ class PackageSummary(object):
         return False
 
     def GetDefaultFile(self):
+        """Find the default binary or source file that should
+        be installed when this package is selected."""
         for variant in ('install', 'source'):
             if self.GetAny(variant):
                 return variant
         return None
 
     def HasDependencies(self):
+        """Determine whether the package depends on any other packages."""
         if self.GetAny('requires'):
             return True
         return False
@@ -1079,6 +1113,9 @@ class PackageSummary(object):
 ##
 
 class FetchStats(object):
+    """Mechanism for accumulating statistics of the progress
+    of package downloads."""
+
     def __init__(self, downloads=None):
         # Record of total bytes downloaded:
         self._newSize = 0
@@ -1097,9 +1134,12 @@ class FetchStats(object):
             self._totalCount = len(downloads)
 
     def TotalSize(self):
+        """Find the total number of bytes downloaded"""
         return self._totalSize
 
     def Counts(self):
+        """Find the number of packages downloaded,
+        as a tuple of total/new/pre-existing/failed."""
         return { 'Total': self._totalCount,
                 'New': self._newCount,
                 'Already': self._alreadyCount,
@@ -1109,14 +1149,19 @@ class FetchStats(object):
         return self._failCount
 
     def AddNew(self, pkg, size):
+        """Mark the named package as being newly downloaded"""
         self._newSize += size
         self._newCount += 1
 
     def AddAlready(self, pkg, size):
+        """Mark the named package as having previously been
+        successfully downloaded."""
         self._alreadySize += size
         self._alreadyCount += 1
 
     def AddFail(self, pkg, size):
+        """Mark the named package as having failed
+        to download successfully"""
         self._failSize += size
         self._failCount += 1
 
@@ -1127,11 +1172,17 @@ class FetchStats(object):
 ##
 
 class GarbageCollector(object):
+    """Mechanism for pruning previous versions of packages
+    during an incremental mirror."""
+
     def __init__(self, topdir=None):
         self._topdir = None
         self._topdepth = 0
         self._suspicious = True
 
+        # Lists of file and directory names that indicate that the user's
+        # top-level download directory contains important files
+        # unconnected with Cygwin or pmcyg.
         self._susDirnames = [ 'bin', 'sbin', 'home',
                             'My Documents', 'WINNT', 'system32' ]
         self._susFilenames = [ '.bashrc', '.bash_profile', '.login', '.tcshrc']
@@ -1198,6 +1249,9 @@ class GarbageCollector(object):
         return self._directories
 
     def GetNeatList(self):
+        """Return a human-readable list of files that are considered
+        good candidates for deletion, with each entry being
+        abbreviated based on the common root directory."""
         dirprefix = self._topdir
         if not dirprefix.endswith(os.sep):
             dirprefix += os.sep
@@ -1217,6 +1271,8 @@ class GarbageCollector(object):
         return self._suspicious
 
     def PurgeFiles(self):
+        """Delect all files and directories that have not been marked
+        as wanted by calling RescueFile()."""
         try:
             for fl in self._files:
                 os.remove(fl)
@@ -1231,7 +1287,8 @@ class GarbageCollector(object):
             print >>sys.stderr, 'Failed to remove outdated files - %s' % str(ex)
 
     def _checkTopSuspiciousness(self):
-        """Try to protect user from accidentally deleting anything other than an old Cygwin repository"""
+        """Try to protect user from accidentally deleting
+        anything other than an old Cygwin repository"""
         toplist = os.listdir(self._topdir)
         releasedirs = 0
         subdirs = 0
@@ -1290,6 +1347,8 @@ class GarbageConfirmer(object):
         return self._userresponse
 
     def ActionResponse(self):
+        """Proceed to act on the user's decision about whether
+        to delete or preserve outdated packages."""
         if not self.HasResponded():
             self._awaitResponse()
         if self._userresponse == 'yes':
@@ -1377,6 +1436,7 @@ class TKgui(object):
         self._updateState(GUIconfigState(self))
 
     def Run(self):
+        """Enter the main loop of the graphical user interface."""
         self._renewMirrorMenu = False
         self.mirrorthread = GUImirrorThread(self)
         self.mirrorthread.setDaemon(True)
@@ -1438,7 +1498,8 @@ class TKgui(object):
         return menubar
 
     def mkParamPanel(self, parent):
-        """Construct GUI components for entering user parameters (e.g. mirror URL)"""
+        """Construct GUI components for entering user parameters
+        (e.g. mirror URL)"""
         margin = 4
         entwidth = 30
 
@@ -1588,7 +1649,7 @@ u"""pmcyg
 - a tool for creating Cygwin\N{REGISTERED SIGN} partial mirrors
 Version %s
 
-\N{COPYRIGHT SIGN}Copyright 2009-2012 RW Penney
+\N{COPYRIGHT SIGN}Copyright 2009-2013 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
@@ -1653,7 +1714,7 @@ This is free software, and you are welcome to redistribute it under the terms of
 
                 sites = list(mirrordict[region][country])
                 sites.sort()
-                for site,url in sites:
+                for site, url in sites:
                     fields = url.split(':', 1)
                     if fields:
                         site = '%s (%s)' % ( site, fields[0] )
@@ -1712,7 +1773,8 @@ This is free software, and you are welcome to redistribute it under the terms of
 
 
 class GUIstate(object):
-    """Base class for processing state of GUI"""
+    """Abstract interface defining a node within a state-machine
+    representing different modes of operation within the GUI."""
     def __init__(self, parent):
         self._parent = parent
 
@@ -1727,6 +1789,8 @@ class GUIstate(object):
 
 
 class GUIconfigState(GUIstate):
+    """Representation of the package-selection and configuration
+    state of the graphical user interface."""
     def __init__(self, parent):
         GUIstate.__init__(self, parent)
         self._buttonConfig = parent.setupDownloadButton
@@ -1742,6 +1806,7 @@ class GUIconfigState(GUIstate):
 
 
 class GUIbuildState(GUIstate):
+    """Representation of the package-download state of the GUI."""
     def __init__(self, parent):
         GUIstate.__init__(self, parent)
         self._buildthread = None
@@ -1764,6 +1829,7 @@ class GUIbuildState(GUIstate):
 
 
 class GUItidyState(GUIstate):
+    """Representation of the post-download cleanup state of the GUI."""
     def __init__(self, parent):
         GUIstate.__init__(self, parent)
         self._builder = parent.builder
@@ -1794,8 +1860,8 @@ class GUIstream(object):
     def flush(self):
         pass
 
-    def write(self, string):
-        self.parent.message_queue.put_nowait((string, self.highlight))
+    def write(self, message):
+        self.parent.message_queue.put_nowait((message, self.highlight))
 
 
 
@@ -1857,6 +1923,8 @@ class GUImirrorThread(threading.Thread):
 
 
 class GUIgarbageConfirmer(GarbageConfirmer):
+    """Simple dialog window for confirming that the user
+    wishes to delete outdated packages found beneath the download directory."""
     def __init__(self, garbage, default='no'):
         GarbageConfirmer.__init__(self, garbage, default)
 
@@ -1909,6 +1977,8 @@ class GUIgarbageConfirmer(GarbageConfirmer):
 
 
 class GUIprogressBar(Tk.Canvas):
+    """GUI widget representing a multi-colour progress bar
+    representing the number of packages downloaded."""
     def __init__(self, *args, **kwargs):
         Tk.Canvas.__init__(self, background='grey50', height=8,
                             *args, **kwargs)
@@ -1943,6 +2013,7 @@ class GUIprogressBar(Tk.Canvas):
 
 
 class ImageButton(Tk.Button):
+    """GUI widget for a multi-state button with overlayed imagery."""
     def __init__(self, parent, images={}, states=[], callback=None):
         Tk.Button.__init__(self, parent, command=self._onClick)
 

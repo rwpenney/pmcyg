@@ -19,32 +19,32 @@ zip                       	# Info-ZIP compression utility
 ##
 ## Audio
 ##
-sox                       	# Sound processing tool (apps)
+sox                       	# Sound processing toolkit
 
 
 ##
 ## Database
 ##
-sqlite3                   	# An embeddable SQL database engine (3.x apps and docs)
+sqlite3                   	# Client program for accessing SQLite 3 databases, plus docs
 
 
 ##
 ## Devel
 ##
 ctags                     	# A C programming language indexing and/or cross-reference tool
-gcc-core                  	# C compiler
+gcc-core                  	# GNU Compiler Collection (C, OpenMP)
 make                      	# The GNU version of the 'make' utility
 mercurial                 	# Python based distributed version control system (DVCS)
+patch                     	# Applies diff files
 patchutils                	# A small collection of programs that operate on patch files
 rcs                       	# The Revision Control System
-source-highlight          	# Syntax highlighting utilities
 
 
 ##
 ## Doc
 ##
 cygwin-doc                	# Cygwin-specific documentation, including man pages and User's Guide
-man                       	# Man, apropos and whatis
+man                       	# Man, apropos and whatis commands
 
 
 ##
@@ -52,7 +52,7 @@ man                       	# Man, apropos and whatis
 ##
 bvi                       	# Binary vi-like editor
 ed                        	# The GNU version of the original UNIX line editor
-hexedit                   	# Hexadecimal file viewer and editor
+hexedit                   	# Hexidecimal file viewer and editor
 joe                       	# Fast and simple editor which emulates 5 other editors
 vim                       	# Vi IMproved - enhanced vi editor
 
@@ -75,7 +75,7 @@ bc                        	# The GNU numeric processing language and reverse pol
 ##
 ## Net
 ##
-curl                      	# Multi-protocol file transfer command-line tool
+curl                      	# Multi-protocol file transfer tool
 inetutils                 	# Common networking clients and servers
 openssh                   	# The OpenSSH server and client programs
 openssl                   	# The OpenSSL base environment
@@ -101,8 +101,7 @@ tcsh                      	# TENEX C Shell, an enhanced version of Berkeley csh
 ##
 ## System
 ##
-e2fsprogs                 	# Ext2 filesystem utilities
-man                       	# Man, apropos and whatis
+e2fsprogs                 	# Ext2/3/4 filesystem utilities
 ping                      	# A basic network tool to test IP network conectivity
 procps                    	# Utilities for monitoring your system and processes on your system.
 psmisc                    	# Utilities for managing processes on your system
@@ -116,6 +115,7 @@ antiword                  	# A free MS Word reader
 flip                      	# Convert text file line endings between Unix and DOS formats
 less                      	# A file pager program, similar to more(1)
 patchutils                	# A small collection of programs that operate on patch files
+source-highlight          	# Syntax highlighting utilities
 util-linux                	# Random collection of Linux utilities
 
 
@@ -125,12 +125,10 @@ util-linux                	# Random collection of Linux utilities
 bc                        	# The GNU numeric processing language and reverse polish calculator
 bzip2                     	# A high-quality block-sorting file compressor (utilities)
 cpio                      	# A backup and archiving utility
-cygutils                  	# A collection of simple utilities
+cygutils-extra            	# A collection of simple utilities (other tools)
 diffutils                 	# A GNU collection of diff utilities
-dos2unix                  	# Line Break Conversion
 file                      	# Determines file type using 'magic' numbers
 genisoimage               	# Create ISO9660/Joliet/HFS filesystem images
-patch                     	# Utility for modifying/upgrading files
 patchutils                	# A small collection of programs that operate on patch files
 screen                    	# Run separate screens on a single terminal
 time                      	# The GNU time command
