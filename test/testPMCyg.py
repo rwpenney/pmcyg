@@ -207,7 +207,7 @@ class testPackageDatabase(unittest.TestCase):
         self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel',
                                     'cygwin', 'icu',
                                     'libexpat1', 'libgcc1', 'libncurses8',
-                                    'libreadline7', 'perl', 'sed'])
+                                    'libreadline7', 'perl', 'tzcode'])
 
     def testInverse(self):
         """Check that contraction can be inverted by expansion"""
@@ -247,7 +247,10 @@ class testBuilder(unittest.TestCase):
         selected = ['bash', 'cmake', 'octave']
         self.builder._buildSetupFiles(selected, verbose=False)
 
-        (f_ini, f_bz2, f_exe) = [ os.path.join(tgtdir, f) for f in ['setup.ini', 'setup.bz2', 'setup.exe'] ]
+        arch = 'x86'    # FIXME - align with Builder default architecture
+        f_ini = os.path.join(tgtdir, arch, 'setup.ini')
+        f_bz2 = os.path.join(tgtdir, arch, 'setup.bz2')
+        f_exe = os.path.join(tgtdir, 'setup-%s.exe' % arch)
 
         self.assertTrue(os.path.isfile(f_ini))
         self.assertTrue(os.path.isfile(f_bz2))
@@ -344,8 +347,9 @@ class testPackageLists(unittest.TestCase):
             pkglist = builder._extendPkgSelection()
             self.assertTrue(len(pkglist) > 4)
 
-            (f_ini, f_tplt) = [ os.path.join(tmpdir, f)
-                                for f in [os.path.basename(cfg), 'tplt.txt'] ]
+            arch = 'x86'    # FIXME - align with Builder default architecture
+            f_ini = os.path.join(tmpdir, arch, os.path.basename(cfg))
+            f_tplt = os.path.join(tmpdir, 'tplt.txt')
 
             self.assertFalse(os.path.isfile(f_ini))
             builder._buildSetupFiles(pkglist, verbose=False)

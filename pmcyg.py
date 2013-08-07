@@ -16,9 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '1.0'
+PMCYG_VERSION = '1.0.1'
 
-DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup.exe'
+# FIXME - make architecture switchable via command-line/GUI
+DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup-x86.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
 DEFAULT_CYGWIN_MIRROR = 'http://ftp.heanet.ie/pub/cygwin'
 
@@ -77,6 +78,7 @@ class SetupIniFetcher(object):
     MaxIniFileLength = 1 << 24
 
     def __init__(self, URL):
+        self._buffer = None
         stream = URLopen(URL)
         expander = lambda x: x
         if URL.endswith('.bz2'):
@@ -88,7 +90,8 @@ class SetupIniFetcher(object):
                                                         'ignore'))
 
     def __del__(self):
-        self._buffer.close()
+        if self._buffer:
+            self._buffer.close()
 
     def __iter__(self):
         return self
@@ -137,6 +140,7 @@ class PMbuilder(object):
         self._cancelling = False
         self._mirrordict = None
         self._optiondict = {
+            'Architecture':     'x86',      # FIXME - make this adjustable
             'AllPackages':      False,
             'DummyDownload':    False,
             'IncludeBase':      True,
@@ -330,7 +334,8 @@ class PMbuilder(object):
         sizestr = self._prettyfsize(self._fetchStats.TotalSize())
         print 'Download size: %s from %s' % ( sizestr, self._mirror)
 
-        self._garbage.IndexCurrentFiles(self._tgtdir, mindepth=1)
+        archdir = os.path.join(self._tgtdir, self._optiondict['Architecture'])
+        self._garbage.IndexCurrentFiles(archdir, mindepth=1)
 
         if self._optiondict['DummyDownload']:
             self._doDummyDownloading(downloads)
@@ -444,7 +449,12 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             self._mirror += '/'
         reload = False
         if not self._iniurl:
-            self._iniurl = urlparse.urljoin(self._mirror, 'setup.bz2')
+            arch = self._optiondict['Architecture']
+            if arch:
+                basename = '%s/setup.bz2' % arch
+            else:
+                basename = 'setup.bz2'
+            self._iniurl = urlparse.urljoin(self._mirror, basename)
             reload = True
         self._masterList.SetSourceURL(self._iniurl, reload)
 
@@ -528,6 +538,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         (header, pkgdict) = self._masterList.GetHeaderAndPackages()
         hashfiles = []
 
+        archdir = self._getArchDir(create=True)
+
         (inifile, inipure) = self._urlbasename(self._iniurl)
         inibase = inipure + '.ini'
         inibz2 = inipure + '.bz2'
@@ -541,7 +553,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         packages.extend(spkgs)
 
         # Reconstruct setup.ini file:
-        spath = os.path.join(self._tgtdir, inibase)
+        spath = os.path.join(archdir, inibase)
         hashfiles.append(inibase)
         fp = codecs.open(spath, 'w', SI_TEXT_ENCODING)
         now = time.localtime()
@@ -551,6 +563,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 '# %s,' % ( time.asctime(now) ),
                 '# based on %s' % ( self.GetIniURL() ),
                 '# Manual edits may be overwritten',
+                'release: %s' % ( header['release'] ),
+                'arch: %s' % ( header['arch'] ),
                 'setup-timestamp: %d' % ( int(time.time()) ),
                 'setup-version: %s' % ( header['setup-version'] ),
                 ''
@@ -562,14 +576,13 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         fp.close()
         fp = open(spath, 'rb')
         hashfiles.append(inibz2)
-        cpsr = bz2.BZ2File(os.path.join(self._tgtdir, inibz2), mode='w')
+        cpsr = bz2.BZ2File(os.path.join(archdir, inibz2), mode='w')
         cpsr.write(fp.read())
         cpsr.close()
         fp.close()
 
         # Create copy of Cygwin installer program:
         tgtpath = os.path.join(self._tgtdir, exebase)
-        hashfiles.append(exebase)
         try:
             if verbose:
                 print 'Retrieving %s to %s...' % ( self._exeurl, tgtpath ),
@@ -590,10 +603,10 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             fp.close()
 
         # Generate message-digest of top-level files:
-        hp = open(os.path.join(self._tgtdir, 'md5.sum'), 'wt')
+        hp = open(os.path.join(archdir, 'md5.sum'), 'wt')
         for fl in hashfiles:
             hshr = md5hasher()
-            fp = open(os.path.join(self._tgtdir, fl), 'rb')
+            fp = open(os.path.join(archdir, fl), 'rb')
             hshr.update(fp.read())
             fp.close()
             hp.write('%s  %s\n' % ( hshr.hexdigest(), fl ))
@@ -610,8 +623,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
     def _doDownloading(self, packages, downloads):
         """Download files from Cygwin mirror to create local partial copy"""
 
-        if not os.path.isdir(self._tgtdir):
-            os.makedirs(self._tgtdir)
+        archdir = self._getArchDir(create=True)
 
         self._buildSetupFiles(packages)
 
@@ -745,6 +757,15 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             pure = basename
         return (basename, pure)
 
+    def _getArchDir(self, create=False):
+        """Get the local directory in which architecture-dependent
+        Cygwin packages will be assembled"""
+        archdir = os.path.join(self._tgtdir,
+                               self._optiondict['Architecture'])
+        if create and not os.path.isdir(archdir):
+            os.makedirs(archdir)
+        return archdir
+
     def _prettyfsize(self, size):
         """Pretty-print file size, autoscaling units"""
         divisors = [ ( 1<<30, 'GB' ), ( 1<<20, 'MB' ), ( 1<<10, 'kB' ), ( 1, 'B' ) ]
@@ -852,7 +873,8 @@ class MasterPackageList(object):
     """Database of available Cygwin packages built from 'setup.ini' file"""
     def __init__(self, iniURL=None, verbose=False):
         self.re_dbline = re.compile(r'''
-              ((?P<setup>^setup-\S+) : \s+ (?P<setupParam>\S+) $)
+              ((?P<relinfo>^(release|arch|setup-\S+)) :
+                                    \s+ (?P<relParam>\S+) $)
             | (?P<comment>\# .* $)
             | (?P<package>^@ \s+ (?P<pkgName>\S+) $)
             | (?P<epoch>^\[ (?P<epochName>[a-z]+) \] $)
@@ -982,8 +1004,8 @@ class MasterPackageList(object):
         if not matches:
             raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
 
-        if matches.group('setup'):
-            self._ini_header[matches.group('setup')] = matches.group('setupParam')
+        if matches.group('relinfo'):
+            self._ini_header[matches.group('relinfo')] = matches.group('relParam')
         elif matches.group('comment'):
             pass
         elif matches.group('package'):

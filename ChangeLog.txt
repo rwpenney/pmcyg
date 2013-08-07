@@ -2,6 +2,9 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2013, RW Penney
 
+06Aug13
+    Patched to handle new Cygwin multi-architecture directory layout
+
 23Jul13 **** pmcyg-1.0 released ****
 
 20Jul13

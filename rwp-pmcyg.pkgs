@@ -97,22 +97,11 @@ ddd                       	# Ddd
 distcc                    	# A fast, free, distributed C/C++ compiler
 doxygen                   	# A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavors) and to some extent PHP, C#, and D.
 flex                      	# A fast lexical analyzer generator
-gcc                       	# C compiler upgrade helper
-gcc-core                  	# C compiler
-gcc-g++                   	# C++ compiler
-gcc-g77                   	# Fortran compiler
-gcc-gdc                   	# D compiler
-gcc-gpc                   	# GNU Pascal compiler
-gcc-mingw                 	# Mingw32 GCC compiler upgrade helper
-gcc-mingw-core            	# Mingw32 support headers and libraries for GCC
-gcc-mingw-g++             	# Mingw32 support headers and libraries for GCC C++
-gcc-mingw-g77             	# Mingw32 support headers and libraries for GCC Fortran
-gcc-mingw-objc            	# Mingw32 support headers and libraries for GCC ObjC
-gcc-objc                  	# ObjC compiler
-gcc4                      	# GCC Release series 4 compiler (C & C++ install helper)
-gcc4-core                 	# Core C compiler subpackage
-gcc4-fortran              	# Fortran subpackage
-gcc4-g++                  	# G++ subpackage
+gcc                       	# GNU Compiler Collection
+gcc-core                  	# GNU Compiler Collection (C, OpenMP)
+gcc-fortran               	# GNU Compiler Collection (Fortran)
+gcc-g++                   	# GNU Compiler Collection (C++)
+gcc-objc                  	# GNU Compiler Collection (Objective-C)
 gccmakedep                	# Xorg preprocessor dependency maker
 gdb                       	# The GNU Debugger
 gendef                    	# Generates exports definitions by analyzing DLLs.
@@ -129,22 +118,24 @@ guile-devel               	# The GNU extension language and Scheme interpreter -
 guilt                     	# Quilt for git; similar to Mercurial queues
 help2man                  	# Creates man pages from program output
 idle                      	# Python Tkinter-based IDE
-imake                     	# X.Org Imake legacy build system
+imake                     	# X Imake legacy build system
 indent                    	# C/C++ language source code formatting program
 intltool                  	# GNOME XML internalization scripts
-libboost                  	# Portable C++ libraries useful across a broad spectrum of applications.
 libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
 libglut-devel             	# OpenGL Utility Toolkit library (development)
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
+libmng-devel              	# A library of functions for manipulating MNG format files (development)
 libncurses-devel          	# (devel) libraries for terminal handling
 libpng-devel              	# PNG library (development)
 libtool                   	# A shared library generation tool
 libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
 make                      	# The GNU version of the 'make' utility
-makedepend                	# X.Org Makefile dependency tool
+makedepend                	# X Makefile dependency tool
 mercurial                 	# Python based distributed version control system (DVCS)
-mingw-runtime             	# MinGW Runtime
-ocaml                     	# The OCaml compiler and runtime (install helper)
+mingw-gcc                 	# GNU Compiler Collection
+mingw-gcc-g++             	# GNU Compiler Collection (C++)
+mingw-w32api              	# MinGW.org Win32 runtime headers and libraries
+mingw-zlib-devel          	# Zlib for MinGW.org win32 toolchain (devel)
 openldap-devel            	# Lightweight Directory Access Protocol suite (development)
 openssl-devel             	# The OpenSSL development environment
 patch                     	# Applies diff files
@@ -167,7 +158,7 @@ tailor                    	# Migrate changesets between version control systems
 w32api-headers            	# Windows API headers
 w32api-runtime            	# Windows API import libraries
 xdelta                    	# Computes changes between binary files.
-xorg-cf-files             	# X.Org Imake config files
+xorg-cf-files             	# Imake config files
 
 
 ##
@@ -194,9 +185,6 @@ nedit                     	# Motif multi-purpose text editor
 vim                       	# Vi IMproved - enhanced vi editor
 xemacs                    	# A powerful, highly customizable open source text editor and application development system
 xemacs-emacs-common       	# Programs in common with the emacs package
-xemacs-mule-sumo          	# XEmacs MULE (Multi Lingual Emacs) packages
-xemacs-sumo               	# XEmacs standard packages
-xemacs-tags               	# Etags and ctags programs and man pages from the xemacs distribution
 
 
 ##
@@ -217,7 +205,7 @@ libpango1.0-devel         	# GNOME text layout and rendering library
 ##
 ctris                     	# Console mode tetris clone
 fortune                   	# Print a random, perhaps interesting, adage; may contain offsensive material
-ninvaders                 	# A space invaders-like game using ncurses
+ninvaders                 	# A space invaders-like game using ncurses.
 sudoku                    	# Console based sudoku
 
 
@@ -239,7 +227,7 @@ gnuplot                   	# A command-line driven interactive function plotting
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
 hp2xx                     	# A HP-GL Converter
 jasper                    	# JPEG 2000 library - (utilities)
-jbigkit                   	# The JBIG lossless image compression library (utilities)
+jbigkit                   	# The JBIG lossless image compression library
 jgraph                    	# A Filter for Plotting Graphs in Postscript
 jpeg                      	# A library for manipulating JPEG image format files
 lcms                      	# Little color management engine (utilities)
@@ -269,7 +257,6 @@ tiff-opengl               	# TIFF image library
 gawk                      	# GNU awk, a pattern scanning and processing language
 guile                     	# The GNU extension language and Scheme interpreter - executables
 m4                        	# GNU implementation of the traditional Unix macro processor.
-ocaml                     	# The OCaml compiler and runtime (install helper)
 perl                      	# Larry Wall's Practical Extracting and Report Language
 python                    	# Python language interpreter
 python3                   	# Py3K language interpreter
@@ -278,11 +265,6 @@ tcl-tk                    	# Tcl X11 toolkit
 xemacs                    	# A powerful, highly customizable open source text editor and application development system
 
 
-##
-## KDE
-##
-libqt3                    	# C++ GUI application framework (runtime library)
-libqt3-devel              	# C++ GUI application framework (qmake/moc/uic, headers, import libraries)
 
 
 ##
@@ -300,13 +282,12 @@ gsl-apps                  	# Application programs
 gsl-devel                 	# Developers tools
 gsl-doc                   	# Documentation
 jasper                    	# JPEG 2000 library - (utilities)
-jbigkit                   	# The JBIG lossless image compression library (utilities)
 jpeg                      	# A library for manipulating JPEG image format files
 libapr1-devel             	# Apache Portable Runtime core library (development)
 libaprutil1-devel         	# Apache Portable Runtime utility library (development)
 libboost-devel            	# Boost C++ libraries
 libbz2-devel              	# A high-quality block-sorting file compressor (development)
-libexpat1-devel           	# Expat XML parser library (development)
+libexpat-devel            	# Expat XML parser library (development files)
 libfftw3-devel            	# Fast Fourier transforms C library
 libgcrypt                 	# A general purpose crypto library based on the code from GnuPG.
 libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
@@ -329,8 +310,6 @@ libxerces-c30             	# (runtime) A validating XML parser written in a port
 libxml2-devel             	# GNOME XML library (development)
 libxslt                   	# GNOME XSLT library (runtime)
 libxslt-devel             	# GNOME XSLT library (development)
-mingw-runtime             	# MinGW Runtime
-mingw-w32api              	# (mingw) Win32 API header and library import files
 mpfr                      	# A library for multiple-precision floating-point arithmetic with exact rounding
 openldap-devel            	# Lightweight Directory Access Protocol suite (development)
 openssl-devel             	# The OpenSSL development environment
@@ -359,7 +338,6 @@ msmtp                     	# Light SMTP client with support for server profiles
 mutt                      	# A text mode mail user agent (MUA).
 procmail                  	# Mail processing program
 spambayes                 	# Python-based spam filter using statistical analysis
-#spamoracle                	# Ocaml based Bayesian spam filter
 ssmtp                     	# A minimal mail-transfer agent which forwards mail to an SMTP server
 xmh                       	# X.Org frontend to MH mail handler
 
@@ -383,17 +361,14 @@ octave-forge              	# Contributed functions for GNU Octave from octave.so
 orpie                     	# Fullscreen RPN calculator for the console
 plotutils                 	# 2-D scientific data plotting utilities
 units                     	# Converts between different systems of units
-xcalc                     	# X.Org calculator
+xcalc                     	# X scientific calculator
 
 
 ##
 ## Mingw
 ##
-mingw-bzip2               	# (mingw version) BZip2, a high-quality block-sorting file compressor (doc,util)
-mingw-libbz2-devel        	# (mingw version) BZip2, a high-quality block-sorting file compressor (development)
 mingw-libgcrypt-devel     	# (mingw) A general purpose crypto library based on the code from GnuPG - (development)
-mingw-zlib                	# (mingw) The zlib compression and decompression library (doc)
-mingw-zlib-devel          	# (mingw) The zlib compression and decompression library (development)
+mingw-libgpg-error-devel  	# (mingw) A library that defines common error values for GnuPG. (development)
 
 
 ##
@@ -474,7 +449,6 @@ python-libxml2            	# GNOME XML library (Python bindings)
 python-libxslt            	# GNOME XSLT library (Python bindings)
 python-numpy              	# Python scientific computing module
 python-paramiko           	# Python library for SSH2 connections
-python-pygtk              	# PyGTK runtime version selector
 python-pyrex              	# Python extension language
 python-tkinter            	# Python Tkinter GUI module
 python3                   	# Py3K language interpreter
@@ -620,7 +594,7 @@ xrx                       	# X.Org RX document helper app and plugins
 X-start-menu-icons        	# Start menu icons for Cygwin/X programs
 cygwin-x-doc              	# Cygwin/X-specific documentation
 ddd                       	# Ddd
-editres                   	# X.Org resource editor
+editres                   	# X resource editor
 font-adobe-dpi100         	# X.Org Adobe 100dpi fonts
 font-adobe-dpi75          	# X.Org Adobe 75dpi fonts
 font-adobe-utopia-dpi100  	# X.Org Adobe Utopia 100dpi fonts
@@ -640,10 +614,8 @@ font-util                 	# X.Org font utilities and font maps
 fontconfig                	# Font configuration utilities
 fvwm                      	# Window manager for X11
 gccmakedep                	# Xorg preprocessor dependency maker
-gtk-engines               	# Theme engines for GTK+ 1.2
 gtk2.0-engines-pixmap     	# Pixmap theme engine for GTK+
 gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
-imake                     	# X.Org Imake legacy build system
 inputproto                	# X.Org XInput extension headers
 kbproto                   	# X.Org XKB extension headers
 libGL-devel               	# X11 OpenGL library (development)
@@ -660,33 +632,27 @@ libfreetype-devel         	# FreeType font engine
 libfreetype6              	# FreeType font engine
 libglut-devel             	# OpenGL Utility Toolkit library (development)
 libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
-libqt3                    	# C++ GUI application framework (runtime library)
-libqt3-devel              	# C++ GUI application framework (qmake/moc/uic, headers, import libraries)
 listres                   	# X.Org widget resource lister
 lndir                     	# X.Org recursive directory symlink tool
-makedepend                	# X.Org Makefile dependency tool
-mkcfm                     	# Xorg CID font matrix summary creator
 mkcomposecache            	# X.Org Compose file cache creator
 mkfontdir                 	# X.Org font directory indexer
-mkfontscale               	# X.Org scalable font file indexer
+mkfontscale               	# X scalable font file indexer
 oclock                    	# X.Org round clock
-proxymngr                 	# Xorg proxy manager
 python-tkinter            	# Python Tkinter GUI module
 setxkbmap                 	# X.Org keyboard settings utility
 sxpm                      	# X.Org X Pixmap utilities
 tcl-tix                   	# Tk Interface eXtension
 tcl-tk                    	# Tcl X11 toolkit
 twm                       	# X.Org Tiny Window Manager
-xcalc                     	# X.Org calculator
-xev                       	# X.Org X event monitor
-xfontsel                  	# X.Org font selector
-xhost                     	# X.Org server access control utility
+xev                       	# X event monitor
+xfontsel                  	# X font selector
+xhost                     	# X server access control utility
 xinit                     	# X.Org X server initializer
 xinput                    	# X.Org XInput device tester
 xkbcomp                   	# X.Org XKB keymap compiler
 xkbevd                    	# X.Org XKB event daemon
 xkbprint                  	# X.Org XKB keyboard description printer
-xkbutils                  	# X.Org XKB utilities
+xkbutils                  	# X keyboard utilities
 xkeyboard-config          	# X11 keyboard configuration database
 xkill                     	# X.Org X client connection closer
 xload                     	# X.Org system load display
@@ -695,12 +661,11 @@ xlsatoms                  	# X.Org interned atoms lister
 xlsclients                	# X.Org display clients lister
 xlsfonts                  	# X.Org server font lister
 xman                      	# X.Org man page reader
-xmessage                  	# X.Org message displayer
+xmessage                  	# X message displayer
 xmh                       	# X.Org frontend to MH mail handler
 xmodmap                   	# X.Org keyboard modifier map and keymap table utility
 xmon                      	# An interactive X protocol monitor
 xmore                     	# X.Org plain text browser
-xorg-cf-files             	# X.Org Imake config files
 xorg-docs                 	# X.Org documentation
 xorg-scripts              	# Xorg miscellaneous scripts
 xorg-server               	# X.Org X servers
@@ -710,18 +675,18 @@ xprop                     	# X.Org X server property displayer
 xproto                    	# X.Org X11 core headers
 xproxymanagementprotocol  	# X.Org Proxy Management protocol headers
 xrdb                      	# X.Org X server resource database utility
-xrefresh                  	# X.Org display refresher
+xrefresh                  	# X display refresher
 xrx                       	# X.Org RX document helper app and plugins
 xscope                    	# X.Org X protocol viewer
 xset                      	# X.Org display preference utility
 xsetmode                  	# Xorg Xinput device mode setter
 xsetroot                  	# X.Org X root window parameter setting utility
-xsm                       	# X.Org session manager
+xsm                       	# X session manager
 xsri                      	# X Set Root Image
-xstdcmap                  	# X.Org standard colormap utility
+xstdcmap                  	# X standard colormap utility
 xterm                     	# X11 terminal emulator
 xtrans                    	# X.Org XTrans common code and headers
 xwd                       	# X.Org X window dumping utility
-xwininfo                  	# X.Org X window information utility
+xwininfo                  	# X window information utility
 xwinwm                    	# Window manager for experimental WindowsWM multi-window mode
 xwud                      	# X.Org X window dump displayer
