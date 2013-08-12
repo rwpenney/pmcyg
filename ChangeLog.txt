@@ -2,6 +2,13 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2013, RW Penney
 
+11Aug13
+    Replaced 'browse' buttons on GUI with folder-icon buttons.
+    Added x86/x86_64 architecture-selection combo-box to GUI.
+
+10Aug13
+    Added command-line option for selecting target architecture
+
 06Aug13
     Patched to handle new Cygwin multi-architecture directory layout
 

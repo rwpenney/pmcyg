@@ -247,7 +247,7 @@ class testBuilder(unittest.TestCase):
         selected = ['bash', 'cmake', 'octave']
         self.builder._buildSetupFiles(selected, verbose=False)
 
-        arch = 'x86'    # FIXME - align with Builder default architecture
+        arch = self.builder.GetArch()
         f_ini = os.path.join(tgtdir, arch, 'setup.ini')
         f_bz2 = os.path.join(tgtdir, arch, 'setup.bz2')
         f_exe = os.path.join(tgtdir, 'setup-%s.exe' % arch)
@@ -347,7 +347,7 @@ class testPackageLists(unittest.TestCase):
             pkglist = builder._extendPkgSelection()
             self.assertTrue(len(pkglist) > 4)
 
-            arch = 'x86'    # FIXME - align with Builder default architecture
+            arch = builder.GetArch()
             f_ini = os.path.join(tmpdir, arch, os.path.basename(cfg))
             f_tplt = os.path.join(tmpdir, 'tplt.txt')
 

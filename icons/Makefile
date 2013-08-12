@@ -1,7 +1,8 @@
 # Makefile for pmcyg GUI imagery
 # RW Penney, October 2012
 
-SOURCES =	download.svg cancel.svg allpkgs.svg userpkgs.svg \
+SOURCES =	download.svg cancel.svg folder.svg \
+		allpkgs.svg userpkgs.svg \
 		replace_never.svg replace_ask.svg replace_kill.svg
 IMAGES =	$(SOURCES:%.svg=%.gif)
 ENCODED =	$(IMAGES:%.gif=%.enc64)

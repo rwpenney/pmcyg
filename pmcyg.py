@@ -16,10 +16,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '1.0.1'
+PMCYG_VERSION = '1.1'
 
-# FIXME - make architecture switchable via command-line/GUI
-DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup-x86.exe'
+DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
 DEFAULT_CYGWIN_MIRROR = 'http://ftp.heanet.ie/pub/cygwin'
 
@@ -30,7 +29,7 @@ SI_TEXT_ENCODING = 'utf-8'
 
 
 import  bz2, codecs, optparse, os, os.path, re, subprocess, \
-        StringIO, sys, threading, time, urllib, urlparse
+        string, StringIO, sys, threading, time, urllib, urlparse
 try: from urllib.request import urlopen as URLopen
 except ImportError: from urllib2 import urlopen as URLopen
 try: set
@@ -128,6 +127,9 @@ class PMbuilder(object):
         # URL of Cygwin package database file (derived from _mirror if 'None'):
         self._iniurl = None
 
+        # System architecture that Cygwin should target
+        self._cygarch = 'x86'
+
         # Set of package age descriptors:
         self._epochs = ['curr']
 
@@ -140,7 +142,6 @@ class PMbuilder(object):
         self._cancelling = False
         self._mirrordict = None
         self._optiondict = {
-            'Architecture':     'x86',      # FIXME - make this adjustable
             'AllPackages':      False,
             'DummyDownload':    False,
             'IncludeBase':      True,
@@ -186,6 +187,12 @@ class PMbuilder(object):
         """Set the location of the setup.ini/setup.bz2 official package list"""
         self._iniurl = iniurl
         self._fillinIniURL()
+
+    def GetArch(self):
+        return self._cygarch
+
+    def SetArch(self, arch):
+        self._cygarch = arch
 
     def GetEpochs(self):
         return self._epochs
@@ -334,7 +341,7 @@ class PMbuilder(object):
         sizestr = self._prettyfsize(self._fetchStats.TotalSize())
         print 'Download size: %s from %s' % ( sizestr, self._mirror)
 
-        archdir = os.path.join(self._tgtdir, self._optiondict['Architecture'])
+        archdir = self._getArchDir()
         self._garbage.IndexCurrentFiles(archdir, mindepth=1)
 
         if self._optiondict['DummyDownload']:
@@ -449,9 +456,8 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             self._mirror += '/'
         reload = False
         if not self._iniurl:
-            arch = self._optiondict['Architecture']
-            if arch:
-                basename = '%s/setup.bz2' % arch
+            if self._cygarch:
+                basename = '%s/setup.bz2' % self._cygarch
             else:
                 basename = 'setup.bz2'
             self._iniurl = urlparse.urljoin(self._mirror, basename)
@@ -539,11 +545,12 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         hashfiles = []
 
         archdir = self._getArchDir(create=True)
+        exeURL = self._expandExeURL()
 
         (inifile, inipure) = self._urlbasename(self._iniurl)
         inibase = inipure + '.ini'
         inibz2 = inipure + '.bz2'
-        (exebase, exepure) = self._urlbasename(self._exeurl)
+        (exebase, exepure) = self._urlbasename(exeURL)
 
         # Split package list into normal + specials:
         spkgs = [pkg for pkg in packages if pkg.startswith('_')]
@@ -585,19 +592,18 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         tgtpath = os.path.join(self._tgtdir, exebase)
         try:
             if verbose:
-                print 'Retrieving %s to %s...' % ( self._exeurl, tgtpath ),
+                print 'Retrieving %s to %s...' % ( exeURL, tgtpath ),
             sys.stdout.flush()
-            urllib.urlretrieve(self._exeurl, tgtpath)
+            urllib.urlretrieve(exeURL, tgtpath)
             if verbose:
                 print ' done'
         except Exception, ex:
             raise PMCygException, "Failed to retrieve %s\n - %s" \
-                                    % ( self._exeurl, str(ex) )
+                                    % ( exeURL, str(ex) )
 
         # (Optionally) create auto-runner batch file:
         if self._optiondict['MakeAutorun']:
             apath = os.path.join(self._tgtdir, 'autorun.inf')
-            hashfiles.append('autorun.inf')
             fp = open(apath, 'w+b')
             fp.write('[autorun]\r\nopen=' + exebase +' --local-install\r\n')
             fp.close()
@@ -760,11 +766,18 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
     def _getArchDir(self, create=False):
         """Get the local directory in which architecture-dependent
         Cygwin packages will be assembled"""
-        archdir = os.path.join(self._tgtdir,
-                               self._optiondict['Architecture'])
+        archdir = os.path.join(self._tgtdir, self._cygarch)
         if create and not os.path.isdir(archdir):
             os.makedirs(archdir)
         return archdir
+
+    def _expandExeURL(self):
+        """Return the URL of the Cygwin setup.exe installer,
+        expanding any architecture-dependent strings"""
+        keywords = { 'arch': self._cygarch,
+                     '_arch': '-' + self._cygarch }
+        exetemplate = string.Template(self._exeurl)
+        return exetemplate.substitute(keywords)
 
     def _prettyfsize(self, size):
         """Pretty-print file size, autoscaling units"""
@@ -1417,6 +1430,8 @@ class TKgui(object):
         rootwin.grid_columnconfigure(0, weight=1)
         row = 0
 
+        self.arch_var = Tk.StringVar()
+        self.arch_var.set(builder.GetArch())
         self._boolopts = [
             ( 'dummy_var',   'DummyDownload',  False, 'Dry-run' ),
             ( 'nobase_var',  'IncludeBase',    True,  'Omit base packages' ),
@@ -1441,7 +1456,7 @@ class TKgui(object):
         frm.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.W)
         row += 1
 
-        self.status_txt = ScrolledText.ScrolledText(rootwin, height=16)
+        self.status_txt = ScrolledText.ScrolledText(rootwin, height=24)
         self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=(6,2))
         rootwin.grid_rowconfigure(row, weight=1)
         sys.stdout = GUIstream(self)
@@ -1527,43 +1542,57 @@ class TKgui(object):
 
         parampanel = Tk.Frame(parent)
         parampanel.grid_columnconfigure(1, weight=1)
-        idx = 0
+        self._img_folder = GUIimagery.GetImage('folder')
+        rownum = 0
 
-        Tk.Label(parampanel, text='Package list:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        label = Tk.Label(parampanel, text='Architecture:')
+        label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
+        combo = Tk.OptionMenu(parampanel, self.arch_var, 'x86', 'x86_64')
+        combo.grid(row=rownum, column=1, sticky=Tk.W)
+        rownum += 1
+
+        label = Tk.Label(parampanel, text='Package list:')
+        label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
         self.pkgs_entry = Tk.Entry(parampanel, width=entwidth)
         self.pkgs_entry.config(state='readonly')
-        self.pkgs_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
+        self.pkgs_entry.grid(row=rownum, column=1, sticky=Tk.W+Tk.E)
+        self.pkgs_btn = Tk.Button(parampanel, image=self._img_folder,
+                                  text='Browse', command=self.pkgsSelect)
+        self.pkgs_btn.grid(row=rownum, column=2, sticky=Tk.E, padx=margin)
+
         pkgpanel = Tk.Frame(parampanel)
-        self.pkgs_btn = Tk.Button(pkgpanel, text='Browse',
-                                    command=self.pkgsSelect)
-        self.pkgs_btn.pack(side=Tk.LEFT)
         self.stats_label = Tk.Label(pkgpanel, text='')
         self.stats_label.pack(side=Tk.RIGHT)
-        pkgpanel.grid(row=idx+1, column=1, stick=Tk.E+Tk.W)
-        idx += 2
+        pkgpanel.grid(row=rownum+1, column=1, stick=Tk.E+Tk.W)
+        rownum += 2
 
-        Tk.Label(parampanel, text='Installer URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        label = Tk.Label(parampanel, text='Installer URL:')
+        label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
         self.setup_entry = Tk.Entry(parampanel, width=entwidth)
         self.setup_entry.insert(0, self.builder.GetExeURL())
-        self.setup_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
-        idx += 1
+        self.setup_entry.grid(row=rownum, column=1, sticky=Tk.W+Tk.E)
+        rownum += 1
 
-        Tk.Label(parampanel, text='Mirror URL:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        label = Tk.Label(parampanel, text='Mirror URL:')
+        label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
         self.mirror_entry = Tk.Entry(parampanel, width=entwidth)
         self.mirror_entry.insert(0, self.builder.GetMirrorURL())
-        self.mirror_entry.grid(row=idx, column=1, sticky=Tk.W+Tk.E)
-        self.mirror_btn = Tk.Menubutton(parampanel, text='Mirror list',
-                                    relief=Tk.RAISED, state=Tk.DISABLED)
-        self.mirror_btn.grid(row=idx+1, column=1, sticky=Tk.W)
-        idx += 2
+        self.mirror_entry.grid(row=rownum, column=1, sticky=Tk.W+Tk.E)
+        self.mirror_btn = Tk.Menubutton(parampanel, image=self._img_folder,
+                                        text='Mirror list',
+                                        relief=Tk.RAISED, state=Tk.DISABLED)
+        self.mirror_btn.grid(row=rownum, column=2, sticky=Tk.E, padx=margin)
+        rownum += 1
 
-        Tk.Label(parampanel, text='Local cache:').grid(row=idx, column=0, sticky=Tk.W, pady=margin)
+        label = Tk.Label(parampanel, text='Local cache:')
+        label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
         self.cache_entry = Tk.Entry(parampanel, width=entwidth)
         self.cache_entry.insert(0, self.builder.GetTargetDir())
-        self.cache_entry.grid(row=idx, column=1, stick=Tk.W+Tk.E)
-        cache_btn = Tk.Button(parampanel, text='Browse', command=self.cacheSelect)
-        cache_btn.grid(row=idx+1, column=1, stick=Tk.W)
-        idx += 2
+        self.cache_entry.grid(row=rownum, column=1, stick=Tk.W+Tk.E)
+        cache_btn = Tk.Button(parampanel, image=self._img_folder,
+                              text='Browse', command=self.cacheSelect)
+        cache_btn.grid(row=rownum, column=2, stick=Tk.E)
+        rownum += 1
 
         return parampanel
 
@@ -1785,12 +1814,10 @@ This is free software, and you are welcome to redistribute it under the terms of
     def _txFields(self):
         """Transfer values of GUI controls to PMbuilder object"""
 
+        self.builder.SetArch(self.arch_var.get())
         self.builder.SetTargetDir(self.cache_entry.get())
         self.builder.SetExeURL(self.setup_entry.get())
-
-        newmirror = self.mirror_entry.get()
-        if newmirror != self.builder.GetMirrorURL():
-            self.builder.SetMirrorURL(newmirror)
+        self.builder.SetMirrorURL(self.mirror_entry.get())
 
 
 
@@ -2098,6 +2125,16 @@ gjZJAS2lNU0MUsq6pKAQC0wmEOrLZgITJ0NML5mAyEpc10u2EH2gNSvA1AAnaRN1aBuKgyq6mbyR
 anIBb4AUewcNY3VgRWBCPRIrZsRY4eHHhwIBADs=
 """
 
+    folder = """
+R0lGODlhGAAXAPUAAAAAAAYGAQkJAgoKAgsLAgsLAwwMAw8PBBMTBBUVBR8fByMjCDExCzMzDDQ0
+DTc3DTw8Dj8/DkFBD0JCD0ZGEFBQEllZFVpaFWFhFmhoGG9vGoKCHoeHH5KSIpOTIqurKK6uKMHB
+LcTELcXFLcbGLs/PMNDQMMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAACcALAAAAAAYABcAAAaewJNw
+SCwaj8hkEsAEKJODi0ZzGTyPC5PWtLgWB55tyWP1MhWlrVbRbDuJgIfmo9Z+pvjp4y0EZLQgGIKD
+hIMNbSd+WhAVeY6PGgmJfyQGJHWYaiQBkyYbE5mhngadEByidSUlD30ZIQOXqGIhnJOfsmKeCK2m
+uFqqrH0YsL5atEMAE6DFngfIC6fMDXDExcfICIXahRRlyG7g4F7jJ0EAOw==
+"""
+
     allpkgs = """
 R0lGODlhIAAgAPcAAACAgAGAgAKAgAOAgAKBgQOBgQSBgQWBgQaBgQWCggaCggeCggiCggiDgwmD
 gwqDgwuDgwqEhAuEhAyEhA2EhA6EhA6FhQ+FhRCFhRGFhRCGhhGGhhKGhhOGhhKHhxOHhxSGhhSH
@@ -2242,9 +2279,9 @@ def ProcessPackageFiles(builder, pkgfiles):
             builder.BuildISO(isofile)
     except Exception, ex:   # Treat separately for compatibility with Python-2.4
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
+        #import traceback; traceback.print_exc()
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( repr(ex) )
-        #import traceback; traceback.print_exc()
 
 
 def TemplateMain(builder, outfile, pkgfiles, cygwinReplica=False):
@@ -2293,6 +2330,9 @@ def main():
     parser.add_option_group(bscopts)
 
     advopts = optparse.OptionGroup(parser, 'Advanced options')
+    advopts.add_option('--cygwin-arch', '-A', type='string',
+            default=builder.GetArch(),
+            help='target system architecture (default=%default)')
     advopts.add_option('--epochs', '-e', type='string',
             default=','.join(builder.GetEpochs()),
             help='comma-separated list of epochs, e.g. "curr,prev"'
@@ -2326,6 +2366,7 @@ def main():
     builder.SetMirrorURL(opts.mirror)
     builder.SetIniURL(opts.iniurl)
     builder.SetExeURL(opts.exeurl)
+    builder.SetArch(opts.cygwin_arch)
     builder.SetEpochs(opts.epochs.split(','))
     builder.SetOption('DummyDownload', opts.dummy)
     builder.SetOption('AllPackages', opts.all)
