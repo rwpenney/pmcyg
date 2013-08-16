@@ -192,12 +192,7 @@ xemacs-emacs-common       	# Programs in common with the emacs package
 ##
 gnome-keyring             	# GNOME Desktop password management system
 gtk2.0-engines            	# Standard theme engines for gtk+-2.x
-gtk2.0-engines-pixmap     	# Pixmap theme engine for GTK+
 intltool                  	# GNOME XML internalization scripts
-libatk1.0-devel           	# Accessibility Toolkit library
-libglib2.0-devel          	# GNOME core C function library (development)
-libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
-libpango1.0-devel         	# GNOME text layout and rendering library
 
 
 ##
@@ -292,8 +287,10 @@ libfftw3-devel            	# Fast Fourier transforms C library
 libgcrypt                 	# A general purpose crypto library based on the code from GnuPG.
 libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
 libgcrypt11               	# A general purpose crypto library based on the code from GnuPG - (runtime)
+libglib2.0-devel          	# GNOME core C function library (development)
 libglut-devel             	# OpenGL Utility Toolkit library (development)
 libgmp-devel              	# Library for arbitrary precision arithmetic (development)
+libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
 libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
 libmng-devel              	# A library of functions for manipulating MNG format files (development)
 libncurses-devel          	# (devel) libraries for terminal handling
@@ -420,7 +417,7 @@ jgraph                    	# A Filter for Plotting Graphs in Postscript
 pdftk                     	# PDF manipulation without Acrobat.
 texlive-collection-basic  	# TeX Live basic package collection
 texlive-collection-latex  	# TeX Live latex package collection
-#texlive-collection-pstricks  	# TeX Live PSTricks packages
+#texlive-collection-pstricks  	# TeX Live pstricks package collection
 
 
 ##
@@ -545,15 +542,13 @@ deroff                    	# Remove roff and preprocessor constructs
 diffutils                 	# A GNU collection of diff utilities
 file                      	# Determines file type using 'magic' numbers
 gdbm                      	# GNU dbm database routines (utilities)
-genisoimage               	# Create ISO9660/Joliet/HFS filesystem images
+genisoimage               	# Create ISO/Joliet/HFS filesystem images (part of cdrkit)
 git-oodiff                	# Git diff filter for OpenDocument files
 gnupg                     	# GNU\'s tool for secure communication and data storage.
-grub                      	# GRand Unified Bootloader, version 2
 hdf5                      	# HDF5 Hierarchical Data Format
-hdparm                    	# Get/set ATA/SATA drive parameters
 keychain                  	# Key manager for OpenSSH
 lndir                     	# X.Org recursive directory symlink tool
-mkisofs                   	# Create ISO filesystem images (symlink to genisoimage)
+mkisofs                   	# Create ISO/Joliet/HFS filesystem images (symlink to genisoimage)
 mmv                       	# Move, copy, append and link multiple files with wild cards
 ncurses                   	# Utilities for terminal handling
 ncurses-demo              	# Demonstration programs for ncurses
@@ -570,7 +565,7 @@ units                     	# Converts between different systems of units
 util-linux                	# Random collection of Linux utilities
 wdiff                     	# Compare two files word by word
 which                     	# Prints out full path of executables
-wodim                     	# Command line CD/DVD writing tool
+wodim                     	# Command line CD/DVD writing tool (part of cdrkit)
 xdelta                    	# Computes changes between binary files.
 
 
@@ -585,7 +580,6 @@ lynx                      	# Text-based Web browser
 micro-httpd               	# Extremely small Unix-based HTTP server
 w3m                       	# Text-based web browser and pager
 wget                      	# Utility to retrieve files from the WWW via HTTP and FTP
-xrx                       	# X.Org RX document helper app and plugins
 
 
 ##
@@ -631,7 +625,6 @@ libfltk-devel             	# Fast Light Toolkit (development, for X11)
 libfreetype-devel         	# FreeType font engine
 libfreetype6              	# FreeType font engine
 libglut-devel             	# OpenGL Utility Toolkit library (development)
-libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
 listres                   	# X.Org widget resource lister
 lndir                     	# X.Org recursive directory symlink tool
 mkcomposecache            	# X.Org Compose file cache creator
@@ -673,13 +666,10 @@ xpdf                      	# An open source viewer for Portable Document Format 
 xpr                       	# X.Org X window dump printer
 xprop                     	# X.Org X server property displayer
 xproto                    	# X.Org X11 core headers
-xproxymanagementprotocol  	# X.Org Proxy Management protocol headers
 xrdb                      	# X.Org X server resource database utility
 xrefresh                  	# X display refresher
-xrx                       	# X.Org RX document helper app and plugins
 xscope                    	# X.Org X protocol viewer
 xset                      	# X.Org display preference utility
-xsetmode                  	# Xorg Xinput device mode setter
 xsetroot                  	# X.Org X root window parameter setting utility
 xsm                       	# X session manager
 xsri                      	# X Set Root Image

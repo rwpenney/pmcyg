@@ -33,6 +33,10 @@ dist-dir:
 	chmod +x ${FQNAME}/${PY3EXE}
 	(cd ${FQNAME}; 2to3 -w -n ${PY3EXE} > /dev/null || rm ${PY3EXE})
 
+.PHONY:	epydocs
+epydocs:
+	epydoc -o /tmp/pmcyg-docs --graph classtree pmcyg.py
+
 test:
 	test -d test && ( cd test; ${PYTHON} -t testPMCyg.py )
 

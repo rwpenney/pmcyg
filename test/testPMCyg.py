@@ -186,23 +186,23 @@ class testMasterPackageList(unittest.TestCase):
 
 
 
-class testPackageDatabase(unittest.TestCase):
+class testPkgSetProcessor(unittest.TestCase):
     def setUp(self):
         self.masterList = MasterPackageList()
         self.masterList.SetSourceURL(getSetupURL())
 
     def testExpand(self):
-        pkgDB = PackageDatabase(self.masterList)
+        pkgProc = PkgSetProcessor(self.masterList)
 
-        explist = pkgDB.ExpandDependencies([])
+        explist = pkgProc.ExpandDependencies([])
         self.assertEqual(len(explist), 0)
 
-        explist = pkgDB.ExpandDependencies(['make'])
+        explist = pkgProc.ExpandDependencies(['make'])
         self.assertTrue(len(explist) > 6)
         self.checkSubset(explist, ['make', 'bash', 'coreutils', 'cygwin',
                                     'libgcc1', 'tzcode'])
 
-        explist = pkgDB.ExpandDependencies(['bash', 'libboost-devel', 'bvi'])
+        explist = pkgProc.ExpandDependencies(['bash', 'libboost-devel', 'bvi'])
         self.assertTrue(len(explist) > 20)
         self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel',
                                     'cygwin', 'icu',
@@ -215,13 +215,13 @@ class testPackageDatabase(unittest.TestCase):
         pkglist = [p for p in pkgdict.iterkeys()]
 
         for iterations in range(0, 100):
-            pkgDB = PackageDatabase(self.masterList)
+            pkgProc = PkgSetProcessor(self.masterList)
 
             selected = random.sample(pkglist, random.randint(1, 20))
 
-            full = pkgDB.ExpandDependencies(selected)
-            contracted = pkgDB.ContractDependencies(full)
-            expanded = pkgDB.ExpandDependencies(contracted)
+            full = pkgProc.ExpandDependencies(selected)
+            contracted = pkgProc.ContractDependencies(full)
+            expanded = pkgProc.ExpandDependencies(contracted)
 
             self.assertEqual(full, expanded)
 
@@ -237,6 +237,7 @@ class testBuilder(unittest.TestCase):
         self.builder.SetIniURL(getSetupURL())
         self.builder._masterList._verbose = False
         self.builder.SetTargetDir(tempfile.mkdtemp())
+        self.makeTemplate = self.builder._pkgProc.MakeTemplate
 
     def tearDown(self):
         shutil.rmtree(self.builder.GetTargetDir())
@@ -277,7 +278,7 @@ class testBuilder(unittest.TestCase):
         try:
             tplt = os.path.join(topdir, 'templates.txt')
             fp = codecs.open(tplt, 'w', 'utf-8')
-            self.builder.MakeTemplate(fp)
+            self.makeTemplate(fp)
             fp.close()
 
             counts = self.templateCounts(tplt)
@@ -292,8 +293,10 @@ class testBuilder(unittest.TestCase):
         topdir = tempfile.mkdtemp()
         try:
             tplt = os.path.join(topdir, 'terse.txt')
+            pkgset = PackageSet()
+            pkgset.extend(['bash', 'flex', 'tcsh', 'vim', 'zsh'])
             fp = codecs.open(tplt, 'w', 'utf-8')
-            self.builder.MakeTemplate(fp, ['bash', 'flex', 'tcsh', 'vim', 'zsh'], terse=True)
+            self.makeTemplate(fp, pkgset, terse=True)
             fp.close()
 
             counts = self.templateCounts(tplt)
@@ -357,7 +360,7 @@ class testPackageLists(unittest.TestCase):
 
             self.assertFalse(os.path.isfile(f_tplt))
             fp = codecs.open(f_tplt, 'w', 'utf-8')
-            builder.MakeTemplate(fp)
+            builder._pkgProc.MakeTemplate(fp)
             self.assertTrue(fp.tell() > 100)
             fp.close()
 
