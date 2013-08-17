@@ -2,7 +2,7 @@
 # Unit-tests for Cygwin Partial Mirror (pmcyg)
 # RW Penney, August 2009
 
-import codecs, os, random, re, shutil, string, sys, \
+import codecs, os, random, re, shutil, string, StringIO, sys, \
         tempfile, unittest, urlparse
 sys.path.insert(0, '..')
 from pmcyg import *
@@ -14,7 +14,7 @@ def getSetupURL():
         urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
         return urlparse.urljoin(urlprefix, 'setup.ini')
     else:
-        return 'http://ftp.heanet.ie/pub/cygwin/setup.ini'
+        return 'http://ftp.heanet.ie/pub/cygwin/x86/setup.ini'
 
 
 
@@ -321,6 +321,102 @@ class testBuilder(unittest.TestCase):
         fp.close()
 
         return counts
+
+
+
+class testPackageSets(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def testBare(self):
+        pkgset = PackageSet()
+        self.assertEqual(len(pkgset), 0)
+        self.assertFalse('bash' in pkgset)
+        self.assertEqual(len(pkgset.extract()), 0)
+
+        pkgset.extend([ 'bash', 'tcsh', 'xorg'])
+        self.assertTrue('bash' in pkgset)
+        self.assertTrue('xorg' in pkgset)
+        self.assertFalse('missing' in pkgset)
+
+        self.assertEqual(len(pkgset.extract()), 3)
+        self.assertTrue('tcsh' in pkgset.extract())
+
+    def testIngest(self):
+        f0 = StringIO.StringIO('bash\ntcsh\nzsh\n')
+        f1 = StringIO.StringIO('emacs\nnedit\nvim\nbash\n')
+
+        pkgset = PackageSet()
+        self.assertEqual(len(pkgset), 0)
+
+        pkgset._ingestStream(f0)
+        self.assertEqual(len(pkgset), 3)
+        pkgset._ingestStream(f1)
+        self.assertEqual(len(pkgset), 6)
+
+        self.assertTrue('bash' in pkgset)
+        self.assertTrue('nedit' in pkgset)
+        self.assertFalse('joe' in pkgset)
+
+        pkgset.extend(['tcsh', 'xorg', 'emacs', 'joe'])
+        self.assertEqual(len(pkgset), 8)
+        self.assertTrue('joe' in pkgset)
+        self.assertTrue('nedit' in pkgset)
+
+        pkgs = pkgset.extract()
+        self.assertEqual(pkgs, ['bash', 'emacs', 'joe', 'nedit',
+                                'tcsh', 'vim', 'xorg', 'zsh'])
+
+    def testArchIngest(self):
+        lines = [   'bash    [arch=x86]      # comment',
+                    'dash                    # Debian almquist shell',
+                    'sh      [arch=x86,amd64]',
+                    'tcsh    [arch=amd64]    # non-standard architecture',
+                    'zsh     [arch=x86_64]' ]
+
+        pkgset = PackageSet()
+        pkgset._ingestStream(StringIO.StringIO('\n'.join(lines)))
+        self.assertEqual(len(pkgset), 5)
+
+        pkgs = pkgset.extract()
+        self.assertEqual(pkgs, ['bash', 'dash', 'sh', 'tcsh', 'zsh'])
+
+        pkgs = pkgset.extract(arch='x86')
+        self.assertEqual(pkgs, ['bash', 'dash', 'sh'])
+
+        pkgs = pkgset.extract(arch='x86_64')
+        self.assertEqual(pkgs, ['dash', 'zsh'])
+
+        pkgs = pkgset.extract(arch='amd64')
+        self.assertEqual(pkgs, ['dash', 'sh', 'tcsh'])
+
+    def testArchMerge(self):
+        lines0 = [  'bash   [arch=x86]',
+                    'dash',
+                    'sh     [arch=invalid]',
+                    'tcsh   [arch=amd64,x86]',
+                    'zsh    [arch=x86_64]' ]
+        lines1 = [  'bash   [arch=x86_64]',
+                    'dash   [arch=amd64]',
+                    'sh',
+                    'sox    [arch=x86_64]' ]
+
+        pkgset = PackageSet()
+        for defn in [lines0, lines1]:
+            pkgset._ingestStream(StringIO.StringIO('\r\n'.join(defn)))
+        self.assertEqual(len(pkgset), 6)
+
+        pkgs = pkgset.extract()
+        self.assertEqual(pkgs, ['bash', 'dash', 'sh', 'sox', 'tcsh', 'zsh'])
+
+        pkgs = pkgset.extract(arch='x86')
+        self.assertEqual(pkgs, ['bash', 'dash', 'sh', 'tcsh'])
+
+        pkgs = pkgset.extract(arch='x86_64')
+        self.assertEqual(pkgs, ['bash', 'dash', 'sh', 'sox', 'zsh'])
+
+        pkgs = pkgset.extract(arch='amd64')
+        self.assertEqual(pkgs, ['dash', 'sh', 'tcsh'])
 
 
 

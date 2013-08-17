@@ -7,201 +7,201 @@
 ##
 ## Admin
 ##
-cron                      	# Vixie's cron.
-cygrunsrv                 	# NT/W2K service initiator
-shutdown                  	# Shutdown, reboot, hibernate or suspend the machine
-syslog-ng                 	# Next generation system logging daemon
+cron                            # Vixie's cron.
+cygrunsrv                       # NT/W2K service initiator
+shutdown                        # Shutdown, reboot, hibernate or suspend the machine
+syslog-ng                       # Next generation system logging daemon
 
 
 ##
 ## Archive
 ##
-cabextract                	# Extract Microsoft cabinet (.CAB) files
-hdf5                      	# HDF5 Hierarchical Data Format
-p7zip                     	# A file archiver with very high compression ratios.
-sharutils                 	# The GNU shar utilities including uuencode/uudecode.
-unzip                     	# Info-ZIP decompression utility
-xz                        	# XZ and LZMA compression (utilities)
-zip                       	# Info-ZIP compression utility
-zoo                       	# Manipulate zoo archives
+cabextract                      # Extract Microsoft cabinet (.CAB) files
+hdf5                            # HDF5 Hierarchical Data Format
+p7zip               [arch=x86]  # A file archiver with very high compression ratios.
+sharutils                       # The GNU shar utilities including uuencode/uudecode.
+unzip                           # Info-ZIP decompression utility
+xz                              # XZ and LZMA compression (utilities)
+zip                             # Info-ZIP compression utility
+zoo                 [arch=x86]  # Manipulate zoo archives
 
 
 ##
 ## Audio
 ##
-audiofile                 	# Digital audio file utilities
-libaudiofile-devel        	# Digital audio file library
-sox                       	# Sound processing toolkit
-vorbis-tools              	# Several Ogg Vorbis Tools
+audiofile                       # Digital audio file utilities
+libaudiofile-devel              # Digital audio file library
+sox                             # Sound processing toolkit
+vorbis-tools                    # Several Ogg Vorbis Tools
 
 
 ##
 ## Base
 ##
-alternatives              	# A tool for managing package conflicts
-base-cygwin               	# Initial base installation helper script.
-base-files                	# A set of important system configuration and setup files
-bash                      	# The GNU Bourne Again SHell
-coreutils                 	# GNU core utilities (includes fileutils, sh-utils and textutils)
-cygwin                    	# The UNIX emulation engine
-dash                      	# Dash shell
-editrights                	# Alter Windows user rights and privileges from command line
-findutils                 	# Utilities for finding files--find, xargs, locate, updatedb
-gawk                      	# GNU awk, a pattern scanning and processing language
-grep                      	# Search and print textual input for lines which match a specified pattern
-gzip                      	# The GNU compression utility
-login                     	# Sign on to a system
-man                       	# Man, apropos and whatis commands
-run                       	# Launch cmdline programs with hidden console
-sed                       	# The GNU sed stream editor
-tar                       	# A GNU file archiving program
-terminfo                  	# Database for ncurses-style terminal handling
-which                     	# Prints out full path of executables
+alternatives                    # A tool for managing package conflicts
+base-cygwin                     # Initial base installation helper script.
+base-files                      # A set of important system configuration and setup files
+bash                            # The GNU Bourne Again SHell
+coreutils                       # GNU core utilities (includes fileutils, sh-utils and textutils)
+cygwin                          # The UNIX emulation engine
+dash                            # Dash shell
+editrights                      # Alter Windows user rights and privileges from command line
+findutils                       # Utilities for finding files--find, xargs, locate, updatedb
+gawk                            # GNU awk, a pattern scanning and processing language
+grep                            # Search and print textual input for lines which match a specified pattern
+gzip                            # The GNU compression utility
+login                           # Sign on to a system
+man                             # Man, apropos and whatis commands
+run                             # Launch cmdline programs with hidden console
+sed                             # The GNU sed stream editor
+tar                             # A GNU file archiving program
+terminfo                        # Database for ncurses-style terminal handling
+which                           # Prints out full path of executables
 
 
 ##
 ## Database
 ##
-gdbm                      	# GNU dbm database routines (utilities)
-libsqlite3-devel          	# Header and library files for building programs against SQLite
-postgresql                	# PostgreSQL Data Base Management System
-postgresql-client         	# Front-end programs for PostgreSQL
-postgresql-contrib        	# Additional facilities for PostgreSQL
-postgresql-devel          	# Development files for PostgreSQL server-side programming
-postgresql-plperl         	# PL/Perl procedural language for PostgreSQL
-postgresql-plpython       	# PL/Python procedural language for PostgreSQL
-sqlite3                   	# Client program for accessing SQLite 3 databases, plus docs
+gdbm                            # GNU dbm database routines (utilities)
+libsqlite3-devel                # Header and library files for building programs against SQLite
+postgresql                      # PostgreSQL Data Base Management System
+postgresql-client               # Front-end programs for PostgreSQL
+postgresql-contrib              # Additional facilities for PostgreSQL
+postgresql-devel                # Development files for PostgreSQL server-side programming
+postgresql-plperl               # PL/Perl procedural language for PostgreSQL
+postgresql-plpython             # PL/Python procedural language for PostgreSQL
+sqlite3                         # Client program for accessing SQLite 3 databases, plus docs
 
 
 ##
 ## Devel
 ##
-autoconf                  	# Wrapper scripts for autoconf commands
-autoconf2.1               	# Stable version of the automatic configure script builder
-autoconf2.5               	# An extensible package of m4 macros that produce shell scripts to automatically configure software source code packages.
-automake                  	# Wrapper scripts for automake and aclocal
-automake1.11              	# (1.11) a tool for generating GNU-compliant Makefiles
-automake1.12              	# (1.12) a tool for generating GNU-compliant Makefiles
-bashdb                    	# Debugger for bash scripts
-bison                     	# A parser generator that is compatible with YACC
-cmake                     	# A cross platform build manager
-colorgcc                  	# Colorizer for GCC warning/error messages
-cppunit                   	# C++ unit testing framework
-ctags                     	# A C programming language indexing and/or cross-reference tool
-cvs                       	# Concurrent Version System
-cvs2svn                   	# CVS to Subversion/Bazaar/Git repository converter
-cvsps                     	# Generates patchset information from a CVS repository
-cvsutils                  	# CVS client utilities for offline work.
-cygport                   	# Cygwin source packaging tool
-ddd                       	# Ddd
-distcc                    	# A fast, free, distributed C/C++ compiler
-doxygen                   	# A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavors) and to some extent PHP, C#, and D.
-flex                      	# A fast lexical analyzer generator
-gcc                       	# GNU Compiler Collection
-gcc-core                  	# GNU Compiler Collection (C, OpenMP)
-gcc-fortran               	# GNU Compiler Collection (Fortran)
-gcc-g++                   	# GNU Compiler Collection (C++)
-gcc-objc                  	# GNU Compiler Collection (Objective-C)
-gccmakedep                	# Xorg preprocessor dependency maker
-gdb                       	# The GNU Debugger
-gendef                    	# Generates exports definitions by analyzing DLLs.
-gettext                   	# GNU Internationalization library and core utilities (PLUS LINK LIBS)
-gettext-devel             	# GNU Internationalization development utilities (but NOT LINK LIBS)
-git                       	# Fast Version Control System - core files
-git-completion            	# Fast Version Control System - git bash completion
-git-gui                   	# Fast Version Control System - git-gui viewer
-git-svn                   	# Fast Version Control System - git-svn conversions
-gitk                      	# Fast Version Control System - gitk viewer
-gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols (development)
-gperf                     	# Perfect hash function generator
-guile-devel               	# The GNU extension language and Scheme interpreter - development
-guilt                     	# Quilt for git; similar to Mercurial queues
-help2man                  	# Creates man pages from program output
-idle                      	# Python Tkinter-based IDE
-imake                     	# X Imake legacy build system
-indent                    	# C/C++ language source code formatting program
-intltool                  	# GNOME XML internalization scripts
-libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
-libglut-devel             	# OpenGL Utility Toolkit library (development)
-libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
-libmng-devel              	# A library of functions for manipulating MNG format files (development)
-libncurses-devel          	# (devel) libraries for terminal handling
-libpng-devel              	# PNG library (development)
-libtool                   	# A shared library generation tool
-libxerces-c-devel         	# (devel) A validating XML parser written in a portable subset of C++
-make                      	# The GNU version of the 'make' utility
-makedepend                	# X Makefile dependency tool
-mercurial                 	# Python based distributed version control system (DVCS)
-mingw-gcc                 	# GNU Compiler Collection
-mingw-gcc-g++             	# GNU Compiler Collection (C++)
-mingw-w32api              	# MinGW.org Win32 runtime headers and libraries
-mingw-zlib-devel          	# Zlib for MinGW.org win32 toolchain (devel)
-openldap-devel            	# Lightweight Directory Access Protocol suite (development)
-openssl-devel             	# The OpenSSL development environment
-patch                     	# Applies diff files
-patchutils                	# A small collection of programs that operate on patch files
-pkg-config                	# A utility used to retrieve information about installed libraries
-postgresql-devel          	# Development files for PostgreSQL server-side programming
-quilt                     	# Tool to work with series of patches
-rcs                       	# The Revision Control System
-readline                  	# GNU readline and history libraries
-splint                    	# Check C programs for security vulnerabilities and programming mistakes.
-stgit                     	# Quilt functionality on top of git
-subversion                	# A version control system
-subversion-devel          	# A version control system (C headers and import libraries)
-subversion-perl           	# A version control system (perl bindings)
-subversion-python         	# A version control system (python bindings)
-subversion-ruby           	# A version control system (ruby bindings)
-subversion-tools          	# A version control system (miscellaneous tools)
-swig                      	# C/C++ wrapper generator
-tailor                    	# Migrate changesets between version control systems
-w32api-headers            	# Windows API headers
-w32api-runtime            	# Windows API import libraries
-xdelta                    	# Computes changes between binary files.
-xorg-cf-files             	# Imake config files
+autoconf                        # Wrapper scripts for autoconf commands
+autoconf2.1                     # Stable version of the automatic configure script builder
+autoconf2.5                     # An extensible package of m4 macros that produce shell scripts to automatically configure software source code packages.
+automake                        # Wrapper scripts for automake and aclocal
+automake1.11                    # (1.11) a tool for generating GNU-compliant Makefiles
+automake1.12                    # (1.12) a tool for generating GNU-compliant Makefiles
+bashdb                          # Debugger for bash scripts
+bison                           # A parser generator that is compatible with YACC
+cmake                           # A cross platform build manager
+colorgcc                        # Colorizer for GCC warning/error messages
+cppunit                         # C++ unit testing framework
+ctags                           # A C programming language indexing and/or cross-reference tool
+cvs                             # Concurrent Version System
+cvs2svn                         # CVS to Subversion/Bazaar/Git repository converter
+cvsps                           # Generates patchset information from a CVS repository
+cvsutils                        # CVS client utilities for offline work.
+cygport                         # Cygwin source packaging tool
+ddd                             # Ddd
+distcc              [arch=x86]  # A fast, free, distributed C/C++ compiler
+doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavors) and to some extent PHP, C#, and D.
+flex                            # A fast lexical analyzer generator
+gcc                             # GNU Compiler Collection
+gcc-core                        # GNU Compiler Collection (C, OpenMP)
+gcc-fortran                     # GNU Compiler Collection (Fortran)
+gcc-g++                         # GNU Compiler Collection (C++)
+gcc-objc                        # GNU Compiler Collection (Objective-C)
+gccmakedep                      # Xorg preprocessor dependency maker
+gdb                             # The GNU Debugger
+gendef                          # Generates exports definitions by analyzing DLLs.
+gettext                         # GNU Internationalization library and core utilities (PLUS LINK LIBS)
+gettext-devel                   # GNU Internationalization development utilities (but NOT LINK LIBS)
+git                             # Fast Version Control System - core files
+git-completion                  # Fast Version Control System - git bash completion
+git-gui                         # Fast Version Control System - git-gui viewer
+git-svn                         # Fast Version Control System - git-svn conversions
+gitk                            # Fast Version Control System - gitk viewer
+gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
+gperf                           # Perfect hash function generator
+guile-devel                     # The GNU extension language and Scheme interpreter - development
+guilt                           # Quilt for git; similar to Mercurial queues
+help2man                        # Creates man pages from program output
+idle                            # Python Tkinter-based IDE
+imake                           # X Imake legacy build system
+indent              [arch=x86]  # C/C++ language source code formatting program
+intltool                        # GNOME XML internalization scripts
+libgcrypt-devel                 # A general purpose crypto library based on the code from GnuPG - (development)
+libglut-devel                   # OpenGL Utility Toolkit library (development)
+libjpeg-devel                   # A library for manipulating JPEG image format files (devel)
+libmng-devel                    # A library of functions for manipulating MNG format files (development)
+libncurses-devel                # (devel) libraries for terminal handling
+libpng-devel                    # PNG library (development)
+libtool                         # A shared library generation tool
+libxerces-c-devel   [arch=x86]  # (devel) A validating XML parser written in a portable subset of C++
+make                            # The GNU version of the 'make' utility
+makedepend                      # X Makefile dependency tool
+mercurial                       # Python based distributed version control system (DVCS)
+mingw-gcc                       # GNU Compiler Collection
+mingw-gcc-g++                   # GNU Compiler Collection (C++)
+mingw-w32api                    # MinGW.org Win32 runtime headers and libraries
+mingw-zlib-devel                # Zlib for MinGW.org win32 toolchain (devel)
+openldap-devel                  # Lightweight Directory Access Protocol suite (development)
+openssl-devel                   # The OpenSSL development environment
+patch                           # Applies diff files
+patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+pkg-config                      # A utility used to retrieve information about installed libraries
+postgresql-devel                # Development files for PostgreSQL server-side programming
+quilt                           # Tool to work with series of patches
+rcs                             # The Revision Control System
+readline                        # GNU readline and history libraries
+splint              [arch=x86]  # Check C programs for security vulnerabilities and programming mistakes.
+stgit                           # Quilt functionality on top of git
+subversion                      # A version control system
+subversion-devel                # A version control system (C headers and import libraries)
+subversion-perl                 # A version control system (perl bindings)
+subversion-python               # A version control system (python bindings)
+subversion-ruby                 # A version control system (ruby bindings)
+subversion-tools                # A version control system (miscellaneous tools)
+swig                            # C/C++ wrapper generator
+tailor                          # Migrate changesets between version control systems
+w32api-headers                  # Windows API headers
+w32api-runtime                  # Windows API import libraries
+xdelta              [arch=x86]  # Computes changes between binary files.
+xorg-cf-files                   # Imake config files
 
 
 ##
 ## Doc
 ##
-cygwin-doc                	# Cygwin-specific documentation, including man pages and User's Guide
-cygwin-x-doc              	# Cygwin/X-specific documentation
-man                       	# Man, apropos and whatis commands
-texinfo                   	# Documentation system for on-line information and printed output
-xorg-docs                 	# X.Org documentation
-xpdf                      	# An open source viewer for Portable Document Format (PDF) files
+cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
+cygwin-x-doc                    # Cygwin/X-specific documentation
+man                             # Man, apropos and whatis commands
+texinfo                         # Documentation system for on-line information and printed output
+xorg-docs                       # X.Org documentation
+xpdf                            # An open source viewer for Portable Document Format (PDF) files
 
 
 ##
 ## Editors
 ##
-bvi                       	# Binary vi-like editor
-ed                        	# The GNU version of the original UNIX line editor
-gvim                      	# GUI for the Vim text editor
-hexedit                   	# Hexidecimal file viewer and editor
-joe                       	# Fast and simple editor which emulates 5 other editors
-nano                      	# Enhanced clone of Pico editor
-nedit                     	# Motif multi-purpose text editor
-vim                       	# Vi IMproved - enhanced vi editor
-xemacs                    	# A powerful, highly customizable open source text editor and application development system
-xemacs-emacs-common       	# Programs in common with the emacs package
+bvi                 [arch=x86]  # Binary vi-like editor
+ed                              # The GNU version of the original UNIX line editor
+gvim                            # GUI for the Vim text editor
+hexedit                         # Hexidecimal file viewer and editor
+joe                 [arch=x86]  # Fast and simple editor which emulates 5 other editors
+nano                            # Enhanced clone of Pico editor
+nedit                           # Motif multi-purpose text editor
+vim                             # Vi IMproved - enhanced vi editor
+xemacs              [arch=x86]  # A powerful, highly customizable open source text editor and application development system
+xemacs-emacs-common [arch=x86]  # Programs in common with the emacs package
 
 
 ##
 ## GNOME
 ##
-gnome-keyring             	# GNOME Desktop password management system
-gtk2.0-engines            	# Standard theme engines for gtk+-2.x
-intltool                  	# GNOME XML internalization scripts
+gnome-keyring                   # GNOME Desktop password management system
+gtk2.0-engines                  # Standard theme engines for gtk+-2.x
+intltool                        # GNOME XML internalization scripts
 
 
 ##
 ## Games
 ##
-ctris                     	# Console mode tetris clone
-fortune                   	# Print a random, perhaps interesting, adage; may contain offsensive material
-ninvaders                 	# A space invaders-like game using ncurses.
-sudoku                    	# Console based sudoku
+ctris               [arch=x86]  # Console mode tetris clone
+fortune             [arch=x86]  # Print a random, perhaps interesting, adage; may contain offsensive material
+ninvaders           [arch=x86]  # A space invaders-like game using ncurses.
+sudoku              [arch=x86]  # Console based sudoku
 
 
 
@@ -209,55 +209,55 @@ sudoku                    	# Console based sudoku
 ##
 ## Graphics
 ##
-GraphicsMagick            	# GraphicsMagick is the swiss army knife of image processing
-ImageMagick               	# Image manipulation software suite (utilities)
-autotrace                 	# A program for converting bitmap to vector graphics (utilities)
-epstool                   	# Edit preview images and fix bounding boxes in EPS files
-exif                      	# Command-line EXIF metadata parser
-ghostscript               	# GPL PostScript interpreter (utilities)
-ghostscript-fonts-other   	# Miscellaneous fonts derived from the free Hershey fonts, with improvements for ghostscript
-ghostscript-fonts-std     	# 35 commercial-quality Type 1 basic PostScript fonts for ghostscript
-giflib                    	# GIF file manipulation library (utilities and docs)
-gnuplot                   	# A command-line driven interactive function plotting utility
-gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
-hp2xx                     	# A HP-GL Converter
-jasper                    	# JPEG 2000 library - (utilities)
-jbigkit                   	# The JBIG lossless image compression library
-jgraph                    	# A Filter for Plotting Graphs in Postscript
-jpeg                      	# A library for manipulating JPEG image format files
-lcms                      	# Little color management engine (utilities)
-#libGraphicsMagick-devel   	# GraphicsMagick library (runtime)
-libImlib-devel            	# GNOME 1.4 graphics rendering library
-libMagick-devel           	# Image manipulation software suite (development)
-libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
-libmng-devel              	# A library of functions for manipulating MNG format files (development)
-libpng-devel              	# PNG library (development)
-libtiff-devel             	# TIFF image library
-netpbm                    	# Toolkit for manipulation of graphic images
-perl-Graphics-Magick      	# GraphicsMagick Perl bind (PerlMagick)
-perl-Image-Magick         	# Image manipulation software suite (Perl bindings)
-ploticus                  	# Command-line plot and graph generator
-plotutils                 	# 2-D scientific data plotting utilities
-potrace                   	# Utility to transform bitmaps into vector graphics
-python-imaging            	# Python Imaging Library
-python-lcms               	# Little color management engine (Python bindings)
-sxpm                      	# X.Org X Pixmap utilities
-tiff                      	# TIFF image library
-tiff-opengl               	# TIFF image library
+GraphicsMagick                  # GraphicsMagick is the swiss army knife of image processing
+ImageMagick                     # Image manipulation software suite (utilities)
+autotrace                       # A program for converting bitmap to vector graphics (utilities)
+epstool             [arch=x86]  # Edit preview images and fix bounding boxes in EPS files
+exif                            # Command-line EXIF metadata parser
+ghostscript                     # GPL PostScript interpreter (utilities)
+ghostscript-fonts-other         # Miscellaneous fonts derived from the free Hershey fonts, with improvements for ghostscript
+ghostscript-fonts-std           # 35 commercial-quality Type 1 basic PostScript fonts for ghostscript
+giflib                          # GIF file manipulation library (utilities and docs)
+gnuplot                         # A command-line driven interactive function plotting utility
+gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
+hp2xx                           # A HP-GL Converter
+jasper                          # JPEG 2000 library - (utilities)
+jbigkit                         # The JBIG lossless image compression library
+jgraph              [arch=x86]  # A Filter for Plotting Graphs in Postscript
+jpeg                            # A library for manipulating JPEG image format files
+lcms                            # Little color management engine (utilities)
+#libGraphicsMagick-devel         # GraphicsMagick library (runtime)
+libImlib-devel                  # GNOME 1.4 graphics rendering library
+libMagick-devel                 # Image manipulation software suite (development)
+libjpeg-devel                   # A library for manipulating JPEG image format files (devel)
+libmng-devel                    # A library of functions for manipulating MNG format files (development)
+libpng-devel                    # PNG library (development)
+libtiff-devel                   # TIFF image library
+netpbm                          # Toolkit for manipulation of graphic images
+perl-Graphics-Magick            # GraphicsMagick Perl bind (PerlMagick)
+perl-Image-Magick               # Image manipulation software suite (Perl bindings)
+ploticus            [arch=x86]  # Command-line plot and graph generator
+plotutils                       # 2-D scientific data plotting utilities
+potrace             [arch=x86]  # Utility to transform bitmaps into vector graphics
+python-imaging                  # Python Imaging Library
+python-lcms                     # Little color management engine (Python bindings)
+sxpm                            # X.Org X Pixmap utilities
+tiff                            # TIFF image library
+tiff-opengl                     # TIFF image library
 
 
 ##
 ## Interpreters
 ##
-gawk                      	# GNU awk, a pattern scanning and processing language
-guile                     	# The GNU extension language and Scheme interpreter - executables
-m4                        	# GNU implementation of the traditional Unix macro processor.
-perl                      	# Larry Wall's Practical Extracting and Report Language
-python                    	# Python language interpreter
-python3                   	# Py3K language interpreter
-ruby                      	# Interpreted object-oriented scripting language
-tcl-tk                    	# Tcl X11 toolkit
-xemacs                    	# A powerful, highly customizable open source text editor and application development system
+gawk                            # GNU awk, a pattern scanning and processing language
+guile                           # The GNU extension language and Scheme interpreter - executables
+m4                              # GNU implementation of the traditional Unix macro processor.
+perl                            # Larry Wall's Practical Extracting and Report Language
+python                          # Python language interpreter
+python3                         # Py3K language interpreter
+ruby                            # Interpreted object-oriented scripting language
+tcl-tk                          # Tcl X11 toolkit
+xemacs              [arch=x86]  # A powerful, highly customizable open source text editor and application development system
 
 
 
@@ -265,418 +265,414 @@ xemacs                    	# A powerful, highly customizable open source text ed
 ##
 ## Libs
 ##
-CUnit                     	# A Unit Testing Framework for C (src only)
-autotrace                 	# A program for converting bitmap to vector graphics (utilities)
-expat                     	# Expat XML parser library (xmlwf, docs)
-fftw3                     	# Fast Fourier transforms C library
-gettext                   	# GNU Internationalization library and core utilities (PLUS LINK LIBS)
-gmp                       	# Library for arbitrary precision arithmetic
-gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols (development)
-gsl                       	# Runtime
-gsl-apps                  	# Application programs
-gsl-devel                 	# Developers tools
-gsl-doc                   	# Documentation
-jasper                    	# JPEG 2000 library - (utilities)
-jpeg                      	# A library for manipulating JPEG image format files
-libapr1-devel             	# Apache Portable Runtime core library (development)
-libaprutil1-devel         	# Apache Portable Runtime utility library (development)
-libboost-devel            	# Boost C++ libraries
-libbz2-devel              	# A high-quality block-sorting file compressor (development)
-libexpat-devel            	# Expat XML parser library (development files)
-libfftw3-devel            	# Fast Fourier transforms C library
-libgcrypt                 	# A general purpose crypto library based on the code from GnuPG.
-libgcrypt-devel           	# A general purpose crypto library based on the code from GnuPG - (development)
-libgcrypt11               	# A general purpose crypto library based on the code from GnuPG - (runtime)
-libglib2.0-devel          	# GNOME core C function library (development)
-libglut-devel             	# OpenGL Utility Toolkit library (development)
-libgmp-devel              	# Library for arbitrary precision arithmetic (development)
-libgtk2.0-devel           	# GTK+ X11 GUI toolkit (development)
-libjpeg-devel             	# A library for manipulating JPEG image format files (devel)
-libmng-devel              	# A library of functions for manipulating MNG format files (development)
-libncurses-devel          	# (devel) libraries for terminal handling
-libpcre-devel             	# Perl Compatible Regular Expressions library development
-libpng-devel              	# PNG library (development)
-libpthread-stubs          	# Pthread stubs pkg-config metadata
-libreadline5              	# GNU readline and history libraries (runtime)
-libreadline6              	# GNU readline and history libraries (runtime)
-libreadline7              	# GNU readline and history libraries (runtime)
-libsqlite3-devel          	# Header and library files for building programs against SQLite
-libuuid-devel             	# Universally Unique ID library (development)
-libxerces-c28             	# (runtime) A validating XML parser written in a portable subset of C++
-libxerces-c30             	# (runtime) A validating XML parser written in a portable subset of C++
-libxml2-devel             	# GNOME XML library (development)
-libxslt                   	# GNOME XSLT library (runtime)
-libxslt-devel             	# GNOME XSLT library (development)
-mpfr                      	# A library for multiple-precision floating-point arithmetic with exact rounding
-openldap-devel            	# Lightweight Directory Access Protocol suite (development)
-openssl-devel             	# The OpenSSL development environment
-popt                      	# Library for parsing cmdline parameters - docs and development
-python-crypto             	# Cryptographic algorithms and protocols for Python
-python-feedparser         	# Universal Feed Parser for Python
-python-paramiko           	# Python library for SSH2 connections
-readline                  	# GNU readline and history libraries
-subversion-perl           	# A version control system (perl bindings)
-subversion-python         	# A version control system (python bindings)
-subversion-ruby           	# A version control system (ruby bindings)
-terminfo-extra            	# Additional database entries for ncurses-style terminal handling
-terminfo0                 	# (libncurses8-compat) database for ncurses-style terminal handling
-terminfo0-extra           	# (libncurses8-compat) additional database entries
-zlib                      	# Zlib de/compression library (documentation)
-zlib-devel                	# Zlib de/compression library (development)
-zlib0                     	# Zlib de/compression library (runtime)
+CUnit                           # A Unit Testing Framework for C (src only)
+autotrace                       # A program for converting bitmap to vector graphics (utilities)
+expat                           # Expat XML parser library (xmlwf, docs)
+fftw3                           # Fast Fourier transforms C library
+gettext                         # GNU Internationalization library and core utilities (PLUS LINK LIBS)
+gmp                             # Library for arbitrary precision arithmetic
+gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
+gsl                             # Runtime
+gsl-apps                        # Application programs
+gsl-devel                       # Developers tools
+gsl-doc                         # Documentation
+jasper                          # JPEG 2000 library - (utilities)
+jpeg                            # A library for manipulating JPEG image format files
+libapr1-devel                   # Apache Portable Runtime core library (development)
+libaprutil1-devel               # Apache Portable Runtime utility library (development)
+libboost-devel                  # Boost C++ libraries
+libbz2-devel                    # A high-quality block-sorting file compressor (development)
+libexpat-devel                  # Expat XML parser library (development files)
+libfftw3-devel                  # Fast Fourier transforms C library
+libgcrypt                       # A general purpose crypto library based on the code from GnuPG.
+libgcrypt-devel                 # A general purpose crypto library based on the code from GnuPG - (development)
+libgcrypt11                     # A general purpose crypto library based on the code from GnuPG - (runtime)
+libglib2.0-devel                # GNOME core C function library (development)
+libglut-devel                   # OpenGL Utility Toolkit library (development)
+libgmp-devel                    # Library for arbitrary precision arithmetic (development)
+libgtk2.0-devel                 # GTK+ X11 GUI toolkit (development)
+libjpeg-devel                   # A library for manipulating JPEG image format files (devel)
+libmng-devel                    # A library of functions for manipulating MNG format files (development)
+libncurses-devel                # (devel) libraries for terminal handling
+libpcre-devel                   # Perl Compatible Regular Expressions library development
+libpng-devel                    # PNG library (development)
+libpthread-stubs    [arch=x86]  # Pthread stubs pkg-config metadata
+libreadline5        [arch=x86]  # GNU readline and history libraries (runtime)
+libreadline6        [arch=x86]  # GNU readline and history libraries (runtime)
+libreadline7                    # GNU readline and history libraries (runtime)
+libsqlite3-devel                # Header and library files for building programs against SQLite
+libuuid-devel                   # Universally Unique ID library (development)
+libxml2-devel                   # GNOME XML library (development)
+libxslt                         # GNOME XSLT library (runtime)
+libxslt-devel                   # GNOME XSLT library (development)
+mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
+openldap-devel                  # Lightweight Directory Access Protocol suite (development)
+openssl-devel                   # The OpenSSL development environment
+popt                            # Library for parsing cmdline parameters - docs and development
+python-crypto                   # Cryptographic algorithms and protocols for Python
+python-feedparser               # Universal Feed Parser for Python
+python-paramiko                 # Python library for SSH2 connections
+readline                        # GNU readline and history libraries
+subversion-perl                 # A version control system (perl bindings)
+subversion-python               # A version control system (python bindings)
+subversion-ruby                 # A version control system (ruby bindings)
+terminfo-extra      [arch=x86]  # Additional database entries for ncurses-style terminal handling
+zlib                            # Zlib de/compression library (documentation)
+zlib-devel                      # Zlib de/compression library (development)
+zlib0                           # Zlib de/compression library (runtime)
 
 
 ##
 ## Mail
 ##
-fetchmail                 	# Remote mail retrieval and forwarding utility
-grepmail                  	# Search mailboxes for mail matching an expression
-msmtp                     	# Light SMTP client with support for server profiles
-mutt                      	# A text mode mail user agent (MUA).
-procmail                  	# Mail processing program
-spambayes                 	# Python-based spam filter using statistical analysis
-ssmtp                     	# A minimal mail-transfer agent which forwards mail to an SMTP server
-xmh                       	# X.Org frontend to MH mail handler
+fetchmail                       # Remote mail retrieval and forwarding utility
+grepmail                        # Search mailboxes for mail matching an expression
+msmtp               [arch=x86]  # Light SMTP client with support for server profiles
+mutt                [arch=x86]  # A text mode mail user agent (MUA).
+procmail                        # Mail processing program
+spambayes                       # Python-based spam filter using statistical analysis
+ssmtp               [arch=x86]  # A minimal mail-transfer agent which forwards mail to an SMTP server
+xmh                             # X.Org frontend to MH mail handler
 
 
 ##
 ## Math
 ##
-bc                        	# The GNU numeric processing language and reverse polish calculator
-fftw3                     	# Fast Fourier transforms C library
-gmp                       	# Library for arbitrary precision arithmetic
-gnuplot                   	# A command-line driven interactive function plotting utility
-lapack                    	# Comprehensive FORTRAN library for linear algebra operations.
-libfftw3-devel            	# Fast Fourier transforms C library
-libgmp-devel              	# Library for arbitrary precision arithmetic (development)
-liblapack-devel           	# Development libs for LAPACK.
-mpfr                      	# A library for multiple-precision floating-point arithmetic with exact rounding
-octave                    	# GNU Octave language for numerical computations
-octave-devel              	# GNU Octave (development)
-octave-doc                	# Additional docs in html and pdf
-octave-forge              	# Contributed functions for GNU Octave from octave.sourceforge.net
-orpie                     	# Fullscreen RPN calculator for the console
-plotutils                 	# 2-D scientific data plotting utilities
-units                     	# Converts between different systems of units
-xcalc                     	# X scientific calculator
+bc                              # The GNU numeric processing language and reverse polish calculator
+fftw3                           # Fast Fourier transforms C library
+gmp                             # Library for arbitrary precision arithmetic
+gnuplot                         # A command-line driven interactive function plotting utility
+lapack                          # Comprehensive FORTRAN library for linear algebra operations.
+libfftw3-devel                  # Fast Fourier transforms C library
+libgmp-devel                    # Library for arbitrary precision arithmetic (development)
+liblapack-devel                 # Development libs for LAPACK.
+mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
+octave                          # GNU Octave language for numerical computations
+octave-devel                    # GNU Octave (development)
+octave-doc                      # Additional docs in html and pdf
+octave-forge        [arch=x86]  # Contributed functions for GNU Octave from octave.sourceforge.net
+orpie               [arch=x86]  # Fullscreen RPN calculator for the console
+plotutils                       # 2-D scientific data plotting utilities
+units                           # Converts between different systems of units
+xcalc                           # X scientific calculator
 
 
 ##
 ## Mingw
 ##
-mingw-libgcrypt-devel     	# (mingw) A general purpose crypto library based on the code from GnuPG - (development)
-mingw-libgpg-error-devel  	# (mingw) A library that defines common error values for GnuPG. (development)
+mingw-libgcrypt-devel           # (mingw) A general purpose crypto library based on the code from GnuPG - (development)
+mingw-libgpg-error-devel        # (mingw) A library that defines common error values for GnuPG. (development)
 
 
 ##
 ## Net
 ##
-bind                      	# DNS server
-curl                      	# Multi-protocol file transfer tool
-gnutls                    	# Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
-gnutls-devel              	# Library implementing TLS 1.0 and SSL 3.0 protocols (development)
-inetutils                 	# Common networking clients and servers
-lftp                      	# Sophisticated file transfer program
-nc                        	# Reads and writes data across network connections using TCP or UDP
-nfs-server                	# Universal NFS server.
-openldap                  	# Lightweight Directory Access Protocol suite (clients)
-openldap-devel            	# Lightweight Directory Access Protocol suite (development)
-openssh                   	# The OpenSSH server and client programs
-openssl                   	# The OpenSSL base environment
-ping                      	# A basic network tool to test IP network conectivity
-proftpd                   	# A flexible, stable and highly-configurable FTP Server
-pure-ftpd                 	# Secure production-quality standard-conformant FTP server
-rsync                     	# Fast remote file transfer program (can use existing data to minimize transfer)
-stunnel                   	# Universal SSL Wrapper
-urlgrabber                	# Python based URL grabber
-whois                     	# GNU Whois
-xinetd                    	# The eXtended InterNET Daemon
+bind                            # DNS server
+curl                            # Multi-protocol file transfer tool
+gnutls                          # Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
+gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
+inetutils           [arch=x86]  # Common networking clients and servers
+lftp                [arch=x86]  # Sophisticated file transfer program
+nc                              # Reads and writes data across network connections using TCP or UDP
+nfs-server          [arch=x86]  # Universal NFS server.
+openldap                        # Lightweight Directory Access Protocol suite (clients)
+openldap-devel                  # Lightweight Directory Access Protocol suite (development)
+openssh                         # The OpenSSH server and client programs
+openssl                         # The OpenSSL base environment
+ping                [arch=x86]  # A basic network tool to test IP network conectivity
+proftpd             [arch=x86]  # A flexible, stable and highly-configurable FTP Server
+pure-ftpd           [arch=x86]  # Secure production-quality standard-conformant FTP server
+rsync                           # Fast remote file transfer program (can use existing data to minimize transfer)
+stunnel                         # Universal SSL Wrapper
+urlgrabber                      # Python based URL grabber
+whois               [arch=x86]  # GNU Whois
+xinetd              [arch=x86]  # The eXtended InterNET Daemon
 
 
 ##
 ## Perl
 ##
-colorgcc                  	# Colorizer for GCC warning/error messages
-grepmail                  	# Search mailboxes for mail matching an expression
-patcher                   	# Perl script To manage patches
-perl                      	# Larry Wall's Practical Extracting and Report Language
-perl-Error                	# Perl module for OO error/exception handling
-perl-ExtUtils-Depends     	# Build Perl XS that depend on other XS
-perl-ExtUtils-PkgConfig   	# Perl module for using pkg-config
-perl-Image-Magick         	# Image manipulation software suite (Perl bindings)
-perl-Locale-gettext       	# Perl module for using gettext and libintl
-perl-Tk                   	# Tk GUI toolkit for Perl
-perl-Win32-GUI            	# Perl Win32-GUI module
-perl-libwin32             	# Perl extensions for using the Win32 API
+colorgcc                        # Colorizer for GCC warning/error messages
+grepmail                        # Search mailboxes for mail matching an expression
+patcher                         # Perl script To manage patches
+perl                            # Larry Wall's Practical Extracting and Report Language
+perl-Error                      # Perl module for OO error/exception handling
+perl-ExtUtils-Depends           # Build Perl XS that depend on other XS
+perl-ExtUtils-PkgConfig         # Perl module for using pkg-config
+perl-Image-Magick               # Image manipulation software suite (Perl bindings)
+perl-Locale-gettext             # Perl module for using gettext and libintl
+perl-Tk                         # Tk GUI toolkit for Perl
+perl-Win32-GUI      [arch=x86]  # Perl Win32-GUI module
+perl-libwin32       [arch=x86]  # Perl extensions for using the Win32 API
 
 
 ##
 ## Publishing
 ##
-jgraph                    	# A Filter for Plotting Graphs in Postscript
-pdftk                     	# PDF manipulation without Acrobat.
-texlive-collection-basic  	# TeX Live basic package collection
-texlive-collection-latex  	# TeX Live latex package collection
-#texlive-collection-pstricks  	# TeX Live pstricks package collection
+jgraph              [arch=x86]  # A Filter for Plotting Graphs in Postscript
+pdftk               [arch=x86]  # PDF manipulation without Acrobat.
+texlive-collection-basic        # TeX Live basic package collection
+texlive-collection-latex        # TeX Live latex package collection
+#texlive-collection-pstricks        # TeX Live pstricks package collection
 
 
 ##
 ## Python
 ##
-idle                      	# Python Tkinter-based IDE
-mercurial                 	# Python based distributed version control system (DVCS)
-python                    	# Python language interpreter
-python-crypto             	# Cryptographic algorithms and protocols for Python
-#python-doc                	# Python HTML documentation
-python-feedparser         	# Universal Feed Parser for Python
-python-gamin              	# File Alteration Monitor system (Python bindings)
-#python-gdata              	# Python bindings for Google Data APIs
-python-gi                 	# Python GObject Introspection bindings
-#python-gi-common          	# Python GObject Introspection bindings
-#python-gi-devel           	# Python GObject Introspection bindings
-#python-gobject            	# Python GLib/GObject/GIO bindings
-#python-gobject-devel      	# Python GLib/GObject/GIO bindings
-#python-gsf                	# Gnome Structured File Library (Python bindings)
-python-gtk2.0             	# Python bindings for GTK+2 and libglade
-python-gtk2.0-demo        	# Python bindings for GTK+2 and libglade (demo application)
-python-gtk2.0-devel       	# Python bindings for GTK+2 and libglade (development files)
-python-imaging            	# Python Imaging Library
-python-lcms               	# Little color management engine (Python bindings)
-python-libxml2            	# GNOME XML library (Python bindings)
-python-libxslt            	# GNOME XSLT library (Python bindings)
-python-numpy              	# Python scientific computing module
-python-paramiko           	# Python library for SSH2 connections
-python-pyrex              	# Python extension language
-python-tkinter            	# Python Tkinter GUI module
-python3                   	# Py3K language interpreter
-python3-gi                	# Python GObject Introspection bindings
-spambayes                 	# Python-based spam filter using statistical analysis
-stgit                     	# Quilt functionality on top of git
-tailor                    	# Migrate changesets between version control systems
-urlgrabber                	# Python based URL grabber
+idle                            # Python Tkinter-based IDE
+mercurial                       # Python based distributed version control system (DVCS)
+python                          # Python language interpreter
+python-crypto                   # Cryptographic algorithms and protocols for Python
+#python-doc                      # Python HTML documentation
+python-feedparser               # Universal Feed Parser for Python
+python-gamin                    # File Alteration Monitor system (Python bindings)
+#python-gdata                    # Python bindings for Google Data APIs
+python-gi                       # Python GObject Introspection bindings
+#python-gi-common                # Python GObject Introspection bindings
+#python-gi-devel                 # Python GObject Introspection bindings
+#python-gobject                  # Python GLib/GObject/GIO bindings
+#python-gobject-devel            # Python GLib/GObject/GIO bindings
+#python-gsf                      # Gnome Structured File Library (Python bindings)
+python-gtk2.0                   # Python bindings for GTK+2 and libglade
+python-gtk2.0-demo              # Python bindings for GTK+2 and libglade (demo application)
+python-gtk2.0-devel             # Python bindings for GTK+2 and libglade (development files)
+python-imaging                  # Python Imaging Library
+python-lcms                     # Little color management engine (Python bindings)
+python-libxml2                  # GNOME XML library (Python bindings)
+python-libxslt                  # GNOME XSLT library (Python bindings)
+python-numpy                    # Python scientific computing module
+python-paramiko                 # Python library for SSH2 connections
+python-pyrex                    # Python extension language
+python-tkinter                  # Python Tkinter GUI module
+python3                         # Py3K language interpreter
+python3-gi                      # Python GObject Introspection bindings
+spambayes                       # Python-based spam filter using statistical analysis
+stgit                           # Quilt functionality on top of git
+tailor                          # Migrate changesets between version control systems
+urlgrabber                      # Python based URL grabber
 
 
 ##
 ## Ruby
 ##
-ruby                      	# Interpreted object-oriented scripting language
+ruby                            # Interpreted object-oriented scripting language
 
 
 ##
 ## Security
 ##
-bcrypt                    	# Cross platform file encryption utility using blowfish
-flawfinder                	# Examine source code and look for security weaknesses
-pwgen                     	# Automatic Password generation
+bcrypt              [arch=x86]  # Cross platform file encryption utility using blowfish
+flawfinder                      # Examine source code and look for security weaknesses
+pwgen               [arch=x86]  # Automatic Password generation
 
 
 ##
 ## Shells
 ##
-bash                      	# The GNU Bourne Again SHell
-bash-completion           	# Bash completion enhancements
-dash                      	# Dash shell
-rxvt                      	# VT102 terminal emulator for both X and Windows
-rxvt-unicode-X            	# An improved version of rxvt requiring an Xserver.
-rxvt-unicode-common       	# An improved version of rxvt requiring an Xserver.
-tcsh                      	# TENEX C Shell, an enhanced version of Berkeley csh
-xterm                     	# X11 terminal emulator
-zsh                       	# The Z-Shell
+bash                            # The GNU Bourne Again SHell
+bash-completion                 # Bash completion enhancements
+dash                            # Dash shell
+rxvt                [arch=x86]  # VT102 terminal emulator for both X and Windows
+rxvt-unicode-X      [arch=x86]  # An improved version of rxvt requiring an Xserver.
+rxvt-unicode-common [arch=x86]  # An improved version of rxvt requiring an Xserver.
+tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
+xterm                           # X11 terminal emulator
+zsh                             # The Z-Shell
 
 
 ##
 ## System
 ##
-e2fsimage                 	# Creates ext2 filesystem images
-e2fsprogs                 	# Ext2/3/4 filesystem utilities
-initscripts               	# System V Init Clone initscripts
-libext2fs-devel           	# Ext2fs library (development)
-ping                      	# A basic network tool to test IP network conectivity
-procps                    	# Utilities for monitoring your system and processes on your system.
-psmisc                    	# Utilities for managing processes on your system
-sysvinit                  	# A System-V Init Clone
-util-linux                	# Random collection of Linux utilities
+e2fsimage                       # Creates ext2 filesystem images
+e2fsprogs                       # Ext2/3/4 filesystem utilities
+initscripts                     # System V Init Clone initscripts
+libext2fs-devel                 # Ext2fs library (development)
+ping                [arch=x86]  # A basic network tool to test IP network conectivity
+procps              [arch=x86]  # Utilities for monitoring your system and processes on your system.
+psmisc                          # Utilities for managing processes on your system
+sysvinit                        # A System-V Init Clone
+util-linux                      # Random collection of Linux utilities
 
 
 ##
 ## Tcl
 ##
-expect                    	# Tool for automating interactive applications
-tcl-tix                   	# Tk Interface eXtension
-tcl-tk                    	# Tcl X11 toolkit
+expect                          # Tool for automating interactive applications
+tcl-tix                         # Tk Interface eXtension
+tcl-tk                          # Tcl X11 toolkit
 
 
 ##
 ## Text
 ##
-#a2ps                      	# Anything to PostScript converter
-antiword                  	# A free MS Word reader
-aspell                    	# A spell checker designed to eventually replace Ispell (program and utilities)
-aspell-en                 	# Aspell en dictionary
-catdoc                    	# Dump Word, Excel and Powerpoint files contents
-enscript                  	# A free replacement for the Adobe's enscript program
-flip                      	# Convert text file line endings between Unix and DOS formats
-groff                     	# GNU troff text-formatting system
-gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
-less                      	# A file pager program, similar to more(1)
-patchutils                	# A small collection of programs that operate on patch files
-pcre                      	# Perl Compatible Regular Expressions utilities
-source-highlight          	# Syntax highlighting utilities
-texi2html                 	# A highly customizable texinfo to HTML and other formats translator
-texinfo                   	# Documentation system for on-line information and printed output
-untex                     	# Remove LaTeX commands from input
-util-linux                	# Random collection of Linux utilities
-w3m                       	# Text-based web browser and pager
+#a2ps                            # Anything to PostScript converter
+antiword            [arch=x86]      # A free MS Word reader
+aspell                          # A spell checker designed to eventually replace Ispell (program and utilities)
+aspell-en                       # Aspell en dictionary
+catdoc              [arch=x86]  # Dump Word, Excel and Powerpoint files contents
+enscript                        # A free replacement for the Adobe's enscript program
+flip                [arch=x86]  # Convert text file line endings between Unix and DOS formats
+groff                           # GNU troff text-formatting system
+gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
+less                            # A file pager program, similar to more(1)
+patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+pcre                            # Perl Compatible Regular Expressions utilities
+source-highlight                # Syntax highlighting utilities
+texi2html                       # A highly customizable texinfo to HTML and other formats translator
+texinfo                         # Documentation system for on-line information and printed output
+untex               [arch=x86]  # Remove LaTeX commands from input
+util-linux                      # Random collection of Linux utilities
+w3m                             # Text-based web browser and pager
 
 
 ##
 ## Utils
 ##
-bc                        	# The GNU numeric processing language and reverse polish calculator
-bzip2                     	# A high-quality block-sorting file compressor (utilities)
-cdrecord                  	# Command line CD/DVD writing tool (symlink to wodim)
-colordiff                 	# A tool to colorize diff output
-cpio                      	# A backup and archiving utility
-cygutils-extra            	# A collection of simple utilities (other tools)
-deroff                    	# Remove roff and preprocessor constructs
-diffutils                 	# A GNU collection of diff utilities
-file                      	# Determines file type using 'magic' numbers
-gdbm                      	# GNU dbm database routines (utilities)
-genisoimage               	# Create ISO/Joliet/HFS filesystem images (part of cdrkit)
-git-oodiff                	# Git diff filter for OpenDocument files
-gnupg                     	# GNU\'s tool for secure communication and data storage.
-hdf5                      	# HDF5 Hierarchical Data Format
-keychain                  	# Key manager for OpenSSH
-lndir                     	# X.Org recursive directory symlink tool
-mkisofs                   	# Create ISO/Joliet/HFS filesystem images (symlink to genisoimage)
-mmv                       	# Move, copy, append and link multiple files with wild cards
-ncurses                   	# Utilities for terminal handling
-ncurses-demo              	# Demonstration programs for ncurses
-patcher                   	# Perl script To manage patches
-patchutils                	# A small collection of programs that operate on patch files
-rpm                       	# A package management system
-rpm-build                 	# Scripts and executable programs used to build RPM packages
-rpm-doc                   	# RPM package management system manual pages
-run2                      	# An enhanced version of the 'run' application launcher
-screen                    	# Run separate screens on a single terminal
-stow                      	# Manage local software installations
-time                      	# The GNU time command
-units                     	# Converts between different systems of units
-util-linux                	# Random collection of Linux utilities
-wdiff                     	# Compare two files word by word
-which                     	# Prints out full path of executables
-wodim                     	# Command line CD/DVD writing tool (part of cdrkit)
-xdelta                    	# Computes changes between binary files.
+bc                              # The GNU numeric processing language and reverse polish calculator
+bzip2                           # A high-quality block-sorting file compressor (utilities)
+cdrecord                        # Command line CD/DVD writing tool (symlink to wodim)
+colordiff                       # A tool to colorize diff output
+cpio                            # A backup and archiving utility
+cygutils-extra                  # A collection of simple utilities (other tools)
+deroff              [arch=x86]  # Remove roff and preprocessor constructs
+diffutils                       # A GNU collection of diff utilities
+file                            # Determines file type using 'magic' numbers
+gdbm                            # GNU dbm database routines (utilities)
+genisoimage                     # Create ISO/Joliet/HFS filesystem images (part of cdrkit)
+git-oodiff          [arch=x86]  # Git diff filter for OpenDocument files
+gnupg                           # GNU\'s tool for secure communication and data storage.
+hdf5                            # HDF5 Hierarchical Data Format
+keychain                        # Key manager for OpenSSH
+lndir                           # X.Org recursive directory symlink tool
+mkisofs                         # Create ISO/Joliet/HFS filesystem images (symlink to genisoimage)
+mmv                 [arch=x86]  # Move, copy, append and link multiple files with wild cards
+ncurses                         # Utilities for terminal handling
+ncurses-demo        [arch=x86]  # Demonstration programs for ncurses
+patcher                         # Perl script To manage patches
+patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+rpm                 [arch=x86]  # A package management system
+rpm-build           [arch=x86]  # Scripts and executable programs used to build RPM packages
+rpm-doc             [arch=x86]  # RPM package management system manual pages
+run2                            # An enhanced version of the 'run' application launcher
+screen                          # Run separate screens on a single terminal
+stow                            # Manage local software installations
+time                [arch=x86]  # The GNU time command
+units                           # Converts between different systems of units
+util-linux                      # Random collection of Linux utilities
+wdiff               [arch=x86]  # Compare two files word by word
+which                           # Prints out full path of executables
+wodim                           # Command line CD/DVD writing tool (part of cdrkit)
+xdelta              [arch=x86]  # Computes changes between binary files.
 
 
 ##
 ## Web
 ##
-#apache2                   	# Apache HTTP Server
-curl                      	# Multi-protocol file transfer tool
-dhttpd                    	# Minimal secure webserver without cgi-bin support
-links                     	# Text mode WWW browser
-lynx                      	# Text-based Web browser
-micro-httpd               	# Extremely small Unix-based HTTP server
-w3m                       	# Text-based web browser and pager
-wget                      	# Utility to retrieve files from the WWW via HTTP and FTP
+#apache2                         # Apache HTTP Server
+curl                            # Multi-protocol file transfer tool
+dhttpd              [arch=x86]  # Minimal secure webserver without cgi-bin support
+links               [arch=x86]  # Text mode WWW browser
+lynx                            # Text-based Web browser
+micro-httpd         [arch=x86]  # Extremely small Unix-based HTTP server
+w3m                             # Text-based web browser and pager
+wget                            # Utility to retrieve files from the WWW via HTTP and FTP
 
 
 ##
 ## X11
 ##
-X-start-menu-icons        	# Start menu icons for Cygwin/X programs
-cygwin-x-doc              	# Cygwin/X-specific documentation
-ddd                       	# Ddd
-editres                   	# X resource editor
-font-adobe-dpi100         	# X.Org Adobe 100dpi fonts
-font-adobe-dpi75          	# X.Org Adobe 75dpi fonts
-font-adobe-utopia-dpi100  	# X.Org Adobe Utopia 100dpi fonts
-font-adobe-utopia-dpi75   	# X.Org Adobe Utopia 75dpi fonts
-font-adobe-utopia-type1   	# X.Org Adobe Utopia Type1 fonts
-font-alias                	# X.Org font aliases
-font-bh-ttf               	# X.Org Bigelow & Holmes TrueType fonts
-font-bh-type1             	# X.Org Bigelow & Holmes Type1 fonts
-font-bitstream-dpi100     	# X.Org Bitstream 100dpi fonts
-font-bitstream-dpi75      	# X.Org Bitstream 75dpi fonts
-font-bitstream-speedo     	# X.Org Bitstream Speedo fonts
-font-bitstream-type1      	# X.Org Bitstream Type1 fonts
-font-bitstream-vera-ttf   	# Bitstream Vera font family
-font-encodings            	# X.Org font encodings
-font-misc-misc            	# X.Org miscellaneous fonts
-font-util                 	# X.Org font utilities and font maps
-fontconfig                	# Font configuration utilities
-fvwm                      	# Window manager for X11
-gccmakedep                	# Xorg preprocessor dependency maker
-gtk2.0-engines-pixmap     	# Pixmap theme engine for GTK+
-gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
-inputproto                	# X.Org XInput extension headers
-kbproto                   	# X.Org XKB extension headers
-libGL-devel               	# X11 OpenGL library (development)
-libGLU-devel              	# OpenGL utility library (development)
-libGLw-devel              	# OpenGL widget library (development)
-libOSMesa-devel           	# Mesa Off-Screen rendering library (development)
-libX11-devel              	# X.Org X11 core library (development)
-libXaw-devel              	# X.Org Athena Widgets library (development)
-libXaw3d-devel            	# Three-dimensional Athena widget library (development)
-libXmu-devel              	# X.Org miscellaneous utility libraries (development)
-libXt-devel               	# X.Org X Toolkit library
-libfltk-devel             	# Fast Light Toolkit (development, for X11)
-libfreetype-devel         	# FreeType font engine
-libfreetype6              	# FreeType font engine
-libglut-devel             	# OpenGL Utility Toolkit library (development)
-listres                   	# X.Org widget resource lister
-lndir                     	# X.Org recursive directory symlink tool
-mkcomposecache            	# X.Org Compose file cache creator
-mkfontdir                 	# X.Org font directory indexer
-mkfontscale               	# X scalable font file indexer
-oclock                    	# X.Org round clock
-python-tkinter            	# Python Tkinter GUI module
-setxkbmap                 	# X.Org keyboard settings utility
-sxpm                      	# X.Org X Pixmap utilities
-tcl-tix                   	# Tk Interface eXtension
-tcl-tk                    	# Tcl X11 toolkit
-twm                       	# X.Org Tiny Window Manager
-xev                       	# X event monitor
-xfontsel                  	# X font selector
-xhost                     	# X server access control utility
-xinit                     	# X.Org X server initializer
-xinput                    	# X.Org XInput device tester
-xkbcomp                   	# X.Org XKB keymap compiler
-xkbevd                    	# X.Org XKB event daemon
-xkbprint                  	# X.Org XKB keyboard description printer
-xkbutils                  	# X keyboard utilities
-xkeyboard-config          	# X11 keyboard configuration database
-xkill                     	# X.Org X client connection closer
-xload                     	# X.Org system load display
-xlogo                     	# X.Org logo
-xlsatoms                  	# X.Org interned atoms lister
-xlsclients                	# X.Org display clients lister
-xlsfonts                  	# X.Org server font lister
-xman                      	# X.Org man page reader
-xmessage                  	# X message displayer
-xmh                       	# X.Org frontend to MH mail handler
-xmodmap                   	# X.Org keyboard modifier map and keymap table utility
-xmon                      	# An interactive X protocol monitor
-xmore                     	# X.Org plain text browser
-xorg-docs                 	# X.Org documentation
-xorg-scripts              	# Xorg miscellaneous scripts
-xorg-server               	# X.Org X servers
-xpdf                      	# An open source viewer for Portable Document Format (PDF) files
-xpr                       	# X.Org X window dump printer
-xprop                     	# X.Org X server property displayer
-xproto                    	# X.Org X11 core headers
-xrdb                      	# X.Org X server resource database utility
-xrefresh                  	# X display refresher
-xscope                    	# X.Org X protocol viewer
-xset                      	# X.Org display preference utility
-xsetroot                  	# X.Org X root window parameter setting utility
-xsm                       	# X session manager
-xsri                      	# X Set Root Image
-xstdcmap                  	# X standard colormap utility
-xterm                     	# X11 terminal emulator
-xtrans                    	# X.Org XTrans common code and headers
-xwd                       	# X.Org X window dumping utility
-xwininfo                  	# X window information utility
-xwinwm                    	# Window manager for experimental WindowsWM multi-window mode
-xwud                      	# X.Org X window dump displayer
+X-start-menu-icons  [arch=x86]  # Start menu icons for Cygwin/X programs
+cygwin-x-doc                    # Cygwin/X-specific documentation
+ddd                             # Ddd
+editres                         # X resource editor
+font-adobe-dpi100               # X.Org Adobe 100dpi fonts
+font-adobe-dpi75                # X.Org Adobe 75dpi fonts
+font-adobe-utopia-dpi100        # X.Org Adobe Utopia 100dpi fonts
+font-adobe-utopia-dpi75         # X.Org Adobe Utopia 75dpi fonts
+font-adobe-utopia-type1         # X.Org Adobe Utopia Type1 fonts
+font-alias                      # X.Org font aliases
+font-bh-ttf                     # X.Org Bigelow & Holmes TrueType fonts
+font-bh-type1                   # X.Org Bigelow & Holmes Type1 fonts
+font-bitstream-dpi100           # X.Org Bitstream 100dpi fonts
+font-bitstream-dpi75            # X.Org Bitstream 75dpi fonts
+font-bitstream-speedo           # X.Org Bitstream Speedo fonts
+font-bitstream-type1            # X.Org Bitstream Type1 fonts
+font-bitstream-vera-ttf         # Bitstream Vera font family
+font-encodings                  # X.Org font encodings
+font-misc-misc                  # X.Org miscellaneous fonts
+font-util                       # X.Org font utilities and font maps
+fontconfig                      # Font configuration utilities
+fvwm                            # Window manager for X11
+gccmakedep                      # Xorg preprocessor dependency maker
+gtk2.0-engines-pixmap           # Pixmap theme engine for GTK+
+gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
+inputproto                      # X.Org XInput extension headers
+kbproto                         # X.Org XKB extension headers
+libGL-devel                     # X11 OpenGL library (development)
+libGLU-devel                    # OpenGL utility library (development)
+libGLw-devel                    # OpenGL widget library (development)
+libOSMesa-devel                 # Mesa Off-Screen rendering library (development)
+libX11-devel                    # X.Org X11 core library (development)
+libXaw-devel                    # X.Org Athena Widgets library (development)
+libXaw3d-devel                  # Three-dimensional Athena widget library (development)
+libXmu-devel                    # X.Org miscellaneous utility libraries (development)
+libXt-devel                     # X.Org X Toolkit library
+libfltk-devel                   # Fast Light Toolkit (development, for X11)
+libfreetype-devel               # FreeType font engine
+libfreetype6                    # FreeType font engine
+libglut-devel                   # OpenGL Utility Toolkit library (development)
+listres                         # X.Org widget resource lister
+lndir                           # X.Org recursive directory symlink tool
+mkcomposecache                  # X.Org Compose file cache creator
+mkfontdir                       # X.Org font directory indexer
+mkfontscale                     # X scalable font file indexer
+oclock                          # X.Org round clock
+python-tkinter                  # Python Tkinter GUI module
+setxkbmap                       # X.Org keyboard settings utility
+sxpm                            # X.Org X Pixmap utilities
+tcl-tix                         # Tk Interface eXtension
+tcl-tk                          # Tcl X11 toolkit
+twm                             # X.Org Tiny Window Manager
+xev                             # X event monitor
+xfontsel                        # X font selector
+xhost                           # X server access control utility
+xinit                           # X.Org X server initializer
+xinput                          # X.Org XInput device tester
+xkbcomp                         # X.Org XKB keymap compiler
+xkbevd                          # X.Org XKB event daemon
+xkbprint                        # X.Org XKB keyboard description printer
+xkbutils                        # X keyboard utilities
+xkeyboard-config                # X11 keyboard configuration database
+xkill                           # X.Org X client connection closer
+xload                           # X.Org system load display
+xlogo                           # X.Org logo
+xlsatoms                        # X.Org interned atoms lister
+xlsclients                      # X.Org display clients lister
+xlsfonts                        # X.Org server font lister
+xman                            # X.Org man page reader
+xmessage                        # X message displayer
+xmh                             # X.Org frontend to MH mail handler
+xmodmap                         # X.Org keyboard modifier map and keymap table utility
+xmon                            # An interactive X protocol monitor
+xmore                           # X.Org plain text browser
+xorg-docs                       # X.Org documentation
+xorg-scripts                    # Xorg miscellaneous scripts
+xorg-server                     # X.Org X servers
+xpdf                            # An open source viewer for Portable Document Format (PDF) files
+xpr                             # X.Org X window dump printer
+xprop                           # X.Org X server property displayer
+xproto                          # X.Org X11 core headers
+xrdb                            # X.Org X server resource database utility
+xrefresh                        # X display refresher
+xscope                          # X.Org X protocol viewer
+xset                            # X.Org display preference utility
+xsetroot                        # X.Org X root window parameter setting utility
+xsm                             # X session manager
+xsri                [arch=x86]  # X Set Root Image
+xstdcmap                        # X standard colormap utility
+xterm                           # X11 terminal emulator
+xtrans                          # X.Org XTrans common code and headers
+xwd                             # X.Org X window dumping utility
+xwininfo                        # X window information utility
+xwinwm              [arch=x86]  # Window manager for experimental WindowsWM multi-window mode
+xwud                            # X.Org X window dump displayer

@@ -2,6 +2,9 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2013, RW Penney
 
+17Aug13
+    Added facility for architectural selectors within package lists
+
 11Aug13
     Replaced 'browse' buttons on GUI with folder-icon buttons.
     Added x86/x86_64 architecture-selection combo-box to GUI.
