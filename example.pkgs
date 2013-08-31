@@ -10,63 +10,60 @@
 #
 # Base packages:
 #
-alternatives              	# A tool for managing package conflicts
-base-files                	# A set of important system configuration and setup files
-bash                      	# The GNU Bourne Again SHell
-bzip2                     	# A high-quality block-sorting file compressor (utilities)
-coreutils                 	# GNU core utilities (includes fileutils, sh-utils and textutils)
-cygutils                  	# A collection of simple utilities
-cygwin                    	# The UNIX emulation engine
-cygwin-doc                	# Cygwin-specific documentation, including man pages and User's Guide
-cygwin-x-doc              	# Cygwin/X-specific documentation
-editrights                	# Alter Windows user rights and privileges from command line
-findutils                 	# Utilities for finding files--find, xargs, locate, updatedb
-gzip                      	# The GNU compression utility
-less                      	# A file pager program, similar to more(1)
-login                     	# Sign on to a system
-man                       	# Man, apropos and whatis
-patch                     	# Utility for modifying/upgrading files
-perl                      	# Larry Wall's Practical Extracting and Report Language
-procps                    	# Utilities for monitoring your system and processes on your system.
-python                    	# An interactive object-oriented scripting language
-sed                       	# The GNU sed stream editor
-tar                       	# A GNU file archiving program
-tcsh                      	# TENEX C Shell, an enhanced version of Berkeley csh
-texinfo                   	# Documentation system for on-line information and printed output
-util-linux                	# Random collection of Linux utilities
-unzip                     	# Info-ZIP decompression utility
-zip                       	# Info-ZIP compression utility
+alternatives                    # A tool for managing package conflicts
+base-files                      # A set of important system configuration and setup files
+bash                            # The GNU Bourne Again SHell
+bzip2                           # A high-quality block-sorting file compressor (utilities)
+coreutils                       # GNU core utilities (includes fileutils, sh-utils and textutils)
+cygutils                        # A collection of simple utilities (core collection)
+cygwin                          # The UNIX emulation engine
+cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
+cygwin-x-doc                    # Cygwin/X-specific documentation
+editrights                      # Alter Windows user rights and privileges from command line
+findutils                       # Utilities for finding files--find, xargs, locate, updatedb
+gzip                            # The GNU compression utility
+less                            # A file pager program, similar to more(1)
+login                           # Sign on to a system
+man                             # Man, apropos and whatis commands
+patch                           # Utility for modifying/upgrading files
+perl                            # Larry Wall's Practical Extracting and Report Language
+procps              [arch=x86]  # Utilities for monitoring your system and processes on your system.
+python                          # An interactive object-oriented scripting language
+sed                             # The GNU sed stream editor
+tar                             # A GNU file archiving program
+tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
+texinfo                         # Documentation system for on-line information and printed output
+util-linux                      # Random collection of Linux utilities
+unzip                           # Info-ZIP decompression utility
+zip                             # Info-ZIP compression utility
 
 #
 # Development packages:
 #
-autoconf                  	# Wrapper scripts for autoconf commands
-automake                  	# Wrapper scripts for automake and aclocal
-gcc-core                  	# C compiler
-gcc-g++                   	# C++ compiler
-gdb                       	# The GNU Debugger
-git                       	# Fast Version Control System - core files
-make                      	# The GNU version of the 'make' utility
-
-#
-# Graphics packages:
-#
-gv                        	# A PostScript and PDF viewer for X using 3d Athena Widgets
+autoconf                        # Wrapper scripts for autoconf commands
+automake                        # Wrapper scripts for automake and aclocal
+gcc-core                        # GNU Compiler Collection (C, OpenMP)
+gcc-g++     [arch=x86,x86_64]   # GNU Compiler Collection (C++)
+gdb                             # The GNU Debugger
+git                             # Fast Version Control System - core files
+make                            # The GNU version of the 'make' utility
 
 #
 # Maths/Scientific packages:
 #
-gnuplot                   	# A command-line driven interactive function plotting utility.
-octave                    	# The GNU Octave language for numerical computations
+gnuplot                         # A command-line driven interactive function plotting utility.
+octave                          # The GNU Octave language for numerical computations
 
 #
 # X11 packages:
 #
-X-start-menu-icons        	# Start menu icons for Cygwin/X programs
-xinit                     	# X.Org X server initializer
-xorg-cf-files             	# X.Org Imake config files
-xorg-docs                 	# X.Org documentation
-xorg-scripts              	# Xorg miscellaneous scripts
-xorg-server               	# X.Org X servers
-xpdf                      	# An open source viewer for Portable Document Format (PDF) files
-xterm                     	# X11 terminal emulator
+X-start-menu-icons  [arch=x86]  # Start menu icons for Cygwin/X programs
+cygwin-x-doc                    # Cygwin/X-specific documentation
+gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
+xinit                           # X.Org X server initializer
+xorg-cf-files                   # X.Org Imake config files
+xorg-docs                       # X.Org documentation
+xorg-scripts                    # Xorg miscellaneous scripts
+xorg-server                     # X.Org X servers
+xpdf                            # An open source viewer for Portable Document Format (PDF) files
+xterm                           # X11 terminal emulator

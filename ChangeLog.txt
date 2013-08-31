@@ -2,6 +2,11 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2013, RW Penney
 
+31Aug13 **** pmcyg-1.1 released ****
+
+27Aug13
+    Amended package-list updating method to support [arch=x86] selectors etc.
+
 17Aug13
     Added facility for architectural selectors within package lists
 

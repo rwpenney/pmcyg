@@ -6,7 +6,7 @@
 <!--
   pmcyg.sourceforge.net project page; written 10th July 2010
   MakefileUUID: @MAKEFILE_UUID@
-  (C) Copyright 2010-2012 RW Penney
+  (C) Copyright 2010-2013 RW Penney
 -->
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>pmcyg.sourceforge.net</title>
@@ -134,7 +134,7 @@ to create a partial mirror of the Cygwin release.
 This avoids having to download many GB of the official Cygwin release,
 e.g. using <a href="http://www.gnu.org/software/wget">wget</a>.
 With pmcyg you can easily create a minimalistic installer
-that can be as small as 20MB.
+that can be as small as 25MB.
 </p>
 
 
@@ -195,11 +195,11 @@ bash
 cygwin-doc
 
 # Development packages
-cppunit
+cppunit		[arch=x86,x86_64]
 gcc
 gcc-g++
 mercurial
-ocaml
+ocaml		[arch=x86]
 
 # Editors
 ed
@@ -208,7 +208,7 @@ nedit
 vim
 
 # X11 Window system
-xcalc
+xcalc		[arch=x86_64]
 xorg-server
 xterm
 </pre>
@@ -241,7 +241,7 @@ and update those packages with newer versions if available from
 your selected download site.
 This allows you to maintain a current version of all
 your favourite Cygwin packages
-and the '<a href="http://cygwin.com/setup.exe">setup.exe</a>' installer,
+and the '<a href="http://cygwin.com/setup-x86.exe">setup.exe</a>' installer,
 which you could keep on a USB memory stick,
 ready for use as an offline installer on any PC without direct internet access.
 </p>
@@ -303,7 +303,7 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 
 <p class="lupdate">
 Last updated @DATE@<br/>
-&copy; Copyright RW Penney, 2010-2012
+&copy; Copyright RW Penney, 2010-2013
 </p>
 
 </body>

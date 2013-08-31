@@ -125,7 +125,7 @@ libgcrypt-devel                 # A general purpose crypto library based on the 
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libjpeg-devel                   # A library for manipulating JPEG image format files (devel)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
-libncurses-devel                # (devel) libraries for terminal handling
+libncurses-devel    [arch=x86]  # (devel) libraries for terminal handling
 libpng-devel                    # PNG library (development)
 libtool                         # A shared library generation tool
 libxerces-c-devel   [arch=x86]  # (devel) A validating XML parser written in a portable subset of C++
@@ -265,7 +265,7 @@ xemacs              [arch=x86]  # A powerful, highly customizable open source te
 ##
 ## Libs
 ##
-CUnit                           # A Unit Testing Framework for C (src only)
+CUnit               [arch=x86]  # A Unit Testing Framework for C (src only)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 expat                           # Expat XML parser library (xmlwf, docs)
 fftw3                           # Fast Fourier transforms C library
@@ -293,7 +293,8 @@ libgmp-devel                    # Library for arbitrary precision arithmetic (de
 libgtk2.0-devel                 # GTK+ X11 GUI toolkit (development)
 libjpeg-devel                   # A library for manipulating JPEG image format files (devel)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
-libncurses-devel                # (devel) libraries for terminal handling
+libncurses-devel    [arch=x86]  # (devel) libraries for terminal handling
+libncursesw-devel               # (devel) libraries for terminal handling (wide character support)
 libpcre-devel                   # Perl Compatible Regular Expressions library development
 libpng-devel                    # PNG library (development)
 libpthread-stubs    [arch=x86]  # Pthread stubs pkg-config metadata
@@ -360,8 +361,8 @@ xcalc                           # X scientific calculator
 ##
 ## Mingw
 ##
-mingw-libgcrypt-devel           # (mingw) A general purpose crypto library based on the code from GnuPG - (development)
-mingw-libgpg-error-devel        # (mingw) A library that defines common error values for GnuPG. (development)
+mingw-libgcrypt-devel       [arch=x86]  # (mingw) A general purpose crypto library based on the code from GnuPG - (development)
+mingw-libgpg-error-devel    [arch=x86]  # (mingw) A library that defines common error values for GnuPG. (development)
 
 
 ##
@@ -432,7 +433,6 @@ python-gi                       # Python GObject Introspection bindings
 #python-gi-devel                 # Python GObject Introspection bindings
 #python-gobject                  # Python GLib/GObject/GIO bindings
 #python-gobject-devel            # Python GLib/GObject/GIO bindings
-#python-gsf                      # Gnome Structured File Library (Python bindings)
 python-gtk2.0                   # Python bindings for GTK+2 and libglade
 python-gtk2.0-demo              # Python bindings for GTK+2 and libglade (demo application)
 python-gtk2.0-devel             # Python bindings for GTK+2 and libglade (development files)

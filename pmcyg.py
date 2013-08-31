@@ -267,6 +267,11 @@ class PMbuilder(object):
         return pkgs
 
 
+    def UpdatePackageLists(self, filenames, bckp=".orig"):
+        self._fillinIniURL()
+        self._pkgProc.UpdatePackageLists(filenames, bckp)
+
+
     def BuildMirror(self, pkgset):
         """Download and configure packages into local directory
 
@@ -277,7 +282,7 @@ class PMbuilder(object):
         self._cancelling = False
         self._fillinIniURL()
 
-        usepackages = []
+        userpackages = []
         if pkgset:
             userpackages = pkgset.extract(arch=self._cygarch)
         packages = self._resolveDependencies(userpackages)
@@ -527,8 +532,10 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         """Rehearse downloading of files from Cygwin mirror"""
 
         for (pkgfile, pkgsize, pkghash) in downloads:
-            print '  %s (%s)' % ( os.path.basename(pkgfile),
-                                self._prettyfsize(pkgsize) )
+            basefile = os.path.basename(pkgfile)
+            fsize = self._prettyfsize(pkgsize)
+            if self._masterList._verbose:
+                print '  %s (%s)' % ( basefile, fsize )
 
     def _doDownloading(self, packages, downloads):
         """Download files from Cygwin mirror to create local partial copy"""
@@ -706,6 +713,9 @@ class PackageSet(object):
           ((?P<pkgname>^[A-Za-z0-9]\S*)
                 \s* (?P<constraints>\[[^\#]*\])?
                 \s* (?P<annot>\# .* $)?)
+        | (^\# (?P<deselected>[A-Za-z0-9]\S*)
+                (?P<misc>\[[^\#]*\])?
+                \s* (?P<desannot>\# .* $))
         | (?P<comment>^\s* (\#.*)? $)
         ''', re.VERBOSE)
     re_constr = re.compile(r'''
@@ -770,12 +780,12 @@ class PackageSet(object):
                 raise SyntaxError, "Package-list parse failure at %s:%d" \
                                         % ( fname, lineno )
 
-            if matches.group('comment'):
-                continue
-            elif matches.group('pkgname'):
+            if matches.group('pkgname'):
                 pkgname = matches.group('pkgname')
                 cnstr = self._parseConstraints(matches.group('constraints'))
                 self._mergeEntry(pkgname, cnstr)
+            elif matches.group('comment'):
+                continue
 
     def _parseConstraints(self, expr):
         """Parse package constraints of the form [arch=x86]"""
@@ -936,9 +946,6 @@ class PkgSetProcessor(object):
 
         pkgdict = self._masterList.GetPackageDict()
 
-        re_pkg = re.compile(r'^(#?)([A-Za-z0-9]\S*)(\s+#+\s+)\S+')
-        # FIXME - generalize to include architectural-constraint fields
-
         for fn in filenames:
             newfn = fn + ".new"
 
@@ -946,14 +953,21 @@ class PkgSetProcessor(object):
             fout = codecs.open(newfn, 'w', SI_TEXT_ENCODING)
             for line in fin:
                 line = line.rstrip()
-                matches = re_pkg.match(line)
-                if matches:
-                    pkgname = matches.group(2)
-                    pkgdesc = pkgdict[pkgname].GetAny('sdesc')
-                    if pkgdesc:
-                        line = '%s%s%s%s' % ( matches.group(1), pkgname,
-                                            matches.group(3),
-                                            ConcatShortDescription(pkgdesc) )
+                matches = PackageSet.re_pkg.match(line)
+                if not matches:
+                    continue
+
+                (pkgname, cutpos) = (None, -1)
+                pkgdesc = None
+                for key, annot in [ ('pkgname', 'annot'), ('deselected', 'desannot') ]:
+                    pkgname = matches.group(key)
+                    cutpos = matches.start(annot)
+                    if pkgname:
+                        pkgdesc = pkgdict[pkgname].GetAny('sdesc')
+                        break
+                if pkgdesc and cutpos > 0:
+                    line = '%s# %s' % ( line[0:cutpos],
+                                        ConcatShortDescription(pkgdesc) )
                 print >>fout, line
             fout.close()
             fin.close()
@@ -2022,7 +2036,7 @@ class GUIfetchThread(threading.Thread):
 
     def download(self):
         builder = self.parent.builder
-        usrpkgs = None
+        pkgset = None
 
         try:
             if self.parent.pkgfiles:

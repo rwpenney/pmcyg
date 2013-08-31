@@ -273,6 +273,32 @@ class testBuilder(unittest.TestCase):
         for pkg in selected:
             self.assertTrue(pkg in pkgs)
 
+    def testDummyDownloads(self):
+        (stdout, stderr) = (sys.stdout, sys.stderr)
+        # FIXME - reorganize PMbuilder output streams to avoid messing with sys.stdout etc.
+        for arch in [ 'x86', 'x86_64' ]:
+            builder = PMbuilder()
+            builder.SetOption('DummyDownload', True)
+            builder._masterList._verbose = False
+            builder.SetArch(arch)
+
+            pkgset = PackageSet([ os.path.join('..', 'example.pkgs') ])
+            for ident, pset, cfg in [ ( 'basic', None, None ),
+                                      ( 'custom', pkgset, None ),
+                                      ( 'global', None, 'AllPackages' ),
+                                      ( 'source', None, 'IncludeSources' ) ]:
+
+                if cfg:
+                    builder.SetOption(cfg, True)
+                sys.stdout = sys.stderr = StringIO.StringIO()
+                try:
+                    builder.BuildMirror(pset)
+                    (sys.stdout, sys.stderr) = (stdout, stderr)
+                except Exception, ex:
+                    (sys.stdout, sys.stderr) = (stdout, stderr)
+                    self.fail('Build failed (%s/%s) - %s' \
+                                % ( arch, ident, str(ex)))
+
     def testTemplate(self):
         topdir = tempfile.mkdtemp()
         try:
@@ -321,6 +347,8 @@ class testBuilder(unittest.TestCase):
         fp.close()
 
         return counts
+
+    # FIXME - add test for fallback mirror-site list
 
 
 
@@ -417,6 +445,21 @@ class testPackageSets(unittest.TestCase):
 
         pkgs = pkgset.extract(arch='amd64')
         self.assertEqual(pkgs, ['dash', 'sh', 'tcsh'])
+
+    def testCommenting(self):
+        lines = [   'bash',
+                    '#dash',
+                    '# an ordinary comment',
+                    'sh     [arch=x86]  # basic shell'
+                    '#tcsh      # enhanced C-shell'
+                    '#zsh   [arch=x86_64]   # zed shell' ]
+
+        pkgset = PackageSet()
+        pkgset._ingestStream(StringIO.StringIO('\n'.join(lines)))
+        self.assertEqual(len(pkgset), 2)
+
+        pkgs = pkgset.extract()
+        self.assertEqual(pkgs, ['bash', 'sh'])
 
 
 

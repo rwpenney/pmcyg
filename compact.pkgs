@@ -8,129 +8,129 @@
 ##
 ## Archive
 ##
-cabextract                	# Extract Microsoft cabinet (.CAB) files
-p7zip                     	# A file archiver with very high compression ratios.
-sharutils                 	# The GNU shar utilities including uuencode/uudecode.
-unzip                     	# Info-ZIP decompression utility
-xz                        	# XZ and LZMA compression (utilities)
-zip                       	# Info-ZIP compression utility
+cabextract                      # Extract Microsoft cabinet (.CAB) files
+p7zip               [arch=x86]  # A file archiver with very high compression ratios.
+sharutils                       # The GNU shar utilities including uuencode/uudecode.
+unzip                           # Info-ZIP decompression utility
+xz                              # XZ and LZMA compression (utilities)
+zip                             # Info-ZIP compression utility
 
 
 ##
 ## Audio
 ##
-sox                       	# Sound processing toolkit
+sox                             # Sound processing toolkit
 
 
 ##
 ## Database
 ##
-sqlite3                   	# Client program for accessing SQLite 3 databases, plus docs
+sqlite3                         # Client program for accessing SQLite 3 databases, plus docs
 
 
 ##
 ## Devel
 ##
-ctags                     	# A C programming language indexing and/or cross-reference tool
-gcc-core                  	# GNU Compiler Collection (C, OpenMP)
-make                      	# The GNU version of the 'make' utility
-mercurial                 	# Python based distributed version control system (DVCS)
-patch                     	# Applies diff files
-patchutils                	# A small collection of programs that operate on patch files
-rcs                       	# The Revision Control System
+ctags                           # A C programming language indexing and/or cross-reference tool
+gcc-core                        # GNU Compiler Collection (C, OpenMP)
+make                            # The GNU version of the 'make' utility
+mercurial                       # Python based distributed version control system (DVCS)
+patch                           # Applies diff files
+patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+rcs                             # The Revision Control System
 
 
 ##
 ## Doc
 ##
-cygwin-doc                	# Cygwin-specific documentation, including man pages and User's Guide
-man                       	# Man, apropos and whatis commands
+cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
+man                             # Man, apropos and whatis commands
 
 
 ##
 ## Editors
 ##
-bvi                       	# Binary vi-like editor
-ed                        	# The GNU version of the original UNIX line editor
-hexedit                   	# Hexidecimal file viewer and editor
-joe                       	# Fast and simple editor which emulates 5 other editors
-vim                       	# Vi IMproved - enhanced vi editor
+bvi                 [arch=x86]  # Binary vi-like editor
+ed                              # The GNU version of the original UNIX line editor
+hexedit                         # Hexidecimal file viewer and editor
+joe                 [arch=x86]  # Fast and simple editor which emulates 5 other editors
+vim                             # Vi IMproved - enhanced vi editor
 
 
 ##
 ## Interpreters
 ##
-gawk                      	# GNU awk, a pattern scanning and processing language
-m4                        	# GNU implementation of the traditional Unix macro processor.
-perl                      	# Larry Wall's Practical Extracting and Report Language
-python                    	# Python language interpreter
+gawk                            # GNU awk, a pattern scanning and processing language
+m4                              # GNU implementation of the traditional Unix macro processor.
+perl                            # Larry Wall's Practical Extracting and Report Language
+python                          # Python language interpreter
 
 
 ##
 ## Math
 ##
-bc                        	# The GNU numeric processing language and reverse polish calculator
+bc                              # The GNU numeric processing language and reverse polish calculator
 
 
 ##
 ## Net
 ##
-curl                      	# Multi-protocol file transfer tool
-inetutils                 	# Common networking clients and servers
-openssh                   	# The OpenSSH server and client programs
-openssl                   	# The OpenSSL base environment
-ping                      	# A basic network tool to test IP network conectivity
-rsh                       	# Clients for remote access commands (rsh, rlogin, rcp, rexec)
-tftp                      	# Extended version of the BSD TFTP (client)
+curl                            # Multi-protocol file transfer tool
+inetutils           [arch=x86]  # Common networking clients and servers
+openssh                         # The OpenSSH server and client programs
+openssl                         # The OpenSSL base environment
+ping                [arch=x86]  # A basic network tool to test IP network conectivity
+rsh                             # Clients for remote access commands (rsh, rlogin, rcp, rexec)
+tftp                            # Extended version of the BSD TFTP (client)
 
 
 ##
 ## Python
 ##
-mercurial                 	# Python based distributed version control system (DVCS)
-python                    	# Python language interpreter
+mercurial                       # Python based distributed version control system (DVCS)
+python                          # Python language interpreter
 
 
 ##
 ## Shells
 ##
-bash                      	# The GNU Bourne Again SHell
-tcsh                      	# TENEX C Shell, an enhanced version of Berkeley csh
+bash                            # The GNU Bourne Again SHell
+tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
 
 
 ##
 ## System
 ##
-e2fsprogs                 	# Ext2/3/4 filesystem utilities
-ping                      	# A basic network tool to test IP network conectivity
-procps                    	# Utilities for monitoring your system and processes on your system.
-psmisc                    	# Utilities for managing processes on your system
-util-linux                	# Random collection of Linux utilities
+e2fsprogs                       # Ext2/3/4 filesystem utilities
+ping                [arch=x86]  # A basic network tool to test IP network conectivity
+procps              [arch=x86]  # Utilities for monitoring your system and processes on your system.
+psmisc                          # Utilities for managing processes on your system
+util-linux                      # Random collection of Linux utilities
 
 
 ##
 ## Text
 ##
-antiword                  	# A free MS Word reader
-flip                      	# Convert text file line endings between Unix and DOS formats
-less                      	# A file pager program, similar to more(1)
-patchutils                	# A small collection of programs that operate on patch files
-source-highlight          	# Syntax highlighting utilities
-util-linux                	# Random collection of Linux utilities
+antiword            [arch=x86]  # A free MS Word reader
+flip                [arch=x86]  # Convert text file line endings between Unix and DOS formats
+less                            # A file pager program, similar to more(1)
+patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+source-highlight                # Syntax highlighting utilities
+util-linux                      # Random collection of Linux utilities
 
 
 ##
 ## Utils
 ##
-bc                        	# The GNU numeric processing language and reverse polish calculator
-bzip2                     	# A high-quality block-sorting file compressor (utilities)
-cpio                      	# A backup and archiving utility
-cygutils-extra            	# A collection of simple utilities (other tools)
-diffutils                 	# A GNU collection of diff utilities
-file                      	# Determines file type using 'magic' numbers
-genisoimage               	# Create ISO9660/Joliet/HFS filesystem images
-patchutils                	# A small collection of programs that operate on patch files
-screen                    	# Run separate screens on a single terminal
-time                      	# The GNU time command
-util-linux                	# Random collection of Linux utilities
-which                     	# Prints out full path of executables
+bc                              # The GNU numeric processing language and reverse polish calculator
+bzip2                           # A high-quality block-sorting file compressor (utilities)
+cpio                            # A backup and archiving utility
+cygutils-extra                  # A collection of simple utilities (other tools)
+diffutils                       # A GNU collection of diff utilities
+file                            # Determines file type using 'magic' numbers
+genisoimage                     # Create ISO/Joliet/HFS filesystem images (part of cdrkit)
+patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+screen                          # Run separate screens on a single terminal
+time                [arch=x86]  # The GNU time command
+util-linux                      # Random collection of Linux utilities
+which                           # Prints out full path of executables
