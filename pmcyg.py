@@ -16,11 +16,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '1.1'
+PMCYG_VERSION = '1.2'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
 DEFAULT_CYGWIN_MIRROR = 'http://ftp.heanet.ie/pub/cygwin'
+CYGWIN_MIRROR_LIST_URL = 'http://cygwin.com/mirrors.lst'
 
 # Character encoding used by the setup.ini file.
 # This should probably by 'ascii', but occasional unicode characters
@@ -133,9 +134,6 @@ class PMbuilder(object):
         # Set of package age descriptors:
         self._epochs = ['curr']
 
-        # URL of official list of Cygwin mirrors:
-        self._mirrorlisturl = 'http://cygwin.com/mirrors.lst'
-
         self._masterList = MasterPackageList(verbose=True)
         self._pkgProc = PkgSetProcessor(self._masterList)
         self._garbage = GarbageCollector()
@@ -223,10 +221,10 @@ class PMbuilder(object):
         self._mirrordict = {}
 
         try:
-            fp = URLopen(self._mirrorlisturl)
+            fp = URLopen(CYGWIN_MIRROR_LIST_URL)
         except:
             print >>sys.stderr, 'Failed to read list of Cygwin mirrors' \
-                                ' from %s' % self._mirrorlisturl
+                                ' from %s' % CYGWIN_MIRROR_LIST_URL
             fp = self._makeFallbackMirrorList()
 
         for line in fp:
@@ -338,18 +336,19 @@ class PMbuilder(object):
         self._pkgProc.MakeTemplate(fp, pkgset, terse=cygwinReplica)
         fp.close()
 
-    def _makeFallbackMirrorList(self):
+    @staticmethod
+    def _makeFallbackMirrorList():
         """Supply a static list of official Cygwin mirror sites,
         as a fall-back in case the live listing of mirrors cannot
         be downloaded."""
         return StringIO.StringIO("""
-ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
-http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australia;Australia
+ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
+http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
 ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
 http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
 ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
-ftp://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
-http://ftp.iitm.ac.in/cygwin/;ftp.iitm.ac.in;Asia;India
+ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
+http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 ftp://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
 http://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
 ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK

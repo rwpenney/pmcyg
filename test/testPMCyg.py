@@ -507,6 +507,53 @@ class testPackageLists(unittest.TestCase):
 
 
 
+class testMirrorLists(unittest.TestCase):
+    def testHasFallback(self):
+        fp = PMbuilder._makeFallbackMirrorList()
+        (regionDict, urlDict) = self.mkSets(fp)
+        fp.close()
+        self.assertTrue(len(regionDict) > 3)
+        self.assertTrue(len(urlDict) > 4)
+        self.assertTrue(('Asia', 'Japan') in regionDict)
+        self.assertTrue(('Europe', 'UK') in regionDict)
+
+    def testValidFallback(self):
+        fp0 = PMbuilder._makeFallbackMirrorList()
+        (fb_regions, fb_urls) = self.mkSets(fp0)
+        fp0.close()
+        fp1 = URLopen(CYGWIN_MIRROR_LIST_URL)
+        (cyg_regions, cyg_urls) = self.mkSets(fp1)
+        fp1.close()
+
+        self.assertTrue(len(cyg_regions) > 8)
+        self.assertTrue(len(cyg_urls) > 12)
+
+        for reg in fb_regions:
+            if not reg in cyg_regions:
+                self.fail('Mirror region %s/%s does not appear'
+                          ' in official list' % reg)
+        for url in fb_urls:
+            if not url in cyg_urls:
+                self.fail('Mirror %s does not appear in official list'
+                          % url)
+
+    def mkSets(self, fp):
+        regionDict = {}
+        urlDict = {}
+
+        for line in fp:
+            try:
+                entry = line.decode('ascii', 'ignore').strip().split(';')
+                (url, ident, region, country) = entry
+            except:
+                continue
+            regionDict.setdefault((region, country), []).append((url, ident))
+            urlDict[url] = (ident, region, country)
+
+        return (regionDict, urlDict)
+
+
+
 class testGarbageCollector(unittest.TestCase):
     def testAbsentTopdir(self):
         topdir = tempfile.mkdtemp()

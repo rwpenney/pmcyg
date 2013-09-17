@@ -29,7 +29,6 @@ zoo                 [arch=x86]  # Manipulate zoo archives
 ##
 ## Audio
 ##
-audiofile                       # Digital audio file utilities
 libaudiofile-devel              # Digital audio file library
 sox                             # Sound processing toolkit
 vorbis-tools                    # Several Ogg Vorbis Tools
@@ -94,8 +93,7 @@ cvsps                           # Generates patchset information from a CVS repo
 cvsutils                        # CVS client utilities for offline work.
 cygport                         # Cygwin source packaging tool
 ddd                             # Ddd
-distcc              [arch=x86]  # A fast, free, distributed C/C++ compiler
-doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavors) and to some extent PHP, C#, and D.
+doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavours) and to some extent PHP, C#, and D.
 flex                            # A fast lexical analyzer generator
 gcc                             # GNU Compiler Collection
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
@@ -516,7 +514,6 @@ groff                           # GNU troff text-formatting system
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 less                            # A file pager program, similar to more(1)
 patchutils          [arch=x86]  # A small collection of programs that operate on patch files
-pcre                            # Perl Compatible Regular Expressions utilities
 source-highlight                # Syntax highlighting utilities
 texi2html                       # A highly customizable texinfo to HTML and other formats translator
 texinfo                         # Documentation system for on-line information and printed output
