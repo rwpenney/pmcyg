@@ -95,7 +95,7 @@ cygport                         # Cygwin source packaging tool
 ddd                             # Ddd
 doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavours) and to some extent PHP, C#, and D.
 flex                            # A fast lexical analyzer generator
-gcc                             # GNU Compiler Collection
+gcc                 [arch=x86]  # GNU Compiler Collection
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
 gcc-fortran                     # GNU Compiler Collection (Fortran)
 gcc-g++                         # GNU Compiler Collection (C++)
@@ -117,7 +117,7 @@ guilt                           # Quilt for git; similar to Mercurial queues
 help2man                        # Creates man pages from program output
 idle                            # Python Tkinter-based IDE
 imake                           # X Imake legacy build system
-indent              [arch=x86]  # C/C++ language source code formatting program
+indent                          # C/C++ language source code formatting program
 intltool                        # GNOME XML internalization scripts
 libgcrypt-devel                 # A general purpose crypto library based on the code from GnuPG - (development)
 libglut-devel                   # OpenGL Utility Toolkit library (development)
@@ -142,8 +142,8 @@ pkg-config                      # A utility used to retrieve information about i
 postgresql-devel                # Development files for PostgreSQL server-side programming
 quilt                           # Tool to work with series of patches
 rcs                             # The Revision Control System
-readline                        # GNU readline and history libraries
-splint              [arch=x86]  # Check C programs for security vulnerabilities and programming mistakes.
+readline            [arch=x86]  # GNU readline and history libraries
+splint                          # Check C programs for security vulnerabilities and programming mistakes.
 stgit                           # Quilt functionality on top of git
 subversion                      # A version control system
 subversion-devel                # A version control system (C headers and import libraries)
@@ -173,11 +173,11 @@ xpdf                            # An open source viewer for Portable Document Fo
 ##
 ## Editors
 ##
-bvi                 [arch=x86]  # Binary vi-like editor
+bvi                             # Binary vi-like editor
 ed                              # The GNU version of the original UNIX line editor
 gvim                            # GUI for the Vim text editor
 hexedit                         # Hexidecimal file viewer and editor
-joe                 [arch=x86]  # Fast and simple editor which emulates 5 other editors
+joe                             # Fast and simple editor which emulates 5 other editors
 nano                            # Enhanced clone of Pico editor
 nedit                           # Motif multi-purpose text editor
 vim                             # Vi IMproved - enhanced vi editor
@@ -198,7 +198,7 @@ intltool                        # GNOME XML internalization scripts
 ##
 ctris               [arch=x86]  # Console mode tetris clone
 fortune             [arch=x86]  # Print a random, perhaps interesting, adage; may contain offsensive material
-ninvaders           [arch=x86]  # A space invaders-like game using ncurses.
+ninvaders                       # A space invaders-like game using ncurses.
 sudoku              [arch=x86]  # Console based sudoku
 
 
@@ -210,7 +210,7 @@ sudoku              [arch=x86]  # Console based sudoku
 GraphicsMagick                  # GraphicsMagick is the swiss army knife of image processing
 ImageMagick                     # Image manipulation software suite (utilities)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
-epstool             [arch=x86]  # Edit preview images and fix bounding boxes in EPS files
+epstool                         # Edit preview images and fix bounding boxes in EPS files
 exif                            # Command-line EXIF metadata parser
 ghostscript                     # GPL PostScript interpreter (utilities)
 ghostscript-fonts-other         # Miscellaneous fonts derived from the free Hershey fonts, with improvements for ghostscript
@@ -221,7 +221,7 @@ gv                              # A PostScript and PDF viewer for X using 3d Ath
 hp2xx                           # A HP-GL Converter
 jasper                          # JPEG 2000 library - (utilities)
 jbigkit                         # The JBIG lossless image compression library
-jgraph              [arch=x86]  # A Filter for Plotting Graphs in Postscript
+jgraph                          # A Filter for Plotting Graphs in Postscript
 jpeg                            # A library for manipulating JPEG image format files
 lcms                            # Little color management engine (utilities)
 #libGraphicsMagick-devel         # GraphicsMagick library (runtime)
@@ -236,7 +236,7 @@ perl-Graphics-Magick            # GraphicsMagick Perl bind (PerlMagick)
 perl-Image-Magick               # Image manipulation software suite (Perl bindings)
 ploticus            [arch=x86]  # Command-line plot and graph generator
 plotutils                       # 2-D scientific data plotting utilities
-potrace             [arch=x86]  # Utility to transform bitmaps into vector graphics
+potrace                         # Utility to transform bitmaps into vector graphics
 python-imaging                  # Python Imaging Library
 python-lcms                     # Little color management engine (Python bindings)
 sxpm                            # X.Org X Pixmap utilities
@@ -263,7 +263,7 @@ xemacs              [arch=x86]  # A powerful, highly customizable open source te
 ##
 ## Libs
 ##
-CUnit               [arch=x86]  # A Unit Testing Framework for C (src only)
+CUnit                           # A Unit Testing Framework for C (src only)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 expat                           # Expat XML parser library (xmlwf, docs)
 fftw3                           # Fast Fourier transforms C library
@@ -311,7 +311,7 @@ popt                            # Library for parsing cmdline parameters - docs 
 python-crypto                   # Cryptographic algorithms and protocols for Python
 python-feedparser               # Universal Feed Parser for Python
 python-paramiko                 # Python library for SSH2 connections
-readline                        # GNU readline and history libraries
+readline            [arch=x86]  # GNU readline and history libraries
 subversion-perl                 # A version control system (perl bindings)
 subversion-python               # A version control system (python bindings)
 subversion-ruby                 # A version control system (ruby bindings)
@@ -326,8 +326,8 @@ zlib0                           # Zlib de/compression library (runtime)
 ##
 fetchmail                       # Remote mail retrieval and forwarding utility
 grepmail                        # Search mailboxes for mail matching an expression
-msmtp               [arch=x86]  # Light SMTP client with support for server profiles
-mutt                [arch=x86]  # A text mode mail user agent (MUA).
+msmtp                           # Light SMTP client with support for server profiles
+mutt                            # A text mode mail user agent (MUA).
 procmail                        # Mail processing program
 spambayes                       # Python-based spam filter using statistical analysis
 ssmtp               [arch=x86]  # A minimal mail-transfer agent which forwards mail to an SMTP server
@@ -384,7 +384,7 @@ pure-ftpd           [arch=x86]  # Secure production-quality standard-conformant 
 rsync                           # Fast remote file transfer program (can use existing data to minimize transfer)
 stunnel                         # Universal SSL Wrapper
 urlgrabber                      # Python based URL grabber
-whois               [arch=x86]  # GNU Whois
+whois                           # GNU Whois
 xinetd              [arch=x86]  # The eXtended InterNET Daemon
 
 
@@ -408,7 +408,7 @@ perl-libwin32       [arch=x86]  # Perl extensions for using the Win32 API
 ##
 ## Publishing
 ##
-jgraph              [arch=x86]  # A Filter for Plotting Graphs in Postscript
+jgraph                          # A Filter for Plotting Graphs in Postscript
 pdftk               [arch=x86]  # PDF manipulation without Acrobat.
 texlive-collection-basic        # TeX Live basic package collection
 texlive-collection-latex        # TeX Live latex package collection
@@ -459,9 +459,9 @@ ruby                            # Interpreted object-oriented scripting language
 ##
 ## Security
 ##
-bcrypt              [arch=x86]  # Cross platform file encryption utility using blowfish
+bcrypt                          # Cross platform file encryption utility using blowfish
 flawfinder                      # Examine source code and look for security weaknesses
-pwgen               [arch=x86]  # Automatic Password generation
+pwgen                           # Automatic Password generation
 
 
 ##
@@ -486,7 +486,7 @@ e2fsprogs                       # Ext2/3/4 filesystem utilities
 initscripts                     # System V Init Clone initscripts
 libext2fs-devel                 # Ext2fs library (development)
 ping                [arch=x86]  # A basic network tool to test IP network conectivity
-procps              [arch=x86]  # Utilities for monitoring your system and processes on your system.
+procps                          # Utilities for monitoring your system and processes on your system.
 psmisc                          # Utilities for managing processes on your system
 sysvinit                        # A System-V Init Clone
 util-linux                      # Random collection of Linux utilities
@@ -509,7 +509,7 @@ aspell                          # A spell checker designed to eventually replace
 aspell-en                       # Aspell en dictionary
 catdoc              [arch=x86]  # Dump Word, Excel and Powerpoint files contents
 enscript                        # A free replacement for the Adobe's enscript program
-flip                [arch=x86]  # Convert text file line endings between Unix and DOS formats
+flip                            # Convert text file line endings between Unix and DOS formats
 groff                           # GNU troff text-formatting system
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 less                            # A file pager program, similar to more(1)
@@ -517,7 +517,7 @@ patchutils          [arch=x86]  # A small collection of programs that operate on
 source-highlight                # Syntax highlighting utilities
 texi2html                       # A highly customizable texinfo to HTML and other formats translator
 texinfo                         # Documentation system for on-line information and printed output
-untex               [arch=x86]  # Remove LaTeX commands from input
+untex                           # Remove LaTeX commands from input
 util-linux                      # Random collection of Linux utilities
 w3m                             # Text-based web browser and pager
 
@@ -531,7 +531,7 @@ cdrecord                        # Command line CD/DVD writing tool (symlink to w
 colordiff                       # A tool to colorize diff output
 cpio                            # A backup and archiving utility
 cygutils-extra                  # A collection of simple utilities (other tools)
-deroff              [arch=x86]  # Remove roff and preprocessor constructs
+deroff                          # Remove roff and preprocessor constructs
 diffutils                       # A GNU collection of diff utilities
 file                            # Determines file type using 'magic' numbers
 gdbm                            # GNU dbm database routines (utilities)
@@ -542,7 +542,7 @@ hdf5                            # HDF5 Hierarchical Data Format
 keychain                        # Key manager for OpenSSH
 lndir                           # X.Org recursive directory symlink tool
 mkisofs                         # Create ISO/Joliet/HFS filesystem images (symlink to genisoimage)
-mmv                 [arch=x86]  # Move, copy, append and link multiple files with wild cards
+mmv                             # Move, copy, append and link multiple files with wild cards
 ncurses                         # Utilities for terminal handling
 ncurses-demo        [arch=x86]  # Demonstration programs for ncurses
 patcher                         # Perl script To manage patches
@@ -553,10 +553,10 @@ rpm-doc             [arch=x86]  # RPM package management system manual pages
 run2                            # An enhanced version of the 'run' application launcher
 screen                          # Run separate screens on a single terminal
 stow                            # Manage local software installations
-time                [arch=x86]  # The GNU time command
+time                            # The GNU time command
 units                           # Converts between different systems of units
 util-linux                      # Random collection of Linux utilities
-wdiff               [arch=x86]  # Compare two files word by word
+wdiff                           # Compare two files word by word
 which                           # Prints out full path of executables
 wodim                           # Command line CD/DVD writing tool (part of cdrkit)
 xdelta              [arch=x86]  # Computes changes between binary files.
@@ -567,10 +567,10 @@ xdelta              [arch=x86]  # Computes changes between binary files.
 ##
 #apache2                         # Apache HTTP Server
 curl                            # Multi-protocol file transfer tool
-dhttpd              [arch=x86]  # Minimal secure webserver without cgi-bin support
-links               [arch=x86]  # Text mode WWW browser
+dhttpd                          # Minimal secure webserver without cgi-bin support
+links                           # Text mode WWW browser
 lynx                            # Text-based Web browser
-micro-httpd         [arch=x86]  # Extremely small Unix-based HTTP server
+micro-httpd                     # Extremely small Unix-based HTTP server
 w3m                             # Text-based web browser and pager
 wget                            # Utility to retrieve files from the WWW via HTTP and FTP
 

@@ -73,7 +73,7 @@ class testSetupIniFetcher(unittest.TestCase):
 
 
 class testMasterPackageList(unittest.TestCase):
-    pkglist = MasterPackageList()
+    pkglist = MasterPackageList(Viewer=SilentBuildViewer())
 
     def setUp(self):
         iniurl = getSetupURL()
@@ -86,7 +86,7 @@ class testMasterPackageList(unittest.TestCase):
         pass
 
     def testBadURL(self):
-        sublist = MasterPackageList()
+        sublist = MasterPackageList(Viewer=SilentBuildViewer())
         try:
             sublist.SetSourceURL('http://nowhere/badurl.txt')
             (hdr, pkgs) = sublistGetHeaderAndPackages()
@@ -188,7 +188,7 @@ class testMasterPackageList(unittest.TestCase):
 
 class testPkgSetProcessor(unittest.TestCase):
     def setUp(self):
-        self.masterList = MasterPackageList()
+        self.masterList = MasterPackageList(Viewer=SilentBuildViewer())
         self.masterList.SetSourceURL(getSetupURL())
 
     def testExpand(self):
@@ -233,9 +233,8 @@ class testPkgSetProcessor(unittest.TestCase):
 
 class testBuilder(unittest.TestCase):
     def setUp(self):
-        self.builder = PMbuilder()
+        self.builder = PMbuilder(Viewer=SilentBuildViewer())
         self.builder.SetIniURL(getSetupURL())
-        self.builder._masterList._verbose = False
         self.builder.SetTargetDir(tempfile.mkdtemp())
         self.makeTemplate = self.builder._pkgProc.MakeTemplate
 
@@ -246,7 +245,7 @@ class testBuilder(unittest.TestCase):
         """Check construction of setup.ini & setup.bz2 files"""
         tgtdir = self.builder.GetTargetDir()
         selected = ['bash', 'cmake', 'octave']
-        self.builder._buildSetupFiles(selected, verbose=False)
+        self.builder._buildSetupFiles(selected)
 
         arch = self.builder.GetArch()
         f_ini = os.path.join(tgtdir, arch, 'setup.ini')
@@ -274,12 +273,9 @@ class testBuilder(unittest.TestCase):
             self.assertTrue(pkg in pkgs)
 
     def testDummyDownloads(self):
-        (stdout, stderr) = (sys.stdout, sys.stderr)
-        # FIXME - reorganize PMbuilder output streams to avoid messing with sys.stdout etc.
         for arch in [ 'x86', 'x86_64' ]:
-            builder = PMbuilder()
+            builder = PMbuilder(Viewer=SilentBuildViewer())
             builder.SetOption('DummyDownload', True)
-            builder._masterList._verbose = False
             builder.SetArch(arch)
 
             pkgset = PackageSet([ os.path.join('..', 'example.pkgs') ])
@@ -290,12 +286,10 @@ class testBuilder(unittest.TestCase):
 
                 if cfg:
                     builder.SetOption(cfg, True)
-                sys.stdout = sys.stderr = StringIO.StringIO()
                 try:
                     builder.BuildMirror(pset)
-                    (sys.stdout, sys.stderr) = (stdout, stderr)
+                    conf = GarbageConfirmer(builder.GetGarbage(), 'no')
                 except Exception, ex:
-                    (sys.stdout, sys.stderr) = (stdout, stderr)
                     self.fail('Build failed (%s/%s) - %s' \
                                 % ( arch, ident, str(ex)))
 
@@ -480,9 +474,8 @@ class testPackageLists(unittest.TestCase):
             url = urlparse.urljoin(self._urlprefix, cfg)
             tmpdir = tempfile.mkdtemp()
 
-            builder = PMbuilder()
+            builder = PMbuilder(Viewer=SilentBuildViewer())
             builder.SetIniURL(url)
-            builder._masterList._verbose = False
             builder.SetTargetDir(tmpdir)
 
             builder._optiondict['AllPackages'] = True
@@ -494,7 +487,7 @@ class testPackageLists(unittest.TestCase):
             f_tplt = os.path.join(tmpdir, 'tplt.txt')
 
             self.assertFalse(os.path.isfile(f_ini))
-            builder._buildSetupFiles(pkglist, verbose=False)
+            builder._buildSetupFiles(pkglist)
             self.assertTrue(os.path.isfile(f_ini))
 
             self.assertFalse(os.path.isfile(f_tplt))

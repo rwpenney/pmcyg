@@ -71,6 +71,96 @@ class PMCygException(Exception):
         Exception.__init__(self, *args)
 
 
+class BuildViewer(object):
+    """Conduit for status messages from PMbuilder and related classes,
+    roughly corresponding to the Observer pattern."""
+    SEV_mask =      0x0f        # Severity levels
+    SEV_GOOD =      0x00          # Particularly good news
+    SEV_NORMAL =    0x01          # Ordinary news
+    SEV_WARNING =   0x02          # Significant news
+    SEV_ERROR =     0x03          # Disastrous news
+
+    VRB_mask =      0xf0        # Verbosity levels
+    VRB_LOW =       0x00          # Essential messages
+    VRB_MEDIUM =    0x10          # Informative messages
+    VRB_HIGH =      0x20          # Debugging messages
+
+    def __init__(self, verbosity=VRB_MEDIUM):
+        self._operation = None
+        self._verbThresh = verbosity
+
+    def __call__(self, text, ctrl=SEV_NORMAL | VRB_MEDIUM):
+        self.message(text, ctrl)
+
+    def message(self, text, ctrl=SEV_NORMAL | VRB_MEDIUM):
+        if self._operation:
+            self._emit('  >>>\n', self._operation[1])
+        self._emit('%s\n' % text, ctrl)
+        if self._operation:
+            self._emit('  >>> %s...' % self._operation[0],
+                       self._operation[1])
+
+    def startOperation(self, text, ctrl=VRB_MEDIUM):
+        self._operation = (text, ((ctrl & self.VRB_mask) | self.SEV_NORMAL))
+        self._emit('%s...' % text, self.SEV_NORMAL)
+
+    def endOperation(self, text, ctrl=SEV_NORMAL):
+        if not self._operation:
+            return
+        opVerbosity = (self._operation[1] & self.VRB_mask)
+        self._emit(' %s\n' % text, ((ctrl & self.SEV_mask) | opVerbosity))
+        self._operation = None
+
+    def flushOperation(self):
+        if not self._operation:
+            return
+        self._emit('\n', (self._operation[1] & self.VRB_mask))
+        self._operation = None
+
+    def _emit(self, text, ctrl):
+        if (ctrl & self.VRB_mask) > self._verbThresh:
+            return
+        self._output(text, (ctrl & self.SEV_mask))
+
+    def _output(self, text, severity): pass
+
+
+class SilentBuildViewer(BuildViewer):
+    def __init__(self):
+        BuildViewer.__init__(self)
+
+    def _output(self, text, severity): pass
+
+
+class ConsoleBuildViewer(BuildViewer):
+    """Status-message observer using stdout/stderr."""
+    def __init__(self):
+        BuildViewer.__init__(self)
+
+    def _output(self, text, severity):
+        stream = sys.stdout
+        if severity > self.SEV_NORMAL:
+            stream = sys.stderr
+
+        stream.write(text)
+        stream.flush()
+
+
+
+class BuildReporter(object):
+    """Mixin class for hosting a BuildViewer object."""
+    def __init__(self, Viewer=None, Peer=None):
+        self._statview = None
+        if isinstance(Peer, BuildReporter) and not Viewer:
+            Viewer = Peer._statview
+        BuildReporter.SetViewer(self, Viewer)
+
+    def SetViewer(self, Viewer):
+        if not Viewer:
+            Viewer = ConsoleBuildViewer()
+        self._statview = Viewer
+
+
 
 class SetupIniFetcher(object):
     """Facade for fetching setup.ini from URL,
@@ -104,7 +194,7 @@ class SetupIniFetcher(object):
 
 
 
-class PMbuilder(object):
+class PMbuilder(BuildReporter):
     """Utility class for constructing partial mirror
     of Cygwin(TM) distribution"""
     DL_Success =        1
@@ -115,7 +205,11 @@ class PMbuilder(object):
 
     def __init__(self, BuildDirectory='.',
                 MirrorSite=DEFAULT_CYGWIN_MIRROR,
-                CygwinInstaller=DEFAULT_INSTALLER_URL, **kwargs):
+                CygwinInstaller=DEFAULT_INSTALLER_URL,
+                Viewer=None, **kwargs):
+
+        BuildReporter.__init__(self, Viewer)
+
         # Directory into which to assemble local mirror:
         self._tgtdir = BuildDirectory
 
@@ -134,9 +228,9 @@ class PMbuilder(object):
         # Set of package age descriptors:
         self._epochs = ['curr']
 
-        self._masterList = MasterPackageList(verbose=True)
+        self._masterList = MasterPackageList(Viewer=Viewer)
         self._pkgProc = PkgSetProcessor(self._masterList)
-        self._garbage = GarbageCollector()
+        self._garbage = GarbageCollector(Viewer=Viewer)
         self._cancelling = False
         self._mirrordict = None
         self._optiondict = {
@@ -153,6 +247,12 @@ class PMbuilder(object):
         self._cygcheck_list = []
         for (opt, val) in kwargs.iteritems():
             self.SetOption(opt, val)
+
+    def SetViewer(self, Viewer):
+        BuildReporter.SetViewer(self, Viewer)
+        self._masterList.SetViewer(self._statview)
+        self._pkgProc.SetViewer(self._statview)
+        self._garbage.SetViewer(self._statview)
 
     def GetTargetDir(self):
         return self._tgtdir
@@ -223,8 +323,9 @@ class PMbuilder(object):
         try:
             fp = URLopen(CYGWIN_MIRROR_LIST_URL)
         except:
-            print >>sys.stderr, 'Failed to read list of Cygwin mirrors' \
-                                ' from %s' % CYGWIN_MIRROR_LIST_URL
+            self._statview('Failed to read list of Cygwin mirrors' \
+                           ' from %s' % CYGWIN_MIRROR_LIST_URL,
+                           BuildViewer.SEV_WARNING)
             fp = self._makeFallbackMirrorList()
 
         for line in fp:
@@ -260,7 +361,8 @@ class PMbuilder(object):
                     pkgs.append(line.split()[0])
             proc.wait()
         except Exception, ex:
-            print >>sys.stderr, 'Listing installed packages failed - ', str(ex)
+            self._statview('Listing installed packages failed - ', str(ex),
+                           BuildViewer.SEV_ERROR)
         self._cygcheck_list = pkgs
         return pkgs
 
@@ -288,7 +390,7 @@ class PMbuilder(object):
 
         self._fetchStats = FetchStats(downloads)
         sizestr = self._prettyfsize(self._fetchStats.TotalSize())
-        print 'Download size: %s from %s' % ( sizestr, self._mirror)
+        self._statview('Download size: %s from %s' % ( sizestr, self._mirror))
 
         archdir = self._getArchDir()
         self._garbage.IndexCurrentFiles(archdir, mindepth=1)
@@ -305,13 +407,14 @@ class PMbuilder(object):
                 '-V', 'Cygwin(pmcyg)-%s' % time.strftime('%d%b%y'),
                 '-r', '-J', self._tgtdir ]
 
-        print 'Generating ISO image in %s...' % ( isoname ),
+        self._statview.startOperation('Generating ISO image in %s' % isoname)
         sys.stdout.flush()
         retcode = subprocess.call(argv, shell=False)
         if not retcode:
-            print ' done'
+            self._statview.endOperation('done')
         else:
-            print ' FAILED (errno=%d)' % retcode
+            self._statview.endOperation('FAILED (errno=%d)' % retcode,
+                                        BuildViewer.SEV_ERROR)
 
     def GetGarbage(self):
         if self._optiondict['DummyDownload']:
@@ -440,13 +543,15 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
                 except:
-                    print >>sys.stderr, 'Cannot find package filename for %s' \
-                                ' in variant \'%s:%s\'' % (pkg, ptype, epoch)
+                    self._statview('Cannot find package filename for %s' \
+                                   ' in variant \'%s:%s\'' \
+                                   % (pkg, ptype, epoch),
+                                   BuildViewer.SEV_WARNING)
 
         return downloads
 
 
-    def _buildSetupFiles(self, packages, verbose=True):
+    def _buildSetupFiles(self, packages):
         """Create top-level configuration files in local mirror"""
 
         (header, pkgdict) = self._masterList.GetHeaderAndPackages()
@@ -499,13 +604,12 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         # Create copy of Cygwin installer program:
         tgtpath = os.path.join(self._tgtdir, exebase)
         try:
-            if verbose:
-                print 'Retrieving %s to %s...' % ( exeURL, tgtpath ),
-            sys.stdout.flush()
+            self._statview.startOperation('Retrieving %s to %s' \
+                                          % ( exeURL, tgtpath ))
             urllib.urlretrieve(exeURL, tgtpath)
-            if verbose:
-                print ' done'
+            self._statview.endOperation('done')
         except Exception, ex:
+            self._statview.flushOperation()
             raise PMCygException, "Failed to retrieve %s\n - %s" \
                                     % ( exeURL, str(ex) )
 
@@ -533,8 +637,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         for (pkgfile, pkgsize, pkghash) in downloads:
             basefile = os.path.basename(pkgfile)
             fsize = self._prettyfsize(pkgsize)
-            if self._masterList._verbose:
-                print '  %s (%s)' % ( basefile, fsize )
+            self._statview('  %s (%s)' % ( basefile, fsize ))
 
     def _doDownloading(self, packages, downloads):
         """Download files from Cygwin mirror to create local partial copy"""
@@ -553,26 +656,27 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             for DLsummary in augdownloads:
                 (pkgfile, pkgsize, pkghash, tgtpath) = DLsummary
                 if self._cancelling:
-                    print '** Downloading cancelled **'
+                    self._statview('** Downloading cancelled **')
                     break
 
                 mirpath = urlparse.urljoin(self._mirror, pkgfile)
 
-                print '  %s (%s)...' % ( os.path.basename(pkgfile),
-                                        self._prettyfsize(pkgsize) ),
-                sys.stdout.flush()
+                self._statview.startOperation('  %s (%s)' \
+                                              % ( os.path.basename(pkgfile),
+                                                  self._prettyfsize(pkgsize) ))
 
                 (outcome, errmsg) = self._downloadSingle(mirpath, pkgsize,
                                                         pkghash, tgtpath)
 
                 if outcome == self.DL_Success:
-                    print ' done'
+                    self._statview.endOperation('done')
                     self._fetchStats.AddNew(pkgfile, pkgsize)
                 elif outcome == self.DL_AlreadyPresent:
-                    print ' already present'
+                    self._statview.endOperation('already present')
                     self._fetchStats.AddAlready(pkgfile, pkgsize)
                 else:
-                    print ' FAILED (%s)' % errmsg
+                    self._statview.endOperation(' FAILED (%s)' % errmsg,
+                                                BuildViewer.SEV_WARNING)
                     if os.path.isfile(tgtpath):
                         os.remove(tgtpath)
                     if retries > 0:
@@ -581,15 +685,19 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                         self._fetchStats.AddFail(pkgfile, pkgsize)
 
             if retries > 0 and retrydownloads:
-                print '\n** Retrying %d download(s) **' % len(retrydownloads)
+                self._statview('\n** Retrying %d download(s) **' \
+                               % len(retrydownloads))
                 time.sleep(10)
             augdownloads = retrydownloads
 
         counts = self._fetchStats.Counts()
         if not counts['Fail']:
-            print '%d package(s) mirrored, %d new' % ( counts['Total'], counts['New'] )
+            self._statview('%d package(s) mirrored, %d new' \
+                           % ( counts['Total'], counts['New'] ))
         else:
-            print '%d/%d package(s) failed to download' % ( counts['Fail'], counts['Total'] )
+            self._statview('%d/%d package(s) failed to download' \
+                           % ( counts['Fail'], counts['Total'] ),
+                           BuildViewer.SEV_WARNING)
 
     def _downloadSingle(self, mirpath, pkgsize, pkghash, tgtpath):
         """Attempt to download and validate a single package from the mirror"""
@@ -811,14 +919,14 @@ class PackageSet(object):
 
 
 
-class PkgSetProcessor(object):
+class PkgSetProcessor(BuildReporter):
     """Utilities for computing package dependencies,
     given user-supplied selections of Cygwin package names,
     using a parsed setup.ini supplied via a MasterPackageList"""
 
     def __init__(self, masterList):
+        BuildReporter.__init__(self, Peer=masterList)
         self._masterList = masterList
-        self._verbose = masterList._verbose
 
     def ExpandDependencies(self, selected, epochs=['curr']):
         """Expand list of packages to include all their dependencies"""
@@ -845,8 +953,10 @@ class PkgSetProcessor(object):
                         if not r in packages:
                             additions.add(r)
                 except:
-                    if self._verbose and not pkginfo.HasFileContent():
-                        print >>sys.stderr, 'Cannot find epoch \'%s\' for %s' % (epoch, pkg)
+                    if not pkginfo.HasFileContent():
+                        self._statview('Cannot find epoch \'%s\' for %s' \
+                                       % (epoch, pkg),
+                                       BuildViewer.SEV_WARNING)
 
         if badpkgnames:
             badpkgnames.sort()
@@ -994,9 +1104,11 @@ class PkgSetProcessor(object):
 
 
 
-class MasterPackageList(object):
+class MasterPackageList(BuildReporter):
     """Database of available Cygwin packages built from 'setup.ini' file"""
-    def __init__(self, iniURL=None, verbose=False):
+    def __init__(self, iniURL=None, Viewer=None):
+        BuildReporter.__init__(self, Viewer)
+
         self.re_dbline = re.compile(r'''
               ((?P<relinfo>^(release|arch|setup-\S+)) :
                                     \s+ (?P<relParam>\S+) $)
@@ -1007,7 +1119,6 @@ class MasterPackageList(object):
             | (?P<blank>^\s* $)
             ''', re.VERBOSE)
 
-        self._verbose = verbose
         self._pkgLock = threading.Lock()
         self._iniURL = None
         self.ClearCache()
@@ -1069,14 +1180,12 @@ class MasterPackageList(object):
             self._pkgLock.acquire()
             if self._ini_header and self._ini_packages:
                 return
-            if self._verbose:
-                print 'Scanning mirror index at %s...' % self._iniURL,
-                sys.stdout.flush()
+            self._statview.startOperation('Scanning mirror index at %s' \
+                                          % self._iniURL)
             self._parseSource()
-            if self._verbose:
-                print ' done'
-                sys.stdout.flush()
+            self._statview.endOperation('done')
         finally:
+            self._statview.flushOperation()
             self._pkgLock.release()
 
     def _parseSource(self):
@@ -1318,11 +1427,13 @@ class FetchStats(object):
 ## Garbage-collection mechanisms
 ##
 
-class GarbageCollector(object):
+class GarbageCollector(BuildReporter):
     """Mechanism for pruning previous versions of packages
     during an incremental mirror."""
 
-    def __init__(self, topdir=None):
+    def __init__(self, topdir=None, Viewer=None):
+        BuildReporter.__init__(self, Viewer)
+
         self._topdir = None
         self._topdepth = 0
         self._suspicious = True
@@ -1432,7 +1543,8 @@ class GarbageCollector(object):
             for dr in rdirs:
                 os.rmdir(dr)
         except Exception, ex:
-            print >>sys.stderr, 'Failed to remove outdated files - %s' % str(ex)
+            self._statview('Failed to remove outdated files - %s' % str(ex),
+                           BuildViewer.SEV_WARNING)
 
     def _checkTopSuspiciousness(self):
         """Try to protect user from accidentally deleting
@@ -1472,10 +1584,11 @@ class GarbageCollector(object):
 
 
 
-class GarbageConfirmer(object):
+class GarbageConfirmer(BuildReporter):
     """Mechanism for inviting user to confirm disposal of outdated files"""
 
     def __init__(self, garbage, default='no'):
+        BuildReporter.__init__(self, Peer=garbage)
         self._garbage = garbage
         default = default.lower()
         self._userresponse = None
@@ -1500,7 +1613,7 @@ class GarbageConfirmer(object):
         if not self.HasResponded():
             self._awaitResponse()
         if self._userresponse == 'yes':
-            print 'Deleting %d files' % self._garbage.GetNfiles()
+            self._statview('Deleting %d files' % self._garbage.GetNfiles())
             self._garbage.PurgeFiles()
 
     def _askUser(self, allfiles):
@@ -1532,6 +1645,7 @@ class TKgui(object):
     def __init__(self, builder=None, pkgfiles=[]):
         if not builder: builder = PMbuilder()
         self.builder = builder
+        self.builder.SetViewer(GUIbuildViewer(self))
 
         # Prompt PMBuilder to pre-cache outputs of 'cygcheck -cd' so that
         # we don't fork a subprocess after Tkinter has been initialized:
@@ -1572,8 +1686,6 @@ class TKgui(object):
         self.status_txt = ScrolledText.ScrolledText(rootwin, height=24)
         self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=(6,2))
         rootwin.grid_rowconfigure(row, weight=1)
-        sys.stdout = GUIstream(self)
-        sys.stderr = GUIstream(self, highlight=True)
         self.message_queue = Queue.Queue()
         row += 1
 
@@ -1898,6 +2010,9 @@ This is free software, and you are welcome to redistribute it under the terms of
     def doCancel(self):
         self.builder.Cancel(True)
 
+    def writeMessage(self, text, severity=BuildViewer.SEV_NORMAL):
+        self.builder._statview(text, severity)
+
     def processMessages(self):
         """Ingest messages from queue and add to status window"""
         empty = False
@@ -1987,7 +2102,7 @@ class GUIbuildState(GUIstate):
 
     def leave(self):
         self._buildthread = None
-        print '\n'
+        self._parent.writeMessage('\n')
 
 
 class GUItidyState(GUIstate):
@@ -2011,19 +2126,18 @@ class GUItidyState(GUIstate):
         pass
 
 
-
-class GUIstream(object):
-    """Wrapper for I/O stream for use in GUI"""
-
-    def __init__(self, parent, highlight=False):
+class GUIbuildViewer(BuildViewer):
+    def __init__(self, parent):
+        BuildViewer.__init__(self)
         self.parent = parent
-        self.highlight = highlight
 
-    def flush(self):
-        pass
+    def _output(self, text, severity):
+        if severity > self.SEV_NORMAL:
+            highlight = True
+        else:
+            highlight = False
 
-    def write(self, message):
-        self.parent.message_queue.put_nowait((message, self.highlight))
+        self.parent.message_queue.put_nowait((text, highlight))
 
 
 
@@ -2047,7 +2161,8 @@ class GUIfetchThread(threading.Thread):
 
             builder.BuildMirror(pkgset)
         except Exception, ex:
-            print >>sys.stderr, 'Build failed - %s' % str(ex)
+            self.parent.writeMessage('Build failed - %s' % str(ex),
+                                     BuildViewer.SEV_WARNING)
 
 
 class GUItemplateThread(threading.Thread):
@@ -2063,10 +2178,12 @@ class GUItemplateThread(threading.Thread):
         try:
             builder.TemplateFromLists(self.filename, self.parent.pkgfiles,
                                     self.cygwinReplica)
-            print 'Generated template file "%s"' % ( self.filename )
+            self.parent.writeMessage('Generated template file "%s"' \
+                                     % ( self.filename ))
         except Exception, ex:
-            print >>sys.stderr, 'Failed to create "%s" - %s' \
-                    % ( self.filename, str(ex) )
+            self.parent.writeMessage('Failed to create "%s" - %s' \
+                                     % ( self.filename, str(ex) ),
+                                     BuildViewer.SEV_WARNING)
 
 
 class GUImirrorThread(threading.Thread):
@@ -2390,7 +2507,7 @@ def ProcessPackageFiles(builder, pkgfiles):
             builder.BuildISO(isofile)
     except Exception, ex:   # Treat separately for compatibility with Python-2.4
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( str(ex) )
-        #import traceback; traceback.print_exc()
+        import traceback; traceback.print_exc()
     except BaseException, ex:
         print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( str(ex) )
 

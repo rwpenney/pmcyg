@@ -1,3 +1,4 @@
+Fix dummy-download exceptions
 Improve error-checking
 Allow placing all packages in 'Base' category
 GUI:
