@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Unit-tests for Cygwin Partial Mirror (pmcyg)
 # RW Penney, August 2009
 
-import codecs, os, random, re, shutil, string, StringIO, sys, \
-        tempfile, unittest, urlparse
+import codecs, os, random, re, shutil, string, io, sys, \
+        tempfile, unittest, urllib.parse
 sys.path.insert(0, '..')
 from pmcyg import *
 
@@ -12,7 +12,7 @@ def getSetupURL():
     if os.path.isfile('setup.ini'):
         cwd = os.getcwd()
         urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
-        return urlparse.urljoin(urlprefix, 'setup.ini')
+        return urllib.parse.urljoin(urlprefix, 'setup.ini')
     else:
         return 'http://ftp.heanet.ie/pub/cygwin/x86/setup.ini'
 
@@ -60,7 +60,7 @@ class testSetupIniFetcher(unittest.TestCase):
         fetcher.close()
 
     def _generate(self, handle, state, count):
-        for p in xrange(0, count):
+        for p in range(0, count):
             handle.write(('%8x\n' % state).encode('ascii'))
             state = self._step(state)
 
@@ -99,9 +99,9 @@ class testMasterPackageList(unittest.TestCase):
 
         self.assertFalse(header.get('setup-version') == None)
         try:
-            ts = long(header['setup-timestamp'])
-            self.assertTrue(ts > (1L << 30))
-            self.assertTrue(ts < (1L << 31))
+            ts = int(header['setup-timestamp'])
+            self.assertTrue(ts > (1 << 30))
+            self.assertTrue(ts < (1 << 31))
         except:
             self.fail()
 
@@ -119,7 +119,7 @@ class testMasterPackageList(unittest.TestCase):
         (header, packages) = self.pkglist.GetHeaderAndPackages()
 
         numpkgs = 0
-        for pkgname, pkgdict in packages.iteritems():
+        for pkgname, pkgdict in packages.items():
             numpkgs += 1
             for (field, epoch) in fields:
                 try:
@@ -141,7 +141,7 @@ class testMasterPackageList(unittest.TestCase):
         numpkgs = 0
         numldesc = 0
         totlines = 0
-        for pkgname, pkgdict in packages.iteritems():
+        for pkgname, pkgdict in packages.items():
             numpkgs += 1
             ldesc = pkgdict.GetAny('ldesc', ['curr'])
             if ldesc:
@@ -169,7 +169,7 @@ class testMasterPackageList(unittest.TestCase):
         if not categories.get('All'):
             self.fail()
 
-        for cat, members in categories.iteritems():
+        for cat, members in categories.items():
             if cat != 'All':
                 for pkgname in members:
                     try:
@@ -182,7 +182,7 @@ class testMasterPackageList(unittest.TestCase):
                 self.assertEqual(len(members), len(packages))
 
                 for pkgname in members:
-                    self.assertTrue(pkgname in packages.iterkeys())
+                    self.assertTrue(pkgname in iter(packages.keys()))
 
 
 
@@ -212,7 +212,7 @@ class testPkgSetProcessor(unittest.TestCase):
     def testInverse(self):
         """Check that contraction can be inverted by expansion"""
         pkgdict = self.masterList.GetPackageDict()
-        pkglist = [p for p in pkgdict.iterkeys()]
+        pkglist = [p for p in pkgdict.keys()]
 
         for iterations in range(0, 100):
             pkgProc = PkgSetProcessor(self.masterList)
@@ -289,7 +289,7 @@ class testBuilder(unittest.TestCase):
                 try:
                     builder.BuildMirror(pset)
                     conf = GarbageConfirmer(builder.GetGarbage(), 'no')
-                except Exception, ex:
+                except Exception as ex:
                     self.fail('Build failed (%s/%s) - %s' \
                                 % ( arch, ident, str(ex)))
 
@@ -342,8 +342,6 @@ class testBuilder(unittest.TestCase):
 
         return counts
 
-    # FIXME - add test for fallback mirror-site list
-
 
 
 class testPackageSets(unittest.TestCase):
@@ -365,8 +363,8 @@ class testPackageSets(unittest.TestCase):
         self.assertTrue('tcsh' in pkgset.extract())
 
     def testIngest(self):
-        f0 = StringIO.StringIO('bash\ntcsh\nzsh\n')
-        f1 = StringIO.StringIO('emacs\nnedit\nvim\nbash\n')
+        f0 = io.StringIO('bash\ntcsh\nzsh\n')
+        f1 = io.StringIO('emacs\nnedit\nvim\nbash\n')
 
         pkgset = PackageSet()
         self.assertEqual(len(pkgset), 0)
@@ -397,7 +395,7 @@ class testPackageSets(unittest.TestCase):
                     'zsh     [arch=x86_64]' ]
 
         pkgset = PackageSet()
-        pkgset._ingestStream(StringIO.StringIO('\n'.join(lines)))
+        pkgset._ingestStream(io.StringIO('\n'.join(lines)))
         self.assertEqual(len(pkgset), 5)
 
         pkgs = pkgset.extract()
@@ -425,7 +423,7 @@ class testPackageSets(unittest.TestCase):
 
         pkgset = PackageSet()
         for defn in [lines0, lines1]:
-            pkgset._ingestStream(StringIO.StringIO('\r\n'.join(defn)))
+            pkgset._ingestStream(io.StringIO('\r\n'.join(defn)))
         self.assertEqual(len(pkgset), 6)
 
         pkgs = pkgset.extract()
@@ -449,7 +447,7 @@ class testPackageSets(unittest.TestCase):
                     '#zsh   [arch=x86_64]   # zed shell' ]
 
         pkgset = PackageSet()
-        pkgset._ingestStream(StringIO.StringIO('\n'.join(lines)))
+        pkgset._ingestStream(io.StringIO('\n'.join(lines)))
         self.assertEqual(len(pkgset), 2)
 
         pkgs = pkgset.extract()
@@ -471,7 +469,7 @@ class testPackageLists(unittest.TestCase):
         and containing various mixes of ascii/latin-1/utf-8 characters
         can be parsed and rewritten without exceptions or glaring errors"""
         for cfg in self._configs:
-            url = urlparse.urljoin(self._urlprefix, cfg)
+            url = urllib.parse.urljoin(self._urlprefix, cfg)
             tmpdir = tempfile.mkdtemp()
 
             builder = PMbuilder(Viewer=SilentBuildViewer())
@@ -646,7 +644,7 @@ def makeGarbageTree(treefile, topdir='.'):
         elif ftype == 'F':
             fp2 = open(fname, 'wt')
             flen = random.randint(0, 512)
-            print >>fp2, (chr(0x5a) * flen)
+            print((chr(0x5a) * flen), file=fp2)
             fp2.close()
             treedict['files'].append(fname)
         else:

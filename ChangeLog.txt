@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## http://pmcyg.sourceforge.net
-## (C)Copyright 2009-2013, RW Penney
+## (C)Copyright 2009-2014, RW Penney
+
+29Dec13
+    Converted to depend exclusively on Python-3.x
 
 28Oct13
     Added new interfaces for interactive reporting in place of stdout overrides

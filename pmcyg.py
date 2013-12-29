@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2013, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2014, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '1.2'
+PMCYG_VERSION = '2.0'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -29,17 +29,18 @@ CYGWIN_MIRROR_LIST_URL = 'http://cygwin.com/mirrors.lst'
 SI_TEXT_ENCODING = 'utf-8'
 
 
-import  bz2, codecs, optparse, os, os.path, re, subprocess, \
-        string, StringIO, sys, threading, time, urllib, urlparse
+import  bz2, codecs, io, optparse, os, os.path, re, \
+        string, subprocess, sys, threading, time, \
+        urllib.request, urllib.parse, urllib.error, urllib.parse
 try: from urllib.request import urlopen as URLopen
-except ImportError: from urllib2 import urlopen as URLopen
+except ImportError: from urllib.request import urlopen as URLopen
 try: set
 except NameError: from sets import Set as set, ImmutableSet as frozenset
 try: import hashlib; md5hasher = hashlib.md5
 except ImportError: import md5; md5hasher = md5.new
 try:
-    import Tkinter as Tk
-    import Queue, ScrolledText, tkFileDialog
+    import tkinter as Tk
+    import queue, tkinter.scrolledtext, tkinter.filedialog
     HASGUI = True
 except:
     class Tk: Canvas = object; Button = object
@@ -176,7 +177,7 @@ class SetupIniFetcher(object):
         rawfile = expander(stream.read(self.MaxIniFileLength))
         stream.close()
 
-        self._buffer = StringIO.StringIO(rawfile.decode(SI_TEXT_ENCODING,
+        self._buffer = io.StringIO(rawfile.decode(SI_TEXT_ENCODING,
                                                         'ignore'))
 
     def __del__(self):
@@ -186,8 +187,8 @@ class SetupIniFetcher(object):
     def __iter__(self):
         return self
 
-    def next(self):
-        return self._buffer.next()
+    def __next__(self):
+        return next(self._buffer)
 
     def close(self):
         self._buffer.close()
@@ -245,7 +246,7 @@ class PMbuilder(BuildReporter):
 
         self._fetchStats = FetchStats()
         self._cygcheck_list = []
-        for (opt, val) in kwargs.iteritems():
+        for (opt, val) in kwargs.items():
             self.SetOption(opt, val)
 
     def SetViewer(self, Viewer):
@@ -307,8 +308,8 @@ class PMbuilder(BuildReporter):
             oldval = self._optiondict[optname]
             self._optiondict[optname] = value
         except:
-            raise PMCygException, 'Invalid configuration option "%s"' \
-                                    ' for PMBuilder' % optname
+            raise PMCygException('Invalid configuration option "%s"' \
+                                    ' for PMBuilder' % optname)
         return oldval
 
 
@@ -360,7 +361,7 @@ class PMbuilder(BuildReporter):
                 if not inHeader:
                     pkgs.append(line.split()[0])
             proc.wait()
-        except Exception, ex:
+        except Exception as ex:
             self._statview('Listing installed packages failed - ', str(ex),
                            BuildViewer.SEV_ERROR)
         self._cygcheck_list = pkgs
@@ -444,7 +445,7 @@ class PMbuilder(BuildReporter):
         """Supply a static list of official Cygwin mirror sites,
         as a fall-back in case the live listing of mirrors cannot
         be downloaded."""
-        return StringIO.StringIO("""
+        return io.BytesIO(b'''
 ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
 http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
 ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
@@ -458,7 +459,7 @@ ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.o
 http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
 ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
-                """)
+                ''')
 
     def _fillinIniURL(self):
         """Ensure that URL of setup.ini file is either set explicitly,
@@ -471,7 +472,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 basename = '%s/setup.bz2' % self._cygarch
             else:
                 basename = 'setup.bz2'
-            self._iniurl = urlparse.urljoin(self._mirror, basename)
+            self._iniurl = urllib.parse.urljoin(self._mirror, basename)
             reload = True
         self._masterList.SetSourceURL(self._iniurl, reload)
 
@@ -498,7 +499,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         if self._optiondict['AllPackages']:
             userpkgs = []
-            for pkg, pkginfo in pkgdict.iteritems():
+            for pkg, pkginfo in pkgdict.items():
                 if pkg.startswith('_'): continue
                 cats = pkginfo.GetAny('category').split()
                 if '_obsolete' in cats: continue
@@ -508,7 +509,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         if self._optiondict['IncludeBase']:
             # Include all packages from 'Base' category:
-            for pkg, pkginfo in pkgdict.iteritems():
+            for pkg, pkginfo in pkgdict.items():
                 cats = pkginfo.GetAny('category').split()
                 if 'Base' in cats:
                     pkgset.add(pkg)
@@ -606,18 +607,19 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         try:
             self._statview.startOperation('Retrieving %s to %s' \
                                           % ( exeURL, tgtpath ))
-            urllib.urlretrieve(exeURL, tgtpath)
+            urllib.request.urlretrieve(exeURL, tgtpath)
             self._statview.endOperation('done')
-        except Exception, ex:
+        except Exception as ex:
             self._statview.flushOperation()
-            raise PMCygException, "Failed to retrieve %s\n - %s" \
-                                    % ( exeURL, str(ex) )
+            raise PMCygException("Failed to retrieve %s\n - %s" \
+                                    % ( exeURL, str(ex) ))
 
         # (Optionally) create auto-runner batch file:
         if self._optiondict['MakeAutorun']:
             apath = os.path.join(self._tgtdir, 'autorun.inf')
             fp = open(apath, 'w+b')
-            fp.write('[autorun]\r\nopen=' + exebase +' --local-install\r\n')
+            fp.write(bytes('[autorun]\r\nopen=' + exebase
+                            +' --local-install\r\n', 'ascii'))
             fp.close()
 
         # Generate message-digest of top-level files:
@@ -659,7 +661,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     self._statview('** Downloading cancelled **')
                     break
 
-                mirpath = urlparse.urljoin(self._mirror, pkgfile)
+                mirpath = urllib.parse.urljoin(self._mirror, pkgfile)
 
                 self._statview.startOperation('  %s (%s)' \
                                               % ( os.path.basename(pkgfile),
@@ -709,7 +711,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         else:
             try:
                 dlsize = 0
-                urllib.urlretrieve(mirpath, tgtpath)
+                urllib.request.urlretrieve(mirpath, tgtpath)
                 dlsize = os.path.getsize(tgtpath)
                 if dlsize == pkgsize:
                     outcome = self.DL_Success
@@ -718,7 +720,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     errmsg = 'mismatched size: %s vs %s' % \
                                 ( self._prettyfsize(dlsize),
                                     self._prettyfsize(pkgsize) )
-            except Exception, ex:
+            except Exception as ex:
                 errmsg = str(ex)
 
         if outcome == self.DL_AlreadyPresent or outcome == self.DL_Success:
@@ -734,7 +736,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         for (pkgfile, pkgsize, pkghash) in downloads:
             if os.path.isabs(pkgfile):
-                raise SyntaxError, '%s is an absolute path' % ( pkgfile )
+                raise SyntaxError('%s is an absolute path' % ( pkgfile ))
 
             tgtpath = os.path.join(self._tgtdir, pkgfile)
             tgtdir = os.path.dirname(tgtpath)
@@ -770,7 +772,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
     def _urlbasename(self, url):
         """Split URL into base filename, and suffix-free filename"""
-        (scm, loc, basename, query, frag) = urlparse.urlsplit(url)
+        (scm, loc, basename, query, frag) = urllib.parse.urlsplit(url)
         pos = basename.rfind('/')
         if pos >= 0:
             basename = basename[(pos+1):]
@@ -849,7 +851,7 @@ class PackageSet(object):
 
     def extend(self, pkgs):
         if isinstance(pkgs, PackageSet):
-            for (p, cnstr) in pkgs._pkgs.iteritems():
+            for (p, cnstr) in pkgs._pkgs.items():
                 self._mergeEntry(p, cnstr)
         else:
             for p in pkgs:
@@ -859,9 +861,9 @@ class PackageSet(object):
         """Generate a sorted list of names of all user-selected packages
         which the supplied architectural constraints."""
         extr = []
-        for (pkg, cnstr) in self._pkgs.iteritems():
+        for (pkg, cnstr) in self._pkgs.items():
             isAllowed = True
-            for (key, possible) in cnstr.iteritems():
+            for (key, possible) in cnstr.items():
                 if self.WILDCARD in possible:
                     continue
                 actual = kwargs.get(key)
@@ -884,8 +886,8 @@ class PackageSet(object):
             lineno += 1
             matches = self.re_pkg.match(line)
             if not matches:
-                raise SyntaxError, "Package-list parse failure at %s:%d" \
-                                        % ( fname, lineno )
+                raise SyntaxError("Package-list parse failure at %s:%d" \
+                                        % ( fname, lineno ))
 
             if matches.group('pkgname'):
                 pkgname = matches.group('pkgname')
@@ -908,8 +910,8 @@ class PackageSet(object):
             self._pkgs[pkg] = cnstr
         else:
             pkgcnstr = self._pkgs[pkg]
-            newkeys = set(cnstr.iterkeys())
-            oldkeys = set(pkgcnstr.iterkeys())
+            newkeys = set(cnstr.keys())
+            oldkeys = set(pkgcnstr.keys())
 
             for key in (newkeys & oldkeys):
                 pkgcnstr[key].update(cnstr[key])
@@ -960,9 +962,8 @@ class PkgSetProcessor(BuildReporter):
 
         if badpkgnames:
             badpkgnames.sort()
-            raise PMCygException, \
-                "The following package names were not recognized:\n\t%s\n" \
-                % ( '\n\t'.join(badpkgnames) )
+            raise PMCygException("The following package names were not recognized:\n\t%s\n" \
+                % ( '\n\t'.join(badpkgnames) ))
 
         packages = list(packages)
         packages.sort()
@@ -987,7 +988,7 @@ class PkgSetProcessor(BuildReporter):
         # We add packages with many votes because they are probably worth
         # listing explicitly, even if they would be installed as dependencies
         # of zero-vote packages.
-        primaries = [pkg for pkg, n in votes.iteritems()
+        primaries = [pkg for pkg, n in votes.items()
                             if n == 0 or n >= minvotes]
 
         # Preserve any packages not covered by the tree grown from
@@ -1009,7 +1010,7 @@ class PkgSetProcessor(BuildReporter):
 
         pkgdict = self._masterList.GetPackageDict()
         catgroups = self._masterList.GetCategories()
-        catlist = [ c for c in catgroups.iterkeys() if c != 'All' ]
+        catlist = [ c for c in catgroups.keys() if c != 'All' ]
         catlist.sort()
 
         if pkgset:
@@ -1030,13 +1031,13 @@ class PkgSetProcessor(BuildReporter):
                 ' automatically',
             '# included in the mirror by pmcyg.'
         ]
-        print >>stream, '\n'.join(lines)
+        print('\n'.join(lines), file=stream)
 
         for cat in catlist:
             if terse and not set(catgroups[cat]).intersection(userpkgs):
                 continue
 
-            print >>stream, '\n\n##\n## %s\n##' % cat
+            print('\n\n##\n## %s\n##' % cat, file=stream)
 
             for pkg in catgroups[cat]:
                 desc = ConcatShortDescription(pkgdict[pkg].GetAny('sdesc'))
@@ -1077,7 +1078,7 @@ class PkgSetProcessor(BuildReporter):
                 if pkgdesc and cutpos > 0:
                     line = '%s# %s' % ( line[0:cutpos],
                                         ConcatShortDescription(pkgdesc) )
-                print >>fout, line
+                print(line, file=fout)
             fout.close()
             fin.close()
 
@@ -1095,7 +1096,7 @@ class PkgSetProcessor(BuildReporter):
         """Build lookup table of dependencies of each available package"""
         pkgdict = self._masterList.GetPackageDict()
         dependencies = {}
-        for pkg, pkginfo in pkgdict.iteritems():
+        for pkg, pkginfo in pkgdict.items():
             try:
                 dependencies[pkg] = pkginfo.GetAny('requires', [epoch]).split()
             except:
@@ -1162,7 +1163,7 @@ class MasterPackageList(BuildReporter):
         allpkgs = []
         catlists = {}
 
-        for pkg, pkginfo in pkgdict.iteritems():
+        for pkg, pkginfo in pkgdict.items():
             allpkgs.append(pkg)
 
             cats = pkginfo.GetAny('category').split()
@@ -1170,7 +1171,7 @@ class MasterPackageList(BuildReporter):
                 catlists.setdefault(ctg, []).append(pkg)
 
         catlists['All'] = allpkgs
-        for cats in catlists.itervalues():
+        for cats in catlists.values():
             cats.sort()
 
         return catlists
@@ -1195,8 +1196,8 @@ class MasterPackageList(BuildReporter):
 
         try:
             fp = SetupIniFetcher(self._iniURL)
-        except Exception, ex:
-            raise PMCygException, "Failed to open %s - %s" % ( self._iniURL, str(ex) )
+        except Exception as ex:
+            raise PMCygException("Failed to open %s - %s" % ( self._iniURL, str(ex) ))
 
         lineno = 0
         self._pkgname = None
@@ -1236,7 +1237,7 @@ class MasterPackageList(BuildReporter):
         """Classify current line as package definition/field etc"""
         matches = self.re_dbline.match(line)
         if not matches:
-            raise SyntaxError, "Unrecognized content on line %d" % ( lineno )
+            raise SyntaxError("Unrecognized content on line %d" % ( lineno ))
 
         if matches.group('relinfo'):
             self._ini_header[matches.group('relinfo')] = matches.group('relParam')
@@ -1542,7 +1543,7 @@ class GarbageCollector(BuildReporter):
             rdirs.reverse()
             for dr in rdirs:
                 os.rmdir(dr)
-        except Exception, ex:
+        except Exception as ex:
             self._statview('Failed to remove outdated files - %s' % str(ex),
                            BuildViewer.SEV_WARNING)
 
@@ -1617,12 +1618,12 @@ class GarbageConfirmer(BuildReporter):
             self._garbage.PurgeFiles()
 
     def _askUser(self, allfiles):
-        print '\nThe following files are outdated:'
+        print('\nThe following files are outdated:')
         for fl in allfiles:
-            print '  %s' % fl
+            print('  %s' % fl)
 
         try:
-            response = raw_input('Delete outdated files [yes/NO]: ').lower()
+            response = input('Delete outdated files [yes/NO]: ').lower()
             if response == 'yes':
                 self._userresponse = 'yes'
             else:
@@ -1683,10 +1684,10 @@ class TKgui(object):
         frm.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.W)
         row += 1
 
-        self.status_txt = ScrolledText.ScrolledText(rootwin, height=24)
+        self.status_txt = tkinter.scrolledtext.ScrolledText(rootwin, height=24)
         self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=(6,2))
         rootwin.grid_rowconfigure(row, weight=1)
-        self.message_queue = Queue.Queue()
+        self.message_queue = queue.Queue()
         row += 1
 
         self.progress_bar = GUIprogressBar(rootwin)
@@ -1715,8 +1716,8 @@ class TKgui(object):
             try:
                 newstate = self._state.tick()
                 self._updateState(newstate)
-            except Exception, ex:
-                print >>sys.stderr, 'Unhandled exception in GUI event loop - %s'% str(ex)
+            except Exception as ex:
+                print('Unhandled exception in GUI event loop - %s'% str(ex), file=sys.stderr)
 
             self.processMessages()
 
@@ -1902,7 +1903,7 @@ class TKgui(object):
             wintitle = 'Create pmcyg package-listing template'
             filename = 'pmcyg-template.pkgs'
 
-        tpltname = tkFileDialog.asksaveasfilename(title=wintitle,
+        tpltname = tkinter.filedialog.asksaveasfilename(title=wintitle,
                                                 initialfile=filename)
         if not tpltname: return
 
@@ -1921,7 +1922,7 @@ class TKgui(object):
             win.title('About pmcyg')
             msg = Tk.Message(win, name='pmcyg_about', justify=Tk.CENTER,
                         aspect=300, border=2, relief=Tk.GROOVE, text= \
-u"""pmcyg
+"""pmcyg
 - a tool for creating Cygwin\N{REGISTERED SIGN} partial mirrors
 Version %s
 
@@ -1942,10 +1943,10 @@ This is free software, and you are welcome to redistribute it under the terms of
 
     def pkgsSelect(self):
         """Callback for selecting set of user-supplied listing of packages"""
-        opendlg = tkFileDialog.askopenfilenames
+        opendlg = tkinter.filedialog.askopenfilenames
         if broken_openfilenames:
             def opendlg(*args, **kwargs):
-                filename = tkFileDialog.askopenfilename(*args, **kwargs)
+                filename = tkinter.filedialog.askopenfilename(*args, **kwargs)
                 if filename: return (filename, )
                 else: return None
 
@@ -1967,7 +1968,7 @@ This is free software, and you are welcome to redistribute it under the terms of
 
     def cacheSelect(self):
         """Callback for selecting directory into which to download packages"""
-        dirname = tkFileDialog.askdirectory(initialdir=self.cache_entry.get(),
+        dirname = tkinter.filedialog.askdirectory(initialdir=self.cache_entry.get(),
                                 mustexist=False, title='pmcyg cache directory')
         if dirname:
             self.cache_entry.delete(0, Tk.END)
@@ -1978,12 +1979,12 @@ This is free software, and you are welcome to redistribute it under the terms of
         mirrordict = self.builder.ReadMirrorList()
         menu = Tk.Menu(self.mirror_btn, tearoff=0)
 
-        regions = list(mirrordict.iterkeys())
+        regions = list(mirrordict.keys())
         regions.sort()
         for region in regions:
             regmenu = Tk.Menu(menu, tearoff=0)
 
-            countries = list(mirrordict[region].iterkeys())
+            countries = list(mirrordict[region].keys())
             countries.sort()
             for country in countries:
                 cntmenu = Tk.Menu(regmenu, tearoff=0)
@@ -2033,7 +2034,7 @@ This is free software, and you are welcome to redistribute it under the terms of
                                 background='grey75', foreground='red')
 
                 self.status_txt.config(state=Tk.DISABLED)
-            except Queue.Empty:
+            except queue.Empty:
                 empty = True
 
     def updateProgress(self):
@@ -2160,7 +2161,7 @@ class GUIfetchThread(threading.Thread):
                 builder.SetOption(opt, flip ^ tkvar.get())
 
             builder.BuildMirror(pkgset)
-        except Exception, ex:
+        except Exception as ex:
             self.parent.writeMessage('Build failed - %s' % str(ex),
                                      BuildViewer.SEV_WARNING)
 
@@ -2180,7 +2181,7 @@ class GUItemplateThread(threading.Thread):
                                     self.cygwinReplica)
             self.parent.writeMessage('Generated template file "%s"' \
                                      % ( self.filename ))
-        except Exception, ex:
+        except Exception as ex:
             self.parent.writeMessage('Failed to create "%s" - %s' \
                                      % ( self.filename, str(ex) ),
                                      BuildViewer.SEV_WARNING)
@@ -2226,7 +2227,7 @@ class GUIgarbageConfirmer(GarbageConfirmer):
         row += 1
 
         # Construct scrolled window containing list of files for deletion:
-        txt = ScrolledText.ScrolledText(topwin, height=16, width=60)
+        txt = tkinter.scrolledtext.ScrolledText(topwin, height=16, width=60)
         for fl in allfiles:
             txt.insert(Tk.END, fl + '\n')
         txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=2, pady=4)
@@ -2505,11 +2506,11 @@ def ProcessPackageFiles(builder, pkgfiles):
         isofile = builder.GetOption('ISOfilename')
         if isofile:
             builder.BuildISO(isofile)
-    except Exception, ex:   # Treat separately for compatibility with Python-2.4
-        print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( str(ex) )
+    except Exception as ex:   # Treat separately for compatibility with Python-2.4
+        print('Fatal error during mirroring [%s]' % ( str(ex) ), file=sys.stderr)
         import traceback; traceback.print_exc()
-    except BaseException, ex:
-        print >>sys.stderr, 'Fatal error during mirroring [%s]' % ( str(ex) )
+    except BaseException as ex:
+        print('Fatal error during mirroring [%s]' % ( str(ex) ), file=sys.stderr)
 
 
 def TemplateMain(builder, outfile, pkgfiles, cygwinReplica=False):
@@ -2608,7 +2609,7 @@ def main():
         TemplateMain(builder, opts.pkg_file, remargs)
     elif opts.cyg_list:
         if not HOST_IS_CYGWIN:
-            print >>sys.stderr, 'WARNING: pmcyg attempting to create replica of non-Cygwin host'
+            print('WARNING: pmcyg attempting to create replica of non-Cygwin host', file=sys.stderr)
         TemplateMain(builder, opts.cyg_list, remargs, cygwinReplica=True)
     elif HASGUI and not opts.nogui:
         GUImain(builder, remargs)

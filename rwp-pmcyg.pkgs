@@ -95,7 +95,6 @@ cygport                         # Cygwin source packaging tool
 ddd                             # Ddd
 doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavours) and to some extent PHP, C#, and D.
 flex                            # A fast lexical analyzer generator
-gcc                 [arch=x86]  # GNU Compiler Collection
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
 gcc-fortran                     # GNU Compiler Collection (Fortran)
 gcc-g++                         # GNU Compiler Collection (C++)
@@ -126,7 +125,6 @@ libmng-devel                    # A library of functions for manipulating MNG fo
 libncurses-devel    [arch=x86]  # (devel) libraries for terminal handling
 libpng-devel                    # PNG library (development)
 libtool                         # A shared library generation tool
-libxerces-c-devel   [arch=x86]  # (devel) A validating XML parser written in a portable subset of C++
 make                            # The GNU version of the 'make' utility
 makedepend                      # X Makefile dependency tool
 mercurial                       # Python based distributed version control system (DVCS)
@@ -249,7 +247,7 @@ tiff-opengl                     # TIFF image library
 ##
 gawk                            # GNU awk, a pattern scanning and processing language
 guile                           # The GNU extension language and Scheme interpreter - executables
-m4                              # GNU implementation of the traditional Unix macro processor.
+m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Larry Wall's Practical Extracting and Report Language
 python                          # Python language interpreter
 python3                         # Py3K language interpreter
@@ -296,9 +294,8 @@ libncursesw-devel               # (devel) libraries for terminal handling (wide 
 libpcre-devel                   # Perl Compatible Regular Expressions library development
 libpng-devel                    # PNG library (development)
 libpthread-stubs    [arch=x86]  # Pthread stubs pkg-config metadata
-libreadline5        [arch=x86]  # GNU readline and history libraries (runtime)
 libreadline6        [arch=x86]  # GNU readline and history libraries (runtime)
-libreadline7                    # GNU readline and history libraries (runtime)
+libreadline-devel   [arch=x86_64] # Command-line editing and history libraries
 libsqlite3-devel                # Header and library files for building programs against SQLite
 libuuid-devel                   # Universally Unique ID library (development)
 libxml2-devel                   # GNOME XML library (development)
@@ -370,8 +367,8 @@ bind                            # DNS server
 curl                            # Multi-protocol file transfer tool
 gnutls                          # Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
 gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
-inetutils           [arch=x86]  # Common networking clients and servers
-lftp                [arch=x86]  # Sophisticated file transfer program
+inetutils                       # Common networking clients and servers
+lftp                            # Sophisticated file transfer program
 nc                              # Reads and writes data across network connections using TCP or UDP
 nfs-server          [arch=x86]  # Universal NFS server.
 openldap                        # Lightweight Directory Access Protocol suite (clients)
@@ -504,7 +501,7 @@ tcl-tk                          # Tcl X11 toolkit
 ## Text
 ##
 #a2ps                            # Anything to PostScript converter
-antiword            [arch=x86]      # A free MS Word reader
+antiword                        # A free MS Word reader
 aspell                          # A spell checker designed to eventually replace Ispell (program and utilities)
 aspell-en                       # Aspell en dictionary
 catdoc              [arch=x86]  # Dump Word, Excel and Powerpoint files contents
@@ -547,9 +544,8 @@ ncurses                         # Utilities for terminal handling
 ncurses-demo        [arch=x86]  # Demonstration programs for ncurses
 patcher                         # Perl script To manage patches
 patchutils          [arch=x86]  # A small collection of programs that operate on patch files
-rpm                 [arch=x86]  # A package management system
-rpm-build           [arch=x86]  # Scripts and executable programs used to build RPM packages
-rpm-doc             [arch=x86]  # RPM package management system manual pages
+rpm                             # A package management system
+rpm-build                       # Scripts and executable programs used to build RPM packages
 run2                            # An enhanced version of the 'run' application launcher
 screen                          # Run separate screens on a single terminal
 stow                            # Manage local software installations

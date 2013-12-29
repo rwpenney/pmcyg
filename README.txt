@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, September 2013
+                        RW Penney, December 2013
 
 
 Introduction
@@ -27,20 +27,21 @@ Licensing
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2013 RW Penney <rwpenney@users.sourceforge.net>.
+and are Copyright 2009-2014 RW Penney <rwpenney@users.sourceforge.net>.
 
 
 Installation
 ============
 
 To run pmcyg, you will need to have a recent version of 'Python' installed
-(preferably version 2.5-2.7). This should be available by default on most
-GNU/Linux systems, or can be obtained from http://www.python.org
+(note that this must be Python-3.1 or later). This should be available
+by default on most GNU/Linux systems, or can be obtained from
+http://www.python.org
 
 In order to use pmcyg as a graphical (GUI) application, you will need
 the 'Tkinter' toolkit for Python. This is part of the default distribution of
 Python for Windows platforms, but may be part of a separate package
-(possibly called "python-tk") on Unix/Linux systems.
+(possibly called "python3-tk") on Unix/Linux systems.
 
 On Windows platforms, double-clicking on the file 'pmcyg.py' should be
 sufficient to run pmcyg in graphical mode.
@@ -50,10 +51,6 @@ to '/usr/local/bin/pmcyg'. The accompanying Makefile will do this
 automatically if you execute 'make install'. Running pmcyg without any
 command-line options will automatically start the GUI if the 'Tkinter'
 package is available.
-
-If you want to use pmcyg with the 3.x series of Python, you can use the
-'pmcyg-2to3.py' executable in place of 'pmcyg.py', or use the standard
-'2to3' conversion program available with recent versions of Python.
 
 
 Usage

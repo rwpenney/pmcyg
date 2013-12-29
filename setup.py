@@ -1,9 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Installation/setup script for Simple Python Fixed-Point Module
 # RW Penney, July 2010
-
-# NOTE: this script is intended to run, without modification,
-#       under both Python-2.x and Python-3.x
 
 from distutils.core import setup
 import distutils.command.build_scripts as DIB
@@ -19,7 +16,6 @@ class pmcyg_build_scripts(DIB.build_scripts):
     """Helper class to strip filename suffixes when
     installing Python scripts on POSIX platforms"""
     def copy_scripts(self):
-        self.mkPython3script()
         orig_scripts = self.scripts
         tempfiles = []
         if os.name == 'posix':
@@ -28,26 +24,6 @@ class pmcyg_build_scripts(DIB.build_scripts):
         self.scripts = orig_scripts
         for tmp in tempfiles:
             os.remove(tmp)
-
-    def mkPython3script(self):
-        """Attempt to generate Python-3.x script using '2to3' tool"""
-        P3EXE = 'pmcyg-2to3.py'
-        if not os.path.isfile(P3EXE):
-            stdout_bckp = sys.stdout
-            try:
-                src = open('pmcyg.py', 'rt').read()
-                re_version = re.compile(r'python(2[.0-9]*)?\b')
-                src = re_version.sub('python3', src, 1)
-                open(P3EXE, 'wt').write(src)
-                argv = ['-w', P3EXE]
-                sys.stdout = os.tmpfile()
-                lib2to3.main.main('lib2to3.fixes', argv)
-            except:
-                pass
-            sys.sdtout = stdout_bckp
-
-        if os.path.isfile(P3EXE):
-            self.scripts.append(P3EXE)
 
     def _stripSuffixes(self, orig_scripts):
         """Remove .py suffix from Python scripts, e.g. for POSIX platforms"""

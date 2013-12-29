@@ -1,4 +1,4 @@
-Fix dummy-download exceptions
+Prune spurious dependencies in master package list
 Improve error-checking
 Allow placing all packages in 'Base' category
 GUI:
