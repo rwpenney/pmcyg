@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # Partially mirror 'Cygwin' distribution
 # (C)Copyright 2009-2013, RW Penney <rwpenney@users.sourceforge.net>
 
@@ -827,6 +827,7 @@ class PkgSetProcessor(object):
         additions = set(selected)
         packages = set()
         badpkgnames = []
+        badrequires = set()
 
         while additions:
             pkg = additions.pop()
@@ -840,8 +841,11 @@ class PkgSetProcessor(object):
             # Find dependencies of current package & add to stack:
             for epoch in epochs:
                 try:
-                    reqlist = pkginfo.GetAny('requires', [epoch]).split()
+                    reqlist = pkginfo.GetDependencies([epoch])
                     for r in reqlist:
+                        if not pkgdict.get(r):
+                            badrequires.add((pkg, r))
+                            continue
                         if not r in packages:
                             additions.add(r)
                 except:
@@ -853,6 +857,10 @@ class PkgSetProcessor(object):
             raise PMCygException, \
                 "The following package names were not recognized:\n\t%s\n" \
                 % ( '\n\t'.join(badpkgnames) )
+        if badrequires:
+            links = [ '%s->%s' % (pkg, dep) for (pkg, dep) in badrequires ]
+            print >>sys.stderr, "Master package list contains" \
+                                " spurious dependencies: %s" % ', '.join(links)
 
         packages = list(packages)
         packages.sort()
@@ -987,7 +995,7 @@ class PkgSetProcessor(object):
         dependencies = {}
         for pkg, pkginfo in pkgdict.iteritems():
             try:
-                dependencies[pkg] = pkginfo.GetAny('requires', [epoch]).split()
+                dependencies[pkg] = pkginfo.GetDependencies([epoch])
             except:
                 pass
         return dependencies
@@ -1248,6 +1256,10 @@ class PackageSummary(object):
         if self.GetAny('requires'):
             return True
         return False
+
+    def GetDependencies(self, epochset=[]):
+        """Return a list of other packages on which this package depends."""
+        return self.GetAny('requires', epochset).split()
 
     def Set(self, field, value, epoch=None):
         """Record field=value for a particular epoch (e.g. curr/prev/None)"""

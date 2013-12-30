@@ -196,7 +196,6 @@ cygwin-doc
 
 # Development packages
 cppunit		[arch=x86,x86_64]
-gcc
 gcc-g++
 mercurial
 ocaml		[arch=x86]

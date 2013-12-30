@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sed '1s%^#.*$%#!/usr/bin/python3%' pmcyg.py > pmcyg3.py
+2to3 -w -n --no-diffs pmcyg3.py

@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, September 2013
+                        RW Penney, December 2013
 
 
 Introduction
@@ -27,7 +27,7 @@ Licensing
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2013 RW Penney <rwpenney@users.sourceforge.net>.
+and are Copyright 2009-2014 RW Penney <rwpenney@users.sourceforge.net>.
 
 
 Installation
