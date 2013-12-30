@@ -4,6 +4,7 @@
 
 29Dec13
     Converted to depend exclusively on Python-3.x
+    Improved robustness to spurious package dependencies in master setup.ini
 
 28Oct13
     Added new interfaces for interactive reporting in place of stdout overrides

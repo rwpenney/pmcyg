@@ -937,6 +937,7 @@ class PkgSetProcessor(BuildReporter):
         additions = set(selected)
         packages = set()
         badpkgnames = []
+        badrequires = set()
 
         while additions:
             pkg = additions.pop()
@@ -950,8 +951,11 @@ class PkgSetProcessor(BuildReporter):
             # Find dependencies of current package & add to stack:
             for epoch in epochs:
                 try:
-                    reqlist = pkginfo.GetAny('requires', [epoch]).split()
+                    reqlist = pkginfo.GetDependencies([epoch])
                     for r in reqlist:
+                        if not pkgdict.get(r):
+                            badrequires.add((pkg, r))
+                            continue
                         if not r in packages:
                             additions.add(r)
                 except:
@@ -962,8 +966,17 @@ class PkgSetProcessor(BuildReporter):
 
         if badpkgnames:
             badpkgnames.sort()
-            raise PMCygException("The following package names were not recognized:\n\t%s\n" \
-                % ( '\n\t'.join(badpkgnames) ))
+            self._statview("The following package names"
+                           " were not recognized:\n\t%s"
+                            % ( '\n\t'.join(badpkgnames) ),
+                            BuildViewer.SEV_ERROR)
+            raise PMCygException("Invalid package names"
+                                 " in ExpandDependencies()")
+        if badrequires:
+            links = [ '%s->%s' % (pkg, dep) for (pkg, dep) in badrequires ]
+            self._statview("Master package list contains"
+                           " spurious dependencies: %s" % ', '.join(links),
+                           BuildViewer.SEV_WARNING)
 
         packages = list(packages)
         packages.sort()
@@ -1069,11 +1082,15 @@ class PkgSetProcessor(BuildReporter):
 
                 (pkgname, cutpos) = (None, -1)
                 pkgdesc = None
-                for key, annot in [ ('pkgname', 'annot'), ('deselected', 'desannot') ]:
+                for key, annot in [ ('pkgname', 'annot'),
+                                    ('deselected', 'desannot') ]:
                     pkgname = matches.group(key)
                     cutpos = matches.start(annot)
                     if pkgname:
-                        pkgdesc = pkgdict[pkgname].GetAny('sdesc')
+                        try:
+                            pkgdesc = pkgdict[pkgname].GetAny('sdesc')
+                        except:
+                            pass
                         break
                 if pkgdesc and cutpos > 0:
                     line = '%s# %s' % ( line[0:cutpos],
@@ -1098,7 +1115,7 @@ class PkgSetProcessor(BuildReporter):
         dependencies = {}
         for pkg, pkginfo in pkgdict.items():
             try:
-                dependencies[pkg] = pkginfo.GetAny('requires', [epoch]).split()
+                dependencies[pkg] = pkginfo.GetDependencies([epoch])
             except:
                 pass
         return dependencies
@@ -1358,6 +1375,10 @@ class PackageSummary(object):
         if self.GetAny('requires'):
             return True
         return False
+
+    def GetDependencies(self, epochset=[]):
+        """Return a list of other packages on which this package depends."""
+        return self.GetAny('requires', epochset).split()
 
     def Set(self, field, value, epoch=None):
         """Record field=value for a particular epoch (e.g. curr/prev/None)"""

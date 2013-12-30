@@ -367,7 +367,7 @@ bind                            # DNS server
 curl                            # Multi-protocol file transfer tool
 gnutls                          # Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
 gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
-inetutils                       # Common networking clients and servers
+inetutils                       # Common networking clients and servers (clients)
 lftp                            # Sophisticated file transfer program
 nc                              # Reads and writes data across network connections using TCP or UDP
 nfs-server          [arch=x86]  # Universal NFS server.
@@ -483,7 +483,7 @@ e2fsprogs                       # Ext2/3/4 filesystem utilities
 initscripts                     # System V Init Clone initscripts
 libext2fs-devel                 # Ext2fs library (development)
 ping                [arch=x86]  # A basic network tool to test IP network conectivity
-procps                          # Utilities for monitoring your system and processes on your system.
+procps                          # System and process monitoring utilities
 psmisc                          # Utilities for managing processes on your system
 sysvinit                        # A System-V Init Clone
 util-linux                      # Random collection of Linux utilities
@@ -544,7 +544,7 @@ ncurses                         # Utilities for terminal handling
 ncurses-demo        [arch=x86]  # Demonstration programs for ncurses
 patcher                         # Perl script To manage patches
 patchutils          [arch=x86]  # A small collection of programs that operate on patch files
-rpm                             # A package management system
+rpm                             # The 'RPM package management system'
 rpm-build                       # Scripts and executable programs used to build RPM packages
 run2                            # An enhanced version of the 'run' application launcher
 screen                          # Run separate screens on a single terminal
