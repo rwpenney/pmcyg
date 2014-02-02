@@ -78,5 +78,7 @@ setup(
                 + PMCYG_VERSION + '/pmcyg-' + PMCYG_VERSION + '.tgz/download',
     version = PMCYG_VERSION,
     scripts = pmcyg_scripts,
-    cmdclass = { 'build_scripts': pmcyg_build_scripts }
+    cmdclass = { 'build_scripts': pmcyg_build_scripts },
+    classifiers = [ 'Programming Language :: Python :: 3',
+                    'Topic :: Utilities' ]
 )

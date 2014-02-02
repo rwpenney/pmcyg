@@ -133,7 +133,6 @@ mingw-gcc-g++                   # GNU Compiler Collection (C++)
 mingw-w32api                    # MinGW.org Win32 runtime headers and libraries
 mingw-zlib-devel                # Zlib for MinGW.org win32 toolchain (devel)
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
-openssl-devel                   # The OpenSSL development environment
 patch                           # Applies diff files
 patchutils          [arch=x86]  # A small collection of programs that operate on patch files
 pkg-config                      # A utility used to retrieve information about installed libraries
@@ -197,7 +196,6 @@ intltool                        # GNOME XML internalization scripts
 ctris               [arch=x86]  # Console mode tetris clone
 fortune             [arch=x86]  # Print a random, perhaps interesting, adage; may contain offsensive material
 ninvaders                       # A space invaders-like game using ncurses.
-sudoku              [arch=x86]  # Console based sudoku
 
 
 
@@ -303,7 +301,6 @@ libxslt                         # GNOME XSLT library (runtime)
 libxslt-devel                   # GNOME XSLT library (development)
 mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
-openssl-devel                   # The OpenSSL development environment
 popt                            # Library for parsing cmdline parameters - docs and development
 python-crypto                   # Cryptographic algorithms and protocols for Python
 python-feedparser               # Universal Feed Parser for Python
@@ -375,6 +372,7 @@ openldap                        # Lightweight Directory Access Protocol suite (c
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
 openssh                         # The OpenSSH server and client programs
 openssl                         # The OpenSSL base environment
+openssl-devel                   # A general purpose cryptography toolkit with TLS implementation (development)
 ping                [arch=x86]  # A basic network tool to test IP network conectivity
 proftpd             [arch=x86]  # A flexible, stable and highly-configurable FTP Server
 pure-ftpd           [arch=x86]  # Secure production-quality standard-conformant FTP server
@@ -507,7 +505,7 @@ aspell-en                       # Aspell en dictionary
 catdoc              [arch=x86]  # Dump Word, Excel and Powerpoint files contents
 enscript                        # A free replacement for the Adobe's enscript program
 flip                            # Convert text file line endings between Unix and DOS formats
-groff                           # GNU troff text-formatting system
+groff                           # GNU roff formatter
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 less                            # A file pager program, similar to more(1)
 patchutils          [arch=x86]  # A small collection of programs that operate on patch files

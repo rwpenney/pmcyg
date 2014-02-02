@@ -29,15 +29,11 @@ CYGWIN_MIRROR_LIST_URL = 'http://cygwin.com/mirrors.lst'
 SI_TEXT_ENCODING = 'utf-8'
 
 
-import  bz2, codecs, io, optparse, os, os.path, re, \
+import  bz2, codecs, hashlib, io, optparse, os, os.path, re, \
         string, subprocess, sys, threading, time, \
         urllib.request, urllib.parse, urllib.error, urllib.parse
 try: from urllib.request import urlopen as URLopen
 except ImportError: from urllib.request import urlopen as URLopen
-try: set
-except NameError: from sets import Set as set, ImmutableSet as frozenset
-try: import hashlib; md5hasher = hashlib.md5
-except ImportError: import md5; md5hasher = md5.new
 try:
     import tkinter as Tk
     import queue, tkinter.scrolledtext, tkinter.filedialog
@@ -96,20 +92,21 @@ class BuildViewer(object):
     def message(self, text, ctrl=SEV_NORMAL | VRB_MEDIUM):
         if self._operation:
             self._emit('  >>>\n', self._operation[1])
-        self._emit('%s\n' % text, ctrl)
+        self._emit('{0}\n'.format(text), ctrl)
         if self._operation:
-            self._emit('  >>> %s...' % self._operation[0],
+            self._emit('  >>> {0}...'.format(self._operation[0]),
                        self._operation[1])
 
     def startOperation(self, text, ctrl=VRB_MEDIUM):
         self._operation = (text, ((ctrl & self.VRB_mask) | self.SEV_NORMAL))
-        self._emit('%s...' % text, self.SEV_NORMAL)
+        self._emit('{0}...'.format(text), self.SEV_NORMAL)
 
     def endOperation(self, text, ctrl=SEV_NORMAL):
         if not self._operation:
             return
         opVerbosity = (self._operation[1] & self.VRB_mask)
-        self._emit(' %s\n' % text, ((ctrl & self.SEV_mask) | opVerbosity))
+        self._emit(' {0}\n'.format(text),
+                   ((ctrl & self.SEV_mask) | opVerbosity))
         self._operation = None
 
     def flushOperation(self):
@@ -308,8 +305,8 @@ class PMbuilder(BuildReporter):
             oldval = self._optiondict[optname]
             self._optiondict[optname] = value
         except:
-            raise PMCygException('Invalid configuration option "%s"' \
-                                    ' for PMBuilder' % optname)
+            raise PMCygException('Invalid configuration option "{0}"' \
+                                    ' for PMBuilder'.format(optname))
         return oldval
 
 
@@ -325,7 +322,7 @@ class PMbuilder(BuildReporter):
             fp = URLopen(CYGWIN_MIRROR_LIST_URL)
         except:
             self._statview('Failed to read list of Cygwin mirrors' \
-                           ' from %s' % CYGWIN_MIRROR_LIST_URL,
+                           ' from {0}'.format(CYGWIN_MIRROR_LIST_URL),
                            BuildViewer.SEV_WARNING)
             fp = self._makeFallbackMirrorList()
 
@@ -391,7 +388,8 @@ class PMbuilder(BuildReporter):
 
         self._fetchStats = FetchStats(downloads)
         sizestr = self._prettyfsize(self._fetchStats.TotalSize())
-        self._statview('Download size: %s from %s' % ( sizestr, self._mirror))
+        self._statview('Download size: {0} from {1}'.format(sizestr,
+                                                            self._mirror))
 
         archdir = self._getArchDir()
         self._garbage.IndexCurrentFiles(archdir, mindepth=1)
@@ -405,16 +403,16 @@ class PMbuilder(BuildReporter):
         """Convert local downloads into an ISO image for burning to CD"""
 
         argv = [ 'genisoimage', '-o', isoname, '-quiet',
-                '-V', 'Cygwin(pmcyg)-%s' % time.strftime('%d%b%y'),
+                '-V', 'Cygwin(pmcyg)-' + time.strftime('%d%b%y'),
                 '-r', '-J', self._tgtdir ]
 
-        self._statview.startOperation('Generating ISO image in %s' % isoname)
+        self._statview.startOperation('Generating ISO image in ' + isoname)
         sys.stdout.flush()
         retcode = subprocess.call(argv, shell=False)
         if not retcode:
             self._statview.endOperation('done')
         else:
-            self._statview.endOperation('FAILED (errno=%d)' % retcode,
+            self._statview.endOperation('FAILED (errno={0:d})'.format(retcode),
                                         BuildViewer.SEV_ERROR)
 
     def GetGarbage(self):
@@ -446,7 +444,7 @@ class PMbuilder(BuildReporter):
         as a fall-back in case the live listing of mirrors cannot
         be downloaded."""
         return io.BytesIO(b'''
-ftp://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
+ftp://mirror.internode.on.net/pub/cygwin/;mirror.internode.on.net;Australasia;Australia
 http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
 ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
 http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
@@ -469,7 +467,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         reload = False
         if not self._iniurl:
             if self._cygarch:
-                basename = '%s/setup.bz2' % self._cygarch
+                basename = '{0}/setup.bz2'.format(self._cygarch)
             else:
                 basename = 'setup.bz2'
             self._iniurl = urllib.parse.urljoin(self._mirror, basename)
@@ -544,9 +542,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     pkghash = flds[2]
                     downloads.append((pkgref, pkgsize, pkghash))
                 except:
-                    self._statview('Cannot find package filename for %s' \
-                                   ' in variant \'%s:%s\'' \
-                                   % (pkg, ptype, epoch),
+                    self._statview('Cannot find package filename ' \
+                                   'for {0} in variant \'{1}:{2}\'' \
+                                    .format(pkg, ptype, epoch),
                                    BuildViewer.SEV_WARNING)
 
         return downloads
@@ -580,14 +578,14 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         now = time.localtime()
         msgs = [
                 '# This file was automatically generated by' \
-                    ' "pmcyg" (version %s),' % ( PMCYG_VERSION ),
-                '# %s,' % ( time.asctime(now) ),
-                '# based on %s' % ( self.GetIniURL() ),
+                    ' "pmcyg" (version {0}),'.format(PMCYG_VERSION),
+                '# {0},'.format(time.asctime(now)),
+                '# based on {0}'.format(self.GetIniURL()),
                 '# Manual edits may be overwritten',
-                'release: %s' % ( header['release'] ),
-                'arch: %s' % ( header['arch'] ),
-                'setup-timestamp: %d' % ( int(time.time()) ),
-                'setup-version: %s' % ( header['setup-version'] ),
+                'release: {0}'.format(header['release']),
+                'arch: {0}'.format(header['arch']),
+                'setup-timestamp: {0:d}'.format(int(time.time())),
+                'setup-version: {0}'.format(header['setup-version']),
                 ''
         ]
         fp.write('\n'.join(msgs))
@@ -605,14 +603,14 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         # Create copy of Cygwin installer program:
         tgtpath = os.path.join(self._tgtdir, exebase)
         try:
-            self._statview.startOperation('Retrieving %s to %s' \
-                                          % ( exeURL, tgtpath ))
+            self._statview.startOperation('Retrieving {0} to {1}' \
+                                                .format(exeURL, tgtpath))
             urllib.request.urlretrieve(exeURL, tgtpath)
             self._statview.endOperation('done')
         except Exception as ex:
             self._statview.flushOperation()
-            raise PMCygException("Failed to retrieve %s\n - %s" \
-                                    % ( exeURL, str(ex) ))
+            raise PMCygException("Failed to retrieve {0}\n - {1}" \
+                                    .format(exeURL, str(ex)))
 
         # (Optionally) create auto-runner batch file:
         if self._optiondict['MakeAutorun']:
@@ -625,11 +623,11 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         # Generate message-digest of top-level files:
         hp = open(os.path.join(archdir, 'md5.sum'), 'wt')
         for fl in hashfiles:
-            hshr = md5hasher()
+            hshr = hashlib.md5()
             fp = open(os.path.join(archdir, fl), 'rb')
             hshr.update(fp.read())
             fp.close()
-            hp.write('%s  %s\n' % ( hshr.hexdigest(), fl ))
+            hp.write('{0}  {1}\n'.format(hshr.hexdigest(), fl))
         hp.close()
 
 
@@ -639,7 +637,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         for (pkgfile, pkgsize, pkghash) in downloads:
             basefile = os.path.basename(pkgfile)
             fsize = self._prettyfsize(pkgsize)
-            self._statview('  %s (%s)' % ( basefile, fsize ))
+            self._statview('  {0} ({1})'.format(basefile, fsize))
 
     def _doDownloading(self, packages, downloads):
         """Download files from Cygwin mirror to create local partial copy"""
@@ -663,9 +661,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
                 mirpath = urllib.parse.urljoin(self._mirror, pkgfile)
 
-                self._statview.startOperation('  %s (%s)' \
-                                              % ( os.path.basename(pkgfile),
-                                                  self._prettyfsize(pkgsize) ))
+                self._statview.startOperation('  {0} ({1})'.format(
+                                                os.path.basename(pkgfile),
+                                                self._prettyfsize(pkgsize)))
 
                 (outcome, errmsg) = self._downloadSingle(mirpath, pkgsize,
                                                         pkghash, tgtpath)
@@ -677,7 +675,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     self._statview.endOperation('already present')
                     self._fetchStats.AddAlready(pkgfile, pkgsize)
                 else:
-                    self._statview.endOperation(' FAILED (%s)' % errmsg,
+                    self._statview.endOperation(' FAILED ({0})'.format(errmsg),
                                                 BuildViewer.SEV_WARNING)
                     if os.path.isfile(tgtpath):
                         os.remove(tgtpath)
@@ -687,18 +685,18 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                         self._fetchStats.AddFail(pkgfile, pkgsize)
 
             if retries > 0 and retrydownloads:
-                self._statview('\n** Retrying %d download(s) **' \
-                               % len(retrydownloads))
+                self._statview('\n** Retrying {0:d} download(s) **' \
+                                .format(len(retrydownloads)))
                 time.sleep(10)
             augdownloads = retrydownloads
 
         counts = self._fetchStats.Counts()
         if not counts['Fail']:
-            self._statview('%d package(s) mirrored, %d new' \
-                           % ( counts['Total'], counts['New'] ))
+            self._statview('{0:d} package(s) mirrored, {1:d} new' \
+                            .format(counts['Total'], counts['New']))
         else:
-            self._statview('%d/%d package(s) failed to download' \
-                           % ( counts['Fail'], counts['Total'] ),
+            self._statview('{0:d}/{1:d} package(s) failed to download' \
+                            .format(counts['Fail'], counts['Total']),
                            BuildViewer.SEV_WARNING)
 
     def _downloadSingle(self, mirpath, pkgsize, pkghash, tgtpath):
@@ -717,9 +715,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                     outcome = self.DL_Success
                 else:
                     outcome = self.DL_SizeError
-                    errmsg = 'mismatched size: %s vs %s' % \
-                                ( self._prettyfsize(dlsize),
-                                    self._prettyfsize(pkgsize) )
+                    errmsg = 'mismatched size: {0} vs {1}' \
+                                .format(self._prettyfsize(dlsize),
+                                        self._prettyfsize(pkgsize))
             except Exception as ex:
                 errmsg = str(ex)
 
@@ -736,7 +734,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 
         for (pkgfile, pkgsize, pkghash) in downloads:
             if os.path.isabs(pkgfile):
-                raise SyntaxError('%s is an absolute path' % ( pkgfile ))
+                raise SyntaxError('{0} is an absolute path'.format(pkgfile))
 
             tgtpath = os.path.join(self._tgtdir, pkgfile)
             tgtdir = os.path.dirname(tgtpath)
@@ -752,7 +750,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         """Check md5 hash-code of downloaded package"""
         blksize = 1 << 14
 
-        hasher = md5hasher()
+        hasher = hashlib.md5()
 
         try:
             fp = open(tgtpath, 'rb')
@@ -806,9 +804,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         for div, unit in divisors:
             qsize = float(size) / div
             if qsize > 0.8:
-                return '%.3g%s' % ( qsize, unit )
+                return '{0:.3g}{1}'.format(qsize, unit)
 
-        return '%dB' % ( size )
+        return '{0:d}B'.format(size)
 
 
 
@@ -886,8 +884,8 @@ class PackageSet(object):
             lineno += 1
             matches = self.re_pkg.match(line)
             if not matches:
-                raise SyntaxError("Package-list parse failure at %s:%d" \
-                                        % ( fname, lineno ))
+                raise SyntaxError('Package-list parse failure at {0:s}:{1:d}' \
+                                    .format(fname, lineno))
 
             if matches.group('pkgname'):
                 pkgname = matches.group('pkgname')
@@ -960,22 +958,23 @@ class PkgSetProcessor(BuildReporter):
                             additions.add(r)
                 except:
                     if not pkginfo.HasFileContent():
-                        self._statview('Cannot find epoch \'%s\' for %s' \
-                                       % (epoch, pkg),
+                        self._statview('Cannot find epoch \'{0}\' for {1}' \
+                                        .format(epoch, pkg),
                                        BuildViewer.SEV_WARNING)
 
         if badpkgnames:
             badpkgnames.sort()
             self._statview("The following package names"
-                           " were not recognized:\n\t%s"
-                            % ( '\n\t'.join(badpkgnames) ),
+                           " were not recognized:\n\t{0}"
+                            .format('\n\t'.join(badpkgnames)),
                             BuildViewer.SEV_ERROR)
             raise PMCygException("Invalid package names"
                                  " in ExpandDependencies()")
         if badrequires:
-            links = [ '%s->%s' % (pkg, dep) for (pkg, dep) in badrequires ]
-            self._statview("Master package list contains"
-                           " spurious dependencies: %s" % ', '.join(links),
+            links = [ '{0}->{1}'.format(pkg, dep)
+                        for (pkg, dep) in badrequires ]
+            self._statview("Master package list contains spurious"
+                           " dependencies: {0}".format(', '.join(links)),
                            BuildViewer.SEV_WARNING)
 
         packages = list(packages)
@@ -1033,8 +1032,8 @@ class PkgSetProcessor(BuildReporter):
 
         lines = [ \
             '# Package listing for pmcyg (Cygwin(TM) Partial Mirror)',
-            '# Autogenerated on %s' % time.asctime(),
-            '# from: %s' % self._masterList.GetSourceURL(),
+            '# Autogenerated on ' + time.asctime(),
+            '# from: ' + self._masterList.GetSourceURL(),
             '',
             '# This file contains listings of cygwin package names,' \
                 ' one per line.',
@@ -1050,7 +1049,7 @@ class PkgSetProcessor(BuildReporter):
             if terse and not set(catgroups[cat]).intersection(userpkgs):
                 continue
 
-            print('\n\n##\n## %s\n##' % cat, file=stream)
+            print('\n\n##\n## {0:s}\n##'.format(cat), file=stream)
 
             for pkg in catgroups[cat]:
                 desc = ConcatShortDescription(pkgdict[pkg].GetAny('sdesc'))
@@ -1059,8 +1058,8 @@ class PkgSetProcessor(BuildReporter):
                 else:
                     if terse: continue
                     prefix = ('#', '')
-                stream.write('%s%-28s   %s# %s\n' \
-                                % ( prefix[0], pkg, prefix[1], desc ))
+                stream.write('{0:s}{1:<28s}   {2:s}# {3:s}\n' \
+                                .format(prefix[0], pkg, prefix[1], desc))
 
     def UpdatePackageLists(self, filenames, bckp=".orig"):
         """Rewrite a set of package lists, updating package-descriptions.
@@ -1093,8 +1092,9 @@ class PkgSetProcessor(BuildReporter):
                             pass
                         break
                 if pkgdesc and cutpos > 0:
-                    line = '%s# %s' % ( line[0:cutpos],
-                                        ConcatShortDescription(pkgdesc) )
+                    line = '{0:s}# {1:s}' \
+                                .format(line[0:cutpos],
+                                        ConcatShortDescription(pkgdesc))
                 print(line, file=fout)
             fout.close()
             fin.close()
@@ -1198,8 +1198,8 @@ class MasterPackageList(BuildReporter):
             self._pkgLock.acquire()
             if self._ini_header and self._ini_packages:
                 return
-            self._statview.startOperation('Scanning mirror index at %s' \
-                                          % self._iniURL)
+            self._statview.startOperation('Scanning mirror index at {0:s}' \
+                                            .format(self._iniURL))
             self._parseSource()
             self._statview.endOperation('done')
         finally:
@@ -1214,7 +1214,8 @@ class MasterPackageList(BuildReporter):
         try:
             fp = SetupIniFetcher(self._iniURL)
         except Exception as ex:
-            raise PMCygException("Failed to open %s - %s" % ( self._iniURL, str(ex) ))
+            raise PMCygException("Failed to open {0:s} - {1:s}" \
+                                    .format(self._iniURL, str(ex)))
 
         lineno = 0
         self._pkgname = None
@@ -1254,7 +1255,8 @@ class MasterPackageList(BuildReporter):
         """Classify current line as package definition/field etc"""
         matches = self.re_dbline.match(line)
         if not matches:
-            raise SyntaxError("Unrecognized content on line %d" % ( lineno ))
+            raise SyntaxError("Unrecognized content on line {0:d}" \
+                                .format(lineno))
 
         if matches.group('relinfo'):
             self._ini_header[matches.group('relinfo')] = matches.group('relParam')
@@ -1565,7 +1567,7 @@ class GarbageCollector(BuildReporter):
             for dr in rdirs:
                 os.rmdir(dr)
         except Exception as ex:
-            self._statview('Failed to remove outdated files - %s' % str(ex),
+            self._statview('Failed to remove outdated files - ' + str(ex),
                            BuildViewer.SEV_WARNING)
 
     def _checkTopSuspiciousness(self):
@@ -1635,13 +1637,14 @@ class GarbageConfirmer(BuildReporter):
         if not self.HasResponded():
             self._awaitResponse()
         if self._userresponse == 'yes':
-            self._statview('Deleting %d files' % self._garbage.GetNfiles())
+            self._statview('Deleting {0:d} files' \
+                            .format(self._garbage.GetNfiles()))
             self._garbage.PurgeFiles()
 
     def _askUser(self, allfiles):
         print('\nThe following files are outdated:')
         for fl in allfiles:
-            print('  %s' % fl)
+            print('  {0:s}'.format(fl))
 
         try:
             response = input('Delete outdated files [yes/NO]: ').lower()
@@ -1945,12 +1948,13 @@ class TKgui(object):
                         aspect=300, border=2, relief=Tk.GROOVE, text= \
 """pmcyg
 - a tool for creating Cygwin\N{REGISTERED SIGN} partial mirrors
-Version %s
+Version {0:s}
 
-\N{COPYRIGHT SIGN}Copyright 2009-2013 RW Penney
+\N{COPYRIGHT SIGN}Copyright 2009-2014 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it under the terms of the GNU General Public License (v3).""" % ( PMCYG_VERSION ))
+This is free software, and you are welcome to redistribute it under
+the terms of the GNU General Public License (v3).""".format(PMCYG_VERSION))
             msg.pack(side=Tk.TOP, fill=Tk.X, padx=2, pady=2)
             self._aboutwin = win
         else:
@@ -1985,7 +1989,8 @@ This is free software, and you are welcome to redistribute it under the terms of
         self.pkgs_entry.config(state='readonly')
 
         pkgset = PackageSet(self.pkgfiles)
-        self.stats_label.config(text='%d packages selected' % ( len(pkgset) ))
+        self.stats_label.config(text='{0:d} packages selected' \
+                                    .format(len(pkgset)))
 
     def cacheSelect(self):
         """Callback for selecting directory into which to download packages"""
@@ -2015,7 +2020,7 @@ This is free software, and you are welcome to redistribute it under the terms of
                 for site, url in sites:
                     fields = url.split(':', 1)
                     if fields:
-                        site = '%s (%s)' % ( site, fields[0] )
+                        site = '{0} ({1})'.format(site, fields[0])
                     cntmenu.add_command(label=site,
                                     command=lambda url=url:self.setMirror(url))
 
@@ -2183,7 +2188,7 @@ class GUIfetchThread(threading.Thread):
 
             builder.BuildMirror(pkgset)
         except Exception as ex:
-            self.parent.writeMessage('Build failed - %s' % str(ex),
+            self.parent.writeMessage('Build failed - ' + str(ex),
                                      BuildViewer.SEV_WARNING)
 
 
@@ -2200,11 +2205,11 @@ class GUItemplateThread(threading.Thread):
         try:
             builder.TemplateFromLists(self.filename, self.parent.pkgfiles,
                                     self.cygwinReplica)
-            self.parent.writeMessage('Generated template file "%s"' \
-                                     % ( self.filename ))
+            self.parent.writeMessage('Generated template file "{0}"' \
+                                        .format(self.filename))
         except Exception as ex:
-            self.parent.writeMessage('Failed to create "%s" - %s' \
-                                     % ( self.filename, str(ex) ),
+            self.parent.writeMessage('Failed to create "{0}" - {1}' \
+                                        .format(self.filename, str(ex)),
                                      BuildViewer.SEV_WARNING)
 
 
@@ -2528,10 +2533,12 @@ def ProcessPackageFiles(builder, pkgfiles):
         if isofile:
             builder.BuildISO(isofile)
     except Exception as ex:   # Treat separately for compatibility with Python-2.4
-        print('Fatal error during mirroring [%s]' % ( str(ex) ), file=sys.stderr)
-        import traceback; traceback.print_exc()
+        print('Fatal error during mirroring [{0}]'.format(str(ex)),
+              file=sys.stderr)
+        #import traceback; traceback.print_exc()
     except BaseException as ex:
-        print('Fatal error during mirroring [%s]' % ( str(ex) ), file=sys.stderr)
+        print('Fatal error during mirroring [{0}]'.format(str(ex)),
+              file=sys.stderr)
 
 
 def TemplateMain(builder, outfile, pkgfiles, cygwinReplica=False):
@@ -2612,11 +2619,11 @@ def main():
 
     opts, remargs = parser.parse_args()
 
+    builder.SetArch(opts.cygwin_arch)
     builder.SetTargetDir(opts.directory)
     builder.SetMirrorURL(opts.mirror)
     builder.SetIniURL(opts.iniurl)
     builder.SetExeURL(opts.exeurl)
-    builder.SetArch(opts.cygwin_arch)
     builder.SetEpochs(opts.epochs.split(','))
     builder.SetOption('DummyDownload', opts.dummy)
     builder.SetOption('AllPackages', opts.all)

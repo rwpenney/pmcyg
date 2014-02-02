@@ -1,0 +1,11 @@
+# pmcyg source artefacts to be ignored by 'git'
+
+.*.swp
+*.pyc
+
+MANIFEST
+
+test/legacy/setup*.ini
+
+www/index.html
+www/pmcyg-template.txt
