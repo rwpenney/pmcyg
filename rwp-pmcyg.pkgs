@@ -150,8 +150,8 @@ subversion-ruby                 # A version control system (ruby bindings)
 subversion-tools                # A version control system (miscellaneous tools)
 swig                            # C/C++ wrapper generator
 tailor                          # Migrate changesets between version control systems
-w32api-headers                  # Windows API headers
-w32api-runtime                  # Windows API import libraries
+w32api-headers                  # MinGW-w64 Windows API headers for Cygwin
+w32api-runtime                  # MinGW-w64 Windows API import libraries for Cygwin
 xdelta              [arch=x86]  # Computes changes between binary files.
 xorg-cf-files                   # Imake config files
 
@@ -203,7 +203,7 @@ ninvaders                       # A space invaders-like game using ncurses.
 ##
 ## Graphics
 ##
-GraphicsMagick                  # GraphicsMagick is the swiss army knife of image processing
+GraphicsMagick                  # GraphicsMagick library
 ImageMagick                     # Image manipulation software suite (utilities)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 epstool                         # Edit preview images and fix bounding boxes in EPS files
@@ -220,7 +220,7 @@ jbigkit                         # The JBIG lossless image compression library
 jgraph                          # A Filter for Plotting Graphs in Postscript
 jpeg                            # A library for manipulating JPEG image format files
 lcms                            # Little color management engine (utilities)
-#libGraphicsMagick-devel         # GraphicsMagick library (runtime)
+#libGraphicsMagick-devel         # GraphicsMagick library (devel)
 libImlib-devel                  # GNOME 1.4 graphics rendering library
 libMagick-devel                 # Image manipulation software suite (development)
 libjpeg-devel                   # A library for manipulating JPEG image format files (devel)
@@ -301,7 +301,7 @@ libxslt                         # GNOME XSLT library (runtime)
 libxslt-devel                   # GNOME XSLT library (development)
 mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
-popt                            # Library for parsing cmdline parameters - docs and development
+popt                            # Library for parsing cmdline parameters
 python-crypto                   # Cryptographic algorithms and protocols for Python
 python-feedparser               # Universal Feed Parser for Python
 python-paramiko                 # Python library for SSH2 connections
@@ -371,7 +371,7 @@ nfs-server          [arch=x86]  # Universal NFS server.
 openldap                        # Lightweight Directory Access Protocol suite (clients)
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
 openssh                         # The OpenSSH server and client programs
-openssl                         # The OpenSSL base environment
+openssl                         # A general purpose cryptography toolkit with TLS implementation
 openssl-devel                   # A general purpose cryptography toolkit with TLS implementation (development)
 ping                [arch=x86]  # A basic network tool to test IP network conectivity
 proftpd             [arch=x86]  # A flexible, stable and highly-configurable FTP Server
@@ -604,9 +604,9 @@ libGLU-devel                    # OpenGL utility library (development)
 libGLw-devel                    # OpenGL widget library (development)
 libOSMesa-devel                 # Mesa Off-Screen rendering library (development)
 libX11-devel                    # X.Org X11 core library (development)
-libXaw-devel                    # X.Org Athena Widgets library (development)
+libXaw-devel                    # X.Org Athena Widgets library
 libXaw3d-devel                  # Three-dimensional Athena widget library (development)
-libXmu-devel                    # X.Org miscellaneous utility libraries (development)
+libXmu-devel                    # X.Org miscellaneous utility libraries
 libXt-devel                     # X.Org X Toolkit library
 libfltk-devel                   # Fast Light Toolkit (development, for X11)
 libfreetype-devel               # FreeType font engine
@@ -623,24 +623,24 @@ setxkbmap                       # X.Org keyboard settings utility
 sxpm                            # X.Org X Pixmap utilities
 tcl-tix                         # Tk Interface eXtension
 tcl-tk                          # Tcl X11 toolkit
-twm                             # X.Org Tiny Window Manager
+twm                             # X Tab Window Manager
 xev                             # X event monitor
 xfontsel                        # X font selector
 xhost                           # X server access control utility
 xinit                           # X.Org X server initializer
-xinput                          # X.Org XInput device tester
+xinput                          # X input device tester
 xkbcomp                         # X.Org XKB keymap compiler
 xkbevd                          # X.Org XKB event daemon
 xkbprint                        # X.Org XKB keyboard description printer
 xkbutils                        # X keyboard utilities
 xkeyboard-config                # X11 keyboard configuration database
-xkill                           # X.Org X client connection closer
-xload                           # X.Org system load display
+xkill                           # X client connection closer
+xload                           # X system load display
 xlogo                           # X.Org logo
 xlsatoms                        # X.Org interned atoms lister
-xlsclients                      # X.Org display clients lister
+xlsclients                      # Lists clients connected to an X display
 xlsfonts                        # X.Org server font lister
-xman                            # X.Org man page reader
+xman                            # X man page viewer
 xmessage                        # X message displayer
 xmh                             # X.Org frontend to MH mail handler
 xmodmap                         # X.Org keyboard modifier map and keymap table utility
@@ -656,14 +656,14 @@ xproto                          # X.Org X11 core headers
 xrdb                            # X.Org X server resource database utility
 xrefresh                        # X display refresher
 xscope                          # X.Org X protocol viewer
-xset                            # X.Org display preference utility
+xset                            # X display preferences utility
 xsetroot                        # X.Org X root window parameter setting utility
 xsm                             # X session manager
 xsri                [arch=x86]  # X Set Root Image
 xstdcmap                        # X standard colormap utility
 xterm                           # X11 terminal emulator
-xtrans                          # X.Org XTrans common code and headers
-xwd                             # X.Org X window dumping utility
+xtrans                          # X.Org transport code and headers
+xwd                             # X window dumper utility
 xwininfo                        # X window information utility
 xwinwm              [arch=x86]  # Window manager for experimental WindowsWM multi-window mode
 xwud                            # X.Org X window dump displayer

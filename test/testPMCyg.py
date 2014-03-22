@@ -234,7 +234,7 @@ class testPkgSetProcessor(unittest.TestCase):
 class testBuilder(unittest.TestCase):
     def setUp(self):
         self.builder = PMbuilder(Viewer=SilentBuildViewer())
-        self.builder.SetIniURL(getSetupURL())
+        self.builder.setup_ini_url = getSetupURL()
         self.builder.SetTargetDir(tempfile.mkdtemp())
         self.makeTemplate = self.builder._pkgProc.MakeTemplate
 
@@ -473,7 +473,7 @@ class testPackageLists(unittest.TestCase):
             tmpdir = tempfile.mkdtemp()
 
             builder = PMbuilder(Viewer=SilentBuildViewer())
-            builder.SetIniURL(url)
+            builder.setup_ini_url = url
             builder.SetTargetDir(tmpdir)
 
             builder._optiondict['AllPackages'] = True

@@ -215,7 +215,7 @@ class PMbuilder(BuildReporter):
         self._exeurl = CygwinInstaller
 
         # URL of Cygwin mirror site, hosting available packages:
-        self._mirror = MirrorSite
+        self.mirror_url = MirrorSite
 
         # URL of Cygwin package database file (derived from _mirror if 'None'):
         self._iniurl = None
@@ -259,30 +259,50 @@ class PMbuilder(BuildReporter):
         """Set the root directory beneath which packages will be downloaded"""
         self._tgtdir = tgtdir
 
-    def GetExeURL(self):
-        return self._exeurl
+    @property
+    def setup_exe_url(self):
+        """The URL of the setup.exe Cygwin installer"""
+        keywords = { 'arch': self._cygarch,
+                     '_arch': '-' + self._cygarch }
+        exe_expr = self._exeurl
+        if not exe_expr:
+            exe_expr = DEFAULT_INSTALLER_URL
+        exe_template = string.Template(exe_expr)
+        return exe_template.substitute(keywords)
 
-    def SetExeURL(self, exesrc):
-        """Set the location of the setup.exe Cygwin installer"""
-        self._exeurl = exesrc
+    @setup_exe_url.setter
+    def setup_exe_url(self, URL):
+        self._exeurl = URL
 
-    def GetMirrorURL(self):
+    @property
+    def mirror_url(self):
+        """The URL of the mirror site from which to download Cygwin packages"""
         return self._mirror
 
-    def SetMirrorURL(self, mirror, resetiniurl=True):
-        """Set the URL from which to download Cygwin packages"""
-        self._mirror = mirror
+    @mirror_url.setter
+    def mirror_url(self, URL):
+        if not URL.endswith('/'):
+            URL += '/'
+        self._mirror = URL
 
-        if resetiniurl:
-            self.SetIniURL(None)
+    @property
+    def setup_ini_url(self):
+        """The (architecture-dependent) URL for the setup.ini package-list."""
+        if self._iniurl:
+            # Use prescribed URL directly:
+            return self._iniurl
+        else:
+            # Base URL on chosen mirror site, and selected architecture:
+            if self._cygarch:
+                basename = '{0}/setup.bz2'.format(self._cygarch)
+            else:
+                basename = 'setup.bz2'
+            return urllib.parse.urljoin(self._mirror, basename)
 
-    def GetIniURL(self):
-        return self._iniurl
-
-    def SetIniURL(self, iniurl):
-        """Set the location of the setup.ini/setup.bz2 official package list"""
-        self._iniurl = iniurl
-        self._fillinIniURL()
+    @setup_ini_url.setter
+    def setup_ini_url(self, URL):
+        self._iniurl = URL
+        self._masterList.SetSourceURL(self.setup_ini_url)
 
     def GetArch(self):
         return self._cygarch
@@ -366,7 +386,7 @@ class PMbuilder(BuildReporter):
 
 
     def UpdatePackageLists(self, filenames, bckp=".orig"):
-        self._fillinIniURL()
+        self._masterList.SetSourceURL(self.setup_ini_url)
         self._pkgProc.UpdatePackageLists(filenames, bckp)
 
 
@@ -378,7 +398,7 @@ class PMbuilder(BuildReporter):
         together with installer artefacts."""
 
         self._cancelling = False
-        self._fillinIniURL()
+        self._masterList.SetSourceURL(self.setup_ini_url)
 
         userpackages = []
         if pkgset:
@@ -428,7 +448,7 @@ class PMbuilder(BuildReporter):
     def TemplateFromLists(self, outfile, pkgfiles, cygwinReplica=False):
         """Wrapper for PkgSetProcessor.MakeTemplate(),
         taking collection of package files"""
-        self._fillinIniURL()
+        self._masterList.SetSourceURL(self.setup_ini_url)
 
         pkgset = PackageSet(pkgfiles)
         if cygwinReplica:
@@ -446,8 +466,8 @@ class PMbuilder(BuildReporter):
         return io.BytesIO(b'''
 ftp://mirror.internode.on.net/pub/cygwin/;mirror.internode.on.net;Australasia;Australia
 http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
-ftp://mirror.cpsc.ucalgary.ca/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
-http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com/;mirror.cpsc.ucalgary.ca;Canada;Alberta
+ftp://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
+http://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
 ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
 ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
@@ -458,21 +478,6 @@ http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.
 ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
 http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 ''')
-
-    def _fillinIniURL(self):
-        """Ensure that URL of setup.ini file is either set explicitly,
-        or is derived from the URL of the mirror site"""
-        if not self._mirror.endswith('/'):
-            self._mirror += '/'
-        reload = False
-        if not self._iniurl:
-            if self._cygarch:
-                basename = '{0}/setup.bz2'.format(self._cygarch)
-            else:
-                basename = 'setup.bz2'
-            self._iniurl = urllib.parse.urljoin(self._mirror, basename)
-            reload = True
-        self._masterList.SetSourceURL(self._iniurl, reload)
 
     def _resolveDependencies(self, usrpkgs=None):
         """Constuct list of packages, including all their dependencies"""
@@ -557,9 +562,9 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         hashfiles = []
 
         archdir = self._getArchDir(create=True)
-        exeURL = self._expandExeURL()
+        exeURL = self.setup_exe_url
 
-        (inifile, inipure) = self._urlbasename(self._iniurl)
+        (inifile, inipure) = self._urlbasename(self.setup_ini_url)
         inibase = inipure + '.ini'
         inibz2 = inipure + '.bz2'
         (exebase, exepure) = self._urlbasename(exeURL)
@@ -580,7 +585,7 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 '# This file was automatically generated by' \
                     ' "pmcyg" (version {0}),'.format(PMCYG_VERSION),
                 '# {0},'.format(time.asctime(now)),
-                '# based on {0}'.format(self.GetIniURL()),
+                '# based on {0}'.format(self.setup_ini_url),
                 '# Manual edits may be overwritten',
                 'release: {0}'.format(header['release']),
                 'arch: {0}'.format(header['arch']),
@@ -788,14 +793,6 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
         if create and not os.path.isdir(archdir):
             os.makedirs(archdir)
         return archdir
-
-    def _expandExeURL(self):
-        """Return the URL of the Cygwin setup.exe installer,
-        expanding any architecture-dependent strings"""
-        keywords = { 'arch': self._cygarch,
-                     '_arch': '-' + self._cygarch }
-        exetemplate = string.Template(self._exeurl)
-        return exetemplate.substitute(keywords)
 
     def _prettyfsize(self, size):
         """Pretty-print file size, autoscaling units"""
@@ -1819,14 +1816,14 @@ class TKgui(object):
         label = Tk.Label(parampanel, text='Installer URL:')
         label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
         self.setup_entry = Tk.Entry(parampanel, width=entwidth)
-        self.setup_entry.insert(0, self.builder.GetExeURL())
+        self.setup_entry.insert(0, self.builder._exeurl)
         self.setup_entry.grid(row=rownum, column=1, sticky=Tk.W+Tk.E)
         rownum += 1
 
         label = Tk.Label(parampanel, text='Mirror URL:')
         label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
         self.mirror_entry = Tk.Entry(parampanel, width=entwidth)
-        self.mirror_entry.insert(0, self.builder.GetMirrorURL())
+        self.mirror_entry.insert(0, self.builder.mirror_url)
         self.mirror_entry.grid(row=rownum, column=1, sticky=Tk.W+Tk.E)
         self.mirror_btn = Tk.Menubutton(parampanel, image=self._img_folder,
                                         text='Mirror list',
@@ -2071,8 +2068,8 @@ the terms of the GNU General Public License (v3).""".format(PMCYG_VERSION))
 
         self.builder.SetArch(self.arch_var.get())
         self.builder.SetTargetDir(self.cache_entry.get())
-        self.builder.SetExeURL(self.setup_entry.get())
-        self.builder.SetMirrorURL(self.mirror_entry.get())
+        self.builder.setup_exe_url = self.setup_entry.get()
+        self.builder.mirror_url = self.mirror_entry.get()
 
 
 
@@ -2574,7 +2571,7 @@ def main():
             dest='dummy', default=False,
             help='do not actually download packages')
     bscopts.add_option('--mirror', '-m', type='string',
-            default=builder.GetMirrorURL(),
+            default=builder.mirror_url,
             help='URL of Cygwin archive or mirror site (default=%default)')
     bscopts.add_option('--nogui', '-c', action='store_true', default=False,
             help='do not startup graphical user interface (if available)')
@@ -2595,7 +2592,7 @@ def main():
             help='comma-separated list of epochs, e.g. "curr,prev"'
                 ' (default=%default)')
     advopts.add_option('--exeurl', '-x', type='string',
-            default=builder.GetExeURL(),
+            default=DEFAULT_INSTALLER_URL,
             help='URL of "setup.exe" Cygwin installer (default=%default)')
     advopts.add_option('--iniurl', '-i', type='string', default=None,
             help='URL of "setup.ini" Cygwin database (default=%default)')
@@ -2621,9 +2618,9 @@ def main():
 
     builder.SetArch(opts.cygwin_arch)
     builder.SetTargetDir(opts.directory)
-    builder.SetMirrorURL(opts.mirror)
-    builder.SetIniURL(opts.iniurl)
-    builder.SetExeURL(opts.exeurl)
+    builder.mirror_url = opts.mirror
+    builder.setup_ini_url = opts.iniurl
+    builder.setup_exe_url = opts.exeurl
     builder.SetEpochs(opts.epochs.split(','))
     builder.SetOption('DummyDownload', opts.dummy)
     builder.SetOption('AllPackages', opts.all)
