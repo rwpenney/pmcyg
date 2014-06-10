@@ -2,6 +2,12 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2014, RW Penney
 
+10Jun14 **** pmcyg-2.0.1 released ****
+
+08Jun14
+    Tidied various Python-2.x remnants
+    Updated example package lists to reflect changes in official Cygwin lists
+
 22Mar14 **** pmcyg-2.0 released ****
 
 08Feb14

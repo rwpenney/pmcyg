@@ -12,7 +12,7 @@ cabextract                      # Extract Microsoft cabinet (.CAB) files
 p7zip               [arch=x86]  # A file archiver with very high compression ratios.
 sharutils                       # The GNU shar utilities including uuencode/uudecode.
 unzip                           # Info-ZIP decompression utility
-xz                              # XZ and LZMA compression (utilities)
+xz                              # LZMA de/compressor
 zip                             # Info-ZIP compression utility
 
 
@@ -36,7 +36,7 @@ gcc-core                        # GNU Compiler Collection (C, OpenMP)
 make                            # The GNU version of the 'make' utility
 mercurial                       # Python based distributed version control system (DVCS)
 patch                           # Applies diff files
-patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+patchutils                      # Utilities for manipulating patch files
 rcs                             # The Revision Control System
 
 
@@ -50,10 +50,10 @@ man                             # Man, apropos and whatis commands
 ##
 ## Editors
 ##
-bvi                 [arch=x86]  # Binary vi-like editor
+bvi                             # Binary vi-like editor
 ed                              # The GNU version of the original UNIX line editor
 hexedit                         # Hexidecimal file viewer and editor
-joe                 [arch=x86]  # Fast and simple editor which emulates 5 other editors
+joe                             # Fast and simple editor which emulates 5 other editors
 vim                             # Vi IMproved - enhanced vi editor
 
 
@@ -61,7 +61,7 @@ vim                             # Vi IMproved - enhanced vi editor
 ## Interpreters
 ##
 gawk                            # GNU awk, a pattern scanning and processing language
-m4                              # GNU implementation of the traditional Unix macro processor.
+m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Larry Wall's Practical Extracting and Report Language
 python                          # Python language interpreter
 
@@ -76,10 +76,10 @@ bc                              # The GNU numeric processing language and revers
 ## Net
 ##
 curl                            # Multi-protocol file transfer tool
-inetutils           [arch=x86]  # Common networking clients and servers
-openssh                         # The OpenSSH server and client programs
-openssl                         # The OpenSSL base environment
-ping                [arch=x86]  # A basic network tool to test IP network conectivity
+inetutils                       # Common networking clients and servers (clients)
+openssh                         # Secure shell server and client programs
+openssl                         # A general purpose cryptography toolkit with TLS implementation
+ping                            # A basic network tool to test IP network conectivity
 rsh                             # Clients for remote access commands (rsh, rlogin, rcp, rexec)
 tftp                            # Extended version of the BSD TFTP (client)
 
@@ -102,8 +102,8 @@ tcsh                            # TENEX C Shell, an enhanced version of Berkeley
 ## System
 ##
 e2fsprogs                       # Ext2/3/4 filesystem utilities
-ping                [arch=x86]  # A basic network tool to test IP network conectivity
-procps              [arch=x86]  # Utilities for monitoring your system and processes on your system.
+ping                            # A basic network tool to test IP network conectivity
+procps                          # System and process monitoring utilities
 psmisc                          # Utilities for managing processes on your system
 util-linux                      # Random collection of Linux utilities
 
@@ -111,10 +111,10 @@ util-linux                      # Random collection of Linux utilities
 ##
 ## Text
 ##
-antiword            [arch=x86]  # A free MS Word reader
-flip                [arch=x86]  # Convert text file line endings between Unix and DOS formats
+antiword                        # A free MS Word reader
+flip                            # Convert text file line endings between Unix and DOS formats
 less                            # A file pager program, similar to more(1)
-patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+patchutils                      # Utilities for manipulating patch files
 source-highlight                # Syntax highlighting utilities
 util-linux                      # Random collection of Linux utilities
 
@@ -129,8 +129,8 @@ cygutils-extra                  # A collection of simple utilities (other tools)
 diffutils                       # A GNU collection of diff utilities
 file                            # Determines file type using 'magic' numbers
 genisoimage                     # Create ISO/Joliet/HFS filesystem images (part of cdrkit)
-patchutils          [arch=x86]  # A small collection of programs that operate on patch files
+patchutils                      # Utilities for manipulating patch files
 screen                          # Run separate screens on a single terminal
-time                [arch=x86]  # The GNU time command
+time                            # The GNU time command
 util-linux                      # Random collection of Linux utilities
 which                           # Prints out full path of executables

@@ -14,7 +14,7 @@ builder = PMbuilder(MirrorSite=PKG_HOST,
                     IncludeSources=False,
                     RemoveOutdated='ask',
                     ISOfilename='./cygwin-pmcyg.iso',
-                    DummyDownload=True)
+                    DummyDownload=False)
 
 ProcessPackageFiles(builder, PKG_LISTS)
 

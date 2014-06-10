@@ -206,7 +206,7 @@ class testPkgSetProcessor(unittest.TestCase):
         self.assertTrue(len(explist) > 20)
         self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel',
                                     'cygwin', 'icu',
-                                    'libexpat1', 'libgcc1', 'libncurses8',
+                                    'libattr1', 'libgcc1', 'libncurses8',
                                     'libreadline7', 'perl', 'tzcode'])
 
     def testInverse(self):
@@ -512,7 +512,7 @@ class testMirrorLists(unittest.TestCase):
         fp0 = PMbuilder._makeFallbackMirrorList()
         (fb_regions, fb_urls) = self.mkSets(fp0)
         fp0.close()
-        fp1 = URLopen(CYGWIN_MIRROR_LIST_URL)
+        fp1 = urllib.request.urlopen(CYGWIN_MIRROR_LIST_URL)
         (cyg_regions, cyg_urls) = self.mkSets(fp1)
         fp1.close()
 

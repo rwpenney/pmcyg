@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '2.0'
+PMCYG_VERSION = '2.0.1'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -32,8 +32,6 @@ SI_TEXT_ENCODING = 'utf-8'
 import  bz2, codecs, hashlib, io, optparse, os, os.path, re, \
         string, subprocess, sys, threading, time, \
         urllib.request, urllib.parse, urllib.error, urllib.parse
-try: from urllib.request import urlopen as URLopen
-except ImportError: from urllib.request import urlopen as URLopen
 try:
     import tkinter as Tk
     import queue, tkinter.scrolledtext, tkinter.filedialog
@@ -43,11 +41,6 @@ except:
     HASGUI = False
 
 HOST_IS_CYGWIN = (sys.platform == 'cygwin')
-
-broken_openfilenames = False
-if sys.platform.startswith('win') and sys.version.startswith('2.6.'):
-    # Selecting multiple filenames is broken in Windows version of Python-2.6:
-    broken_openfilenames = True
 
 
 
@@ -167,7 +160,7 @@ class SetupIniFetcher(object):
 
     def __init__(self, URL):
         self._buffer = None
-        stream = URLopen(URL)
+        stream = urllib.request.urlopen(URL)
         expander = lambda x: x
         if URL.endswith('.bz2'):
             expander = bz2.decompress
@@ -339,7 +332,7 @@ class PMbuilder(BuildReporter):
         self._mirrordict = {}
 
         try:
-            fp = URLopen(CYGWIN_MIRROR_LIST_URL)
+            fp = urllib.request.urlopen(CYGWIN_MIRROR_LIST_URL)
         except:
             self._statview('Failed to read list of Cygwin mirrors' \
                            ' from {0}'.format(CYGWIN_MIRROR_LIST_URL),
@@ -1966,12 +1959,6 @@ the terms of the GNU General Public License (v3).""".format(PMCYG_VERSION))
     def pkgsSelect(self):
         """Callback for selecting set of user-supplied listing of packages"""
         opendlg = tkinter.filedialog.askopenfilenames
-        if broken_openfilenames:
-            def opendlg(*args, **kwargs):
-                filename = tkinter.filedialog.askopenfilename(*args, **kwargs)
-                if filename: return (filename, )
-                else: return None
-
         pkgfiles = opendlg(title='pmcyg user-package lists')
         self.updatePkgSelection(pkgfiles)
 
