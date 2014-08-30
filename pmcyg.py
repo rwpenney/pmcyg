@@ -461,7 +461,7 @@ ftp://mirror.internode.on.net/pub/cygwin/;mirror.internode.on.net;Australasia;Au
 http://mirror.aarnet.edu.au/pub/sourceware/cygwin/;mirror.aarnet.edu.au;Australasia;Australia
 ftp://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
 http://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
-ftp://mirror.switch.ch/mirror/cygwin/;mirror.switch.ch;Europe;Switzerland
+ftp://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
 ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 ftp://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania

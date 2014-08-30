@@ -4,10 +4,7 @@
 
 from distutils.core import setup
 import distutils.command.build_scripts as DIB
-
-import os, re, sys
-try: import lib2to3.main
-except: pass
+import os, re
 
 pmcyg_scripts = [ 'pmcyg.py' ]
 
