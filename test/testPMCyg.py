@@ -200,14 +200,14 @@ class testPkgSetProcessor(unittest.TestCase):
         explist = pkgProc.ExpandDependencies(['make'])
         self.assertTrue(len(explist) > 6)
         self.checkSubset(explist, ['make', 'bash', 'coreutils', 'cygwin',
-                                    'libgcc1', 'tzcode'])
+                                    'libgcc1', 'terminfo'])
 
         explist = pkgProc.ExpandDependencies(['bash', 'libboost-devel', 'bvi'])
         self.assertTrue(len(explist) > 20)
         self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel',
                                     'cygwin', 'icu',
                                     'libattr1', 'libgcc1', 'libncurses8',
-                                    'libreadline7', 'perl', 'tzcode'])
+                                    'libreadline7', 'perl', 'terminfo'])
 
     def testInverse(self):
         """Check that contraction can be inverted by expansion"""

@@ -2,6 +2,17 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2014, RW Penney
 
+31Dec14 **** pmcyg-2.1 released ****
+
+30Dec14
+    Fixed script-based dummy-download to avoid attempting to create ISO image.
+    Patched GUI initialization bug under Cygwin.
+    Reinstated patch for tkFileDialog bug in MSW versions of Python.
+
+24Dec14
+    Updated example package lists to track official Cygwin lists.
+    Updated various open/close patterns to use 'with' blocks.
+
 10Jun14 **** pmcyg-2.0.1 released ****
 
 08Jun14

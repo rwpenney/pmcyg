@@ -24,7 +24,7 @@ findutils                       # Utilities for finding files--find, xargs, loca
 gzip                            # The GNU compression utility
 less                            # A file pager program, similar to more(1)
 login                           # Sign on to a system
-man                             # Man, apropos and whatis commands
+man-db                          # Man, apropos and whatis commands
 patch                           # Applies diff files
 perl                            # Larry Wall's Practical Extracting and Report Language
 procps              [arch=x86]  # System and process monitoring utilities
@@ -32,8 +32,8 @@ python                          # Python language interpreter
 sed                             # The GNU sed stream editor
 tar                             # A GNU file archiving program
 tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
-texinfo                         # Documentation system for on-line information and printed output
-util-linux                      # Random collection of Linux utilities
+texinfo                         # GNU documentation formatter
+util-linux                      # Collection of basic system utilities
 unzip                           # Info-ZIP decompression utility
 zip                             # Info-ZIP compression utility
 
@@ -45,7 +45,7 @@ automake                        # Wrapper scripts for automake and aclocal
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
 gcc-g++     [arch=x86,x86_64]   # GNU Compiler Collection (C++)
 gdb                             # The GNU Debugger
-git                             # Fast Version Control System - core files
+git                             # Distributed version control system
 make                            # The GNU version of the 'make' utility
 
 #
@@ -60,7 +60,7 @@ octave                          # GNU Octave language for numerical computations
 X-start-menu-icons  [arch=x86]  # Start menu icons for Cygwin/X programs
 cygwin-x-doc                    # Cygwin/X-specific documentation
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
-xinit                           # X.Org X server initializer
+xinit                           # X.Org X server launcher
 xorg-cf-files                   # Imake config files
 xorg-docs                       # X.Org documentation
 xorg-scripts                    # Xorg miscellaneous scripts

@@ -48,7 +48,7 @@ editrights                      # Alter Windows user rights and privileges from 
 file                            # A utility for determining file types
 findutils                       # Utilities for finding files--find, xargs, locate, updatedb
 gawk                            # GNU awk, a pattern scanning and processing language
-grep                            # Search and print textual input for lines which match a specified pattern
+grep                            # Search for regular expression matches in text files
 gzip                            # The GNU compression utility
 login                           # Sign on to a system
 man-db                          # Man page viewer
@@ -84,7 +84,7 @@ automake                        # Wrapper scripts for automake and aclocal
 automake1.13                    # (1.13) a tool for generating GNU-compliant Makefiles
 automake1.14                    # (1.14) a tool for generating GNU-compliant Makefiles
 bashdb                          # Debugger for bash scripts
-bison                           # A parser generator that is compatible with YACC
+bison                           # GNU yacc-compatible parser generator
 cmake                           # A cross platform build manager
 colorgcc                        # Colorizer for GCC warning/error messages
 cppunit                         # C++ unit testing framework
@@ -162,7 +162,7 @@ xtrans                          # X.Org transport code and headers
 ##
 cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
 cygwin-x-doc                    # Cygwin/X-specific documentation
-texinfo                         # Documentation system for on-line information and printed output
+texinfo                         # GNU documentation formatter
 xorg-docs                       # X.Org documentation
 xpdf                            # An open source viewer for Portable Document Format (PDF) files
 
@@ -204,7 +204,7 @@ ninvaders                       # A space invaders-like game using ncurses.
 ## Graphics
 ##
 GraphicsMagick                  # GraphicsMagick library
-ImageMagick                     # Image manipulation software suite (utilities)
+ImageMagick                     # ImageMagick image processing suite (utilities)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 epstool                         # Edit preview images and fix bounding boxes in EPS files
 exif                            # Command-line EXIF metadata parser
@@ -215,19 +215,19 @@ giflib                          # GIF file manipulation library (utilities and d
 gnuplot                         # A command-line driven interactive function plotting utility
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 hp2xx                           # A HP-GL Converter
-jasper                          # JPEG 2000 library - (utilities)
+jasper                          # JPEG-2000 codec library (utilities)
 jbigkit                         # Converts JBIG1 to/from PBM format
 jgraph                          # A Filter for Plotting Graphs in Postscript
 jpeg                            # JPEG utilities
 lcms                            # Little color management engine (utilities)
 #libGraphicsMagick-devel         # GraphicsMagick library (devel)
 libImlib-devel                  # GNOME 1.4 graphics rendering library
-libMagick-devel                 # Image manipulation software suite (development)
+libMagick-devel                 # ImageMagick image processing suite (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libpng-devel                    # PNG library
 netpbm                          # Toolkit for manipulation of graphic images
 perl-Graphics-Magick            # GraphicsMagick Perl bind (PerlMagick)
-perl-Image-Magick               # Image manipulation software suite (Perl bindings)
+perl-Image-Magick               # ImageMagick image processing suite ((Perl bindings)
 ploticus            [arch=x86]  # Command-line plot and graph generator
 plotutils                       # 2-D scientific data plotting utilities
 potrace                         # Utility to transform bitmaps into vector graphics
@@ -268,7 +268,7 @@ gsl                             # Runtime
 gsl-apps                        # Application programs
 gsl-devel                       # Developers tools
 gsl-doc                         # Documentation
-jasper                          # JPEG 2000 library - (utilities)
+jasper                          # JPEG-2000 codec library (utilities)
 libGL-devel                     # X11 OpenGL library (development)
 libOSMesa-devel                 # Mesa Off-Screen rendering library (development)
 libX11-devel                    # X.Org X11 core library (development)
@@ -314,9 +314,9 @@ subversion-perl                 # A version control system (perl bindings)
 subversion-python               # A version control system (python bindings)
 subversion-ruby                 # A version control system (ruby bindings)
 terminfo-extra                  # Terminal capability database (additional entries)
-zlib                            # Zlib de/compression library (documentation)
-zlib-devel                      # Zlib de/compression library (development)
-zlib0                           # Zlib de/compression library (runtime)
+zlib                            # Gzip de/compression library (documentation)
+zlib-devel                      # Gzip de/compression library (development)
+zlib0                           # Gzip de/compression library (runtime)
 
 
 ##
@@ -335,7 +335,7 @@ xmh                             # X.Org frontend to MH mail handler
 ##
 ## Math
 ##
-bc                              # The GNU numeric processing language and reverse polish calculator
+bc                              # Arbitrary precision calculator language
 fftw3                           # Fast Fourier transforms C library
 gmp                             # Library for arbitrary precision arithmetic
 gnuplot                         # A command-line driven interactive function plotting utility
@@ -379,14 +379,14 @@ nc                              # Reads and writes data across network connectio
 nfs-server          [arch=x86]  # Universal NFS server.
 openldap                        # Lightweight Directory Access Protocol suite (clients)
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
-openssh                         # Secure shell server and client programs
-openssl                         # A general purpose cryptography toolkit with TLS implementation
-openssl-devel                   # A general purpose cryptography toolkit with TLS implementation (development)
+openssh                         # The OpenSSH server and client programs
+openssl                         # Utilities from the general purpose cryptography library with TLS implementation
+openssl-devel                   # Files for development of applications which will use OpenSSL
 ping                            # A basic network tool to test IP network conectivity
 proftpd             [arch=x86]  # A flexible, stable and highly-configurable FTP Server
 pure-ftpd           [arch=x86]  # Secure production-quality standard-conformant FTP server
 rsync                           # Fast remote file transfer program (can use existing data to minimize transfer)
-stunnel                         # Universal SSL Wrapper
+stunnel                         # Universal TLS wrapper
 urlgrabber                      # Python based URL grabber
 whois                           # GNU Whois
 xinetd              [arch=x86]  # The eXtended InterNET Daemon
@@ -402,7 +402,7 @@ perl                            # Larry Wall's Practical Extracting and Report L
 perl-Error                      # Perl module for OO error/exception handling
 perl-ExtUtils-Depends           # Build Perl XS that depend on other XS
 perl-ExtUtils-PkgConfig         # Perl module for using pkg-config
-perl-Image-Magick               # Image manipulation software suite (Perl bindings)
+perl-Image-Magick               # ImageMagick image processing suite ((Perl bindings)
 perl-Locale-gettext             # Perl module for using gettext and libintl
 perl-Tk                         # Tk GUI toolkit for Perl
 perl-Win32-GUI      [arch=x86]  # Perl Win32-GUI module
@@ -438,7 +438,7 @@ python-gi                       # Python GObject Introspection bindings
 python-gtk2.0                   # Python bindings for GTK+2 and libglade
 python-gtk2.0-demo              # Python bindings for GTK+2 and libglade (demo application)
 python-gtk2.0-devel             # Python bindings for GTK+2 and libglade (development files)
-python-h5py                     # A Pythonic interface to the HDF5 binary data format
+python-h5py                     # A Pythonic interface to the HDF5 binary data format for Python 2
 python-imaging                  # Python Imaging Library
 python-lcms                     # Little color management engine (Python bindings)
 python-libxml2                  # GNOME XML library (Python bindings)
@@ -522,7 +522,7 @@ less                            # A file pager program, similar to more(1)
 patchutils                      # Utilities for manipulating patch files
 source-highlight                # Syntax highlighting utilities
 texi2html                       # A highly customizable texinfo to HTML and other formats translator
-texinfo                         # Documentation system for on-line information and printed output
+texinfo                         # GNU documentation formatter
 untex                           # Remove LaTeX commands from input
 w3m                             # Text-based web browser and pager
 
@@ -530,7 +530,7 @@ w3m                             # Text-based web browser and pager
 ##
 ## Utils
 ##
-bc                              # The GNU numeric processing language and reverse polish calculator
+bc                              # Arbitrary precision calculator language
 bzip2                           # A high-quality block-sorting file compressor (utilities)
 cdrecord                        # Command line CD/DVD writing tool (symlink to wodim)
 colordiff                       # A tool to colorize diff output
@@ -624,7 +624,7 @@ twm                             # X Tab Window Manager
 xev                             # X event monitor
 xfontsel                        # X font selector
 xhost                           # X server access control utility
-xinit                           # X.Org X server initializer
+xinit                           # X.Org X server launcher
 xinput                          # X input device tester
 xkbcomp                         # X.Org XKB keymap compiler
 xkbevd                          # X.Org XKB event daemon
