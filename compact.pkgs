@@ -41,8 +41,8 @@ sqlite3                         # Client program for accessing SQLite 3 database
 ##
 ctags                           # A C programming language indexing and/or cross-reference tool
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
+git                             # Distributed version control system
 make                            # The GNU version of the 'make' utility
-mercurial                       # Python based distributed version control system (DVCS)
 patch                           # Applies diff files
 patchutils                      # Utilities for manipulating patch files
 rcs                             # The Revision Control System
@@ -70,7 +70,7 @@ vim                             # Vi IMproved - enhanced vi editor
 gawk                            # GNU awk, a pattern scanning and processing language
 m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Larry Wall's Practical Extracting and Report Language
-python                          # Python language interpreter
+python3                         # Py3K language interpreter
 
 
 ##
@@ -94,8 +94,7 @@ tftp                            # Extended version of the BSD TFTP (client)
 ##
 ## Python
 ##
-mercurial                       # Python based distributed version control system (DVCS)
-python                          # Python language interpreter
+python3                         # Py3K language interpreter
 
 
 ##

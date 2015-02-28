@@ -85,7 +85,7 @@ automake1.13                    # (1.13) a tool for generating GNU-compliant Mak
 automake1.14                    # (1.14) a tool for generating GNU-compliant Makefiles
 bashdb                          # Debugger for bash scripts
 bison                           # GNU yacc-compatible parser generator
-cmake                           # A cross platform build manager
+cmake                           # Cross-platform makefile generation system
 colorgcc                        # Colorizer for GCC warning/error messages
 cppunit                         # C++ unit testing framework
 ctags                           # A C programming language indexing and/or cross-reference tool
@@ -94,7 +94,7 @@ cvs2svn                         # CVS to Subversion/Bazaar/Git repository conver
 cvsps                           # Generates patchset information from a CVS repository
 cvsutils                        # CVS client utilities for offline work
 cygport                         # Cygwin source packaging tool
-ddd                             # Ddd
+ddd                             # DDD, the data display debugger
 doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavours) and to some extent PHP, C#, and D.
 flex                            # A fast lexical analyzer generator
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
@@ -110,12 +110,10 @@ git-completion                  # Bash completion for Git version control system
 git-gui                         # Graphical interface for Git version control system
 git-svn                         # Subversion compatibility support for Git version control system
 gitk                            # Git repository browser
-gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 gperf                           # Perfect hash function generator
 gsl-apps                        # Application programs
 gsl-devel                       # Developers tools
 gsl-doc                         # Documentation
-guile-devel                     # The GNU extension language and Scheme interpreter - development
 guilt                           # Quilt for git; similar to Mercurial queues
 help2man                        # Creates man pages from program output
 imake                           # X Imake legacy build system
@@ -123,7 +121,9 @@ indent                          # C/C++ language source code formatting program
 inputproto                      # X.Org XInput extension headers
 intltool                        # GNOME XML internalization scripts
 libglut-devel                   # OpenGL Utility Toolkit library (development)
+libgnutls-devel                 # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
+libreadline-devel               # GNU readline and history libraries (development)
 libtool                         # Generic library support script
 make                            # The GNU version of the 'make' utility
 makedepend                      # X Makefile dependency tool
@@ -132,13 +132,13 @@ mingw-gcc-g++                   # GNU Compiler Collection (C++)
 mingw-w32api                    # MinGW.org Win32 runtime headers and libraries
 mingw-zlib-devel                # Zlib for MinGW.org win32 toolchain (devel)
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
+openssl-devel                   # Files for development of applications which will use OpenSSL
 patch                           # Applies diff files
 patchutils                      # Utilities for manipulating patch files
 pkg-config                      # Package compiling configuration utility
 postgresql-devel                # Development files for PostgreSQL server-side programming
 quilt                           # Tool to work with series of patches
 rcs                             # The Revision Control System
-readline            [arch=x86]  # GNU readline and history libraries
 splint                          # Check C programs for security vulnerabilities and programming mistakes.
 stgit                           # Quilt functionality on top of git
 subversion                      # A version control system
@@ -172,14 +172,13 @@ xpdf                            # An open source viewer for Portable Document Fo
 ##
 bvi                             # Binary vi-like editor
 ed                              # GNU line-oriented text editor
+emacs-X11                       # Emacs binaries using the X11 GUI.
 gvim                            # GUI for the Vim text editor
 hexedit                         # Hexidecimal file viewer and editor
 joe                             # Fast and simple editor which emulates 5 other editors
 nano                            # Enhanced clone of Pico editor
 nedit                           # Motif multi-purpose text editor
 vim                             # Vi IMproved - enhanced vi editor
-xemacs              [arch=x86]  # A powerful, highly customizable open source text editor and application development system
-xemacs-emacs-common [arch=x86]  # Programs in common with the emacs package
 
 
 ##
@@ -193,7 +192,7 @@ intltool                        # GNOME XML internalization scripts
 ##
 ## Games
 ##
-ctris               [arch=x86]  # Console mode tetris clone
+ctris                           # Console mode tetris clone
 fortune             [arch=x86]  # Print a random, perhaps interesting, adage; may contain offsensive material
 ninvaders                       # A space invaders-like game using ncurses.
 
@@ -213,6 +212,7 @@ ghostscript-fonts-other         # Miscellaneous fonts derived from the free Hers
 ghostscript-fonts-std           # 35 commercial-quality Type 1 basic PostScript fonts for ghostscript
 giflib                          # GIF file manipulation library (utilities and docs)
 gnuplot                         # A command-line driven interactive function plotting utility
+graphviz                        # Graph visualization tools
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 hp2xx                           # A HP-GL Converter
 jasper                          # JPEG-2000 codec library (utilities)
@@ -224,14 +224,12 @@ lcms                            # Little color management engine (utilities)
 libImlib-devel                  # GNOME 1.4 graphics rendering library
 libMagick-devel                 # ImageMagick image processing suite (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
-libpng-devel                    # PNG library
 netpbm                          # Toolkit for manipulation of graphic images
 perl-Graphics-Magick            # GraphicsMagick Perl bind (PerlMagick)
 perl-Image-Magick               # ImageMagick image processing suite ((Perl bindings)
-ploticus            [arch=x86]  # Command-line plot and graph generator
+ploticus                        # Command-line plot and graph generator
 plotutils                       # 2-D scientific data plotting utilities
 potrace                         # Utility to transform bitmaps into vector graphics
-python-imaging                  # Python Imaging Library
 python-lcms                     # Little color management engine (Python bindings)
 sxpm                            # X.Org X Pixmap utilities
 tiff                            # TIFF image utilities
@@ -243,11 +241,13 @@ tiff-opengl                     # TIFF image viewer
 ##
 gawk                            # GNU awk, a pattern scanning and processing language
 guile                           # The GNU extension language and Scheme interpreter - executables
+guile-devel                     # The GNU extension language and Scheme interpreter - development
 m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Larry Wall's Practical Extracting and Report Language
 python                          # Python language interpreter
 python-tkinter                  # Python Tkinter GUI module
 python3                         # Py3K language interpreter
+python3-tkinter                 # Py3K Tkinter GUI module
 ruby                            # Interpreted object-oriented scripting language
 tcl-tk                          # Tcl X11 toolkit
 xemacs              [arch=x86]  # A powerful, highly customizable open source text editor and application development system
@@ -263,12 +263,10 @@ autotrace                       # A program for converting bitmap to vector grap
 expat                           # Expat XML parser library (xmlwf, docs)
 fftw3                           # Fast Fourier transforms C library
 gmp                             # Library for arbitrary precision arithmetic
-gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 gsl                             # Runtime
 gsl-apps                        # Application programs
 gsl-devel                       # Developers tools
 gsl-doc                         # Documentation
-jasper                          # JPEG-2000 codec library (utilities)
 libGL-devel                     # X11 OpenGL library (development)
 libOSMesa-devel                 # Mesa Off-Screen rendering library (development)
 libX11-devel                    # X.Org X11 core library (development)
@@ -290,13 +288,14 @@ libgcrypt11                     # GnuPG cryptography library
 libglib2.0-devel                # GNOME core C function library (development)
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
+libgnutls-devel                 # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 libgtk2.0-devel                 # GTK+ X11 GUI toolkit (development)
 libjpeg-devel                   # JPEG library with SIMD acceleration
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libncurses-devel                # Terminal display library
 libpcre-devel                   # Perl Compatible Regular Expressions library development
-libreadline6        [arch=x86]  # GNU readline and history libraries (runtime)
-libreadline-devel   [arch=x86_64] # Command-line editing and history libraries
+libpng-devel                    # PNG library
+libreadline-devel               # GNU readline and history libraries (development)
 libtiff-devel                   # TIFF image library
 libuuid-devel                   # Universally Unique ID library (development)
 libxml2-devel                   # GNOME XML library (development)
@@ -309,7 +308,7 @@ popt                            # Library for parsing cmdline parameters
 python-crypto                   # Cryptographic algorithms and protocols for Python
 python-feedparser               # Universal Feed Parser for Python
 python-paramiko                 # Python library for SSH2 connections
-readline            [arch=x86]  # GNU readline and history libraries
+python-wx-tools                 # WxPython development tools
 subversion-perl                 # A version control system (perl bindings)
 subversion-python               # A version control system (python bindings)
 subversion-ruby                 # A version control system (ruby bindings)
@@ -339,10 +338,10 @@ bc                              # Arbitrary precision calculator language
 fftw3                           # Fast Fourier transforms C library
 gmp                             # Library for arbitrary precision arithmetic
 gnuplot                         # A command-line driven interactive function plotting utility
-lapack                          # Comprehensive FORTRAN library for linear algebra operations.
+lapack                          # LAPACK library for linear algebra operations
 libfftw3-devel                  # Fast Fourier transforms C library
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
-liblapack-devel                 # Development libs for LAPACK.
+liblapack-devel                 # LAPACK library for linear algebra operations
 mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
 octave                          # GNU Octave language for numerical computations
 octave-devel                    # GNU Octave (development)
@@ -355,7 +354,7 @@ octave-signal                   # Contributed functions for GNU Octave from octa
 octave-specfun                  # Contributed functions for GNU Octave from octave.sourceforge.net
 octave-splines                  # Contributed functions for GNU Octave from octave.sourceforge.net
 orpie                           # Fullscreen RPN calculator for the console
-units                           # Converts between different systems of units
+units                           # Console unit converter
 xcalc                           # X scientific calculator
 
 
@@ -372,7 +371,6 @@ mingw-libgpg-error-devel    [arch=x86]  # (mingw) A library that defines common 
 bind                            # DNS server
 curl                            # Multi-protocol file transfer tool
 gnutls                          # Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
-gnutls-devel                    # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 inetutils                       # Common networking clients and servers (clients)
 lftp                            # Sophisticated file transfer program
 nc                              # Reads and writes data across network connections using TCP or UDP
@@ -381,9 +379,7 @@ openldap                        # Lightweight Directory Access Protocol suite (c
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
 openssh                         # The OpenSSH server and client programs
 openssl                         # Utilities from the general purpose cryptography library with TLS implementation
-openssl-devel                   # Files for development of applications which will use OpenSSL
 ping                            # A basic network tool to test IP network conectivity
-proftpd             [arch=x86]  # A flexible, stable and highly-configurable FTP Server
 pure-ftpd           [arch=x86]  # Secure production-quality standard-conformant FTP server
 rsync                           # Fast remote file transfer program (can use existing data to minimize transfer)
 stunnel                         # Universal TLS wrapper
@@ -424,6 +420,7 @@ texlive-collection-latex        # TeX Live latex package collection
 ## Python
 ##
 idle                            # Python Tkinter-based IDE
+idle3                           # Py3K Tkinter_based IDE
 mercurial                       # Python based distributed version control system (DVCS)
 python                          # Python language interpreter
 python-crypto                   # Cryptographic algorithms and protocols for Python
@@ -447,10 +444,15 @@ python-lxml                     # Python XML2/XSLT bindings
 python-numpy                    # Python scientific computing module
 python-paramiko                 # Python library for SSH2 connections
 python-pyrex                    # Python extension language
+python-six                      # Python 2 and 3 compatibility library
 python-tkinter                  # Python Tkinter GUI module
 python3                         # Py3K language interpreter
 python3-gi                      # Python GObject Introspection bindings
+python3-h5py                    # A Pythonic interface to the HDF5 binary data format for Python 3
 python3-lxml                    # Py3K XML2/XSLT bindings
+python3-numpy                   # Py3K scientific computing module
+python3-setuptools              # Py3K package management tool
+python3-six                     # Python 2 and 3 compatibility library
 python3-tkinter                 # Py3K Tkinter GUI module
 spambayes                       # Python-based spam filter using statistical analysis
 stgit                           # Quilt functionality on top of git
@@ -530,7 +532,6 @@ w3m                             # Text-based web browser and pager
 ##
 ## Utils
 ##
-bc                              # Arbitrary precision calculator language
 bzip2                           # A high-quality block-sorting file compressor (utilities)
 cdrecord                        # Command line CD/DVD writing tool (symlink to wodim)
 colordiff                       # A tool to colorize diff output
@@ -551,13 +552,12 @@ ncurses                         # Terminal display utilities
 ncurses-demo                    # Terminal display demos
 patcher                         # Perl script To manage patches
 patchutils                      # Utilities for manipulating patch files
-rpm                             # The 'RPM package management system'
+rpm                             # RPM package management system
 rpm-build                       # Scripts and executable programs used to build RPM packages
 run2                            # An enhanced version of the 'run' application launcher
 screen                          # Run separate screens on a single terminal
 stow                            # Manage local software installations
 time                            # The GNU time command
-units                           # Converts between different systems of units
 wdiff                           # Compare two files word by word
 which                           # Prints out full path of executables
 wodim                           # Command line CD/DVD writing tool (part of cdrkit)
@@ -583,7 +583,7 @@ wget                            # Utility to retrieve files from the WWW via HTT
 X-start-menu-icons  [arch=x86]  # Start menu icons for Cygwin/X programs
 cygutils-x11                    # A collection of simple utilities (X11 integration)
 cygwin-x-doc                    # Cygwin/X-specific documentation
-ddd                             # Ddd
+ddd                             # DDD, the data display debugger
 editres                         # X resource editor
 font-adobe-dpi100               # X.Org Adobe 100dpi fonts
 font-adobe-dpi75                # X.Org Adobe 75dpi fonts
