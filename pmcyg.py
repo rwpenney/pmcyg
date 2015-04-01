@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2014, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2015, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '2.1'
+PMCYG_VERSION = '2.2'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -184,6 +184,55 @@ class SetupIniFetcher:
 
 
 
+class HashChecker:
+    """Mechanism for checking md5/sha512 hash-code of downloaded packages.
+
+    This includes heuristics for guessing a suitable hashing algorithm
+    based on the length of a supplied hexadecimal hash code.
+    """
+
+    len2alg = {}
+
+    def __call__(self, path, tgthash, blksize=1<<14):
+        hasher = self._guessHashAlg(tgthash)
+
+        try:
+            with open(path, 'rb') as fp:
+                while True:
+                    chunk = fp.read(blksize)
+                    if not chunk:
+                        break
+                    hasher.update(chunk)
+        except:
+            return False
+
+        filehash = hasher.hexdigest().lower()
+
+        return (filehash == tgthash.lower())
+
+    @classmethod
+    def _guessHashAlg(cls, tgthash):
+        """Construct a digest object based length of given hex hash string."""
+        if not cls.len2alg:
+            algs = [ 'md5', 'sha1', 'sha256', 'sha512' ]
+            try:
+                algs.extend(hashlib.algorithms_guaranteed)
+                algs.extend(hashlib.algorithms_available)
+            except AttributeError:
+                pass
+            for alg in algs:
+                hashlen = 2 * hashlib.new(alg).digest_size
+                cls.len2alg.setdefault(hashlen, alg)
+
+        hashlen = len(tgthash)
+        try:
+            alg = cls.len2alg[hashlen]
+            return hashlib.new(alg)
+        except:
+            raise PMCygException('Unrecognized hash length {}'.format(hashlen))
+
+
+
 class PMbuilder(BuildReporter):
     """Utility class for constructing partial mirror
     of Cygwin(TM) distribution"""
@@ -199,6 +248,7 @@ class PMbuilder(BuildReporter):
                 Viewer=None, **kwargs):
 
         BuildReporter.__init__(self, Viewer)
+        self._hashCheck = HashChecker()
 
         # Directory into which to assemble local mirror:
         self._tgtdir = BuildDirectory
@@ -471,8 +521,6 @@ ftp://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
 http://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
 ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK
 http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
-ftp://mirror.mcs.anl.gov/pub/cygwin/;mirror.mcs.anl.gov;United States;Illinois
-http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
                 ''')
 
     def _resolveDependencies(self, usrpkgs=None):
@@ -740,27 +788,6 @@ http://mirror.mcs.anl.gov/cygwin/;mirror.mcs.anl.gov;United States;Illinois
             augdownloads.append((pkgfile, pkgsize, pkghash, tgtpath))
 
         return augdownloads
-
-    def _hashCheck(self, tgtpath, pkghash):
-        """Check md5 hash-code of downloaded package"""
-        blksize = 1 << 14
-
-        hasher = hashlib.md5()
-
-        try:
-            with open(tgtpath, 'rb') as fp:
-                while True:
-                    chunk = fp.read(blksize)
-                    if not chunk:
-                        break
-                    hasher.update(chunk)
-        except:
-            return False
-
-        dlhash = hasher.hexdigest().lower()
-        pkghash = pkghash.lower()
-
-        return (dlhash == pkghash)
 
     def _urlbasename(self, url):
         """Split URL into base filename, and suffix-free filename"""

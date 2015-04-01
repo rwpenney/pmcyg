@@ -9,11 +9,15 @@ PKG_HOST = 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
 PKG_LISTS = [ 'example.pkgs' ]
 
 builder = PMbuilder(MirrorSite=PKG_HOST,
-                    BuildDirectory='./cygwin',
                     AllPackages=False,
                     IncludeSources=False,
                     RemoveOutdated='ask',
-                    ISOfilename='./cygwin-pmcyg.iso',
                     DummyDownload=False)
 
-ProcessPackageFiles(builder, PKG_LISTS)
+for (arch, cygdir) in [ ('x86',     './cygwin'),
+                        ('x86_64',  './cygwin64') ]:
+    builder.SetArch(arch)
+    builder.SetTargetDir(cygdir)
+    builder.SetOption('ISOfilename', './cygwin-{}-pmcyg.iso'.format(arch))
+
+    ProcessPackageFiles(builder, PKG_LISTS)

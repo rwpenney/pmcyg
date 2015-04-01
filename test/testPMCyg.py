@@ -72,6 +72,16 @@ class testSetupIniFetcher(unittest.TestCase):
 
 
 
+class testHashChecker(unittest.TestCase):
+    def testAlgMatch(self):
+        HC = HashChecker()
+
+        self.assertEqual(HC._guessHashAlg('a' * 32).name, 'md5')
+        self.assertEqual(HC._guessHashAlg('a' * 64).name, 'sha256')
+        self.assertEqual(HC._guessHashAlg('a' * 128).name, 'sha512')
+
+
+
 class testMasterPackageList(unittest.TestCase):
     pkglist = MasterPackageList(Viewer=SilentBuildViewer())
 
@@ -204,10 +214,9 @@ class testPkgSetProcessor(unittest.TestCase):
 
         explist = pkgProc.ExpandDependencies(['bash', 'libboost-devel', 'bvi'])
         self.assertTrue(len(explist) > 20)
-        self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel',
-                                    'cygwin', 'icu',
-                                    'libattr1', 'libgcc1', 'libncurses8',
-                                    'libreadline7', 'perl', 'terminfo'])
+        self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel', 'cygwin',
+                                    'libattr1', 'libgcc1',
+                                    'libreadline7', 'perl_base', 'terminfo'])
 
     def testInverse(self):
         """Check that contraction can be inverted by expansion"""
@@ -714,18 +723,6 @@ class testGarbageConfirmer(unittest.TestCase):
                 self.assertEqual(doDelete, resp)
                 self.assertTrue(confirmer.UserAsked)
 
-
-# Ensure support for older versions of unittest (e.g. Python-2.3):
-try:
-    fn = unittest.TestCase.assertTrue
-    fn = unittest.TestCase.assertFalse
-except AttributeError:
-    def assTrue(obj, arg):
-        obj.assertEqual(arg, True)
-    def assFalse(obj, arg):
-        obj.assertEqual(arg, False)
-    unittest.TestCase.assertTrue = assTrue
-    unittest.TestCase.assertFalse = assFalse
 
 
 if __name__ == "__main__":

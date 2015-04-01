@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## http://pmcyg.sourceforge.net
-## (C)Copyright 2009-2014, RW Penney
+## (C)Copyright 2009-2015, RW Penney
+
+29Mar15
+    Refactored package hash-checker into new class
+
+25Mar15
+    Added patch from M.Hanselmann to support SHA512 package checksums
 
 31Dec14 **** pmcyg-2.1 released ****
 
