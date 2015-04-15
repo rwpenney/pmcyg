@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, March 2015
+                        RW Penney, April 2015
 
 
 Introduction
@@ -196,5 +196,3 @@ Please note
     "Cygwin" is a trademark of Red Hat Inc.
     There is no official connection between pmcyg and the 'Cygwin' product
     pmcyg is supplied with NO WARRANTY and NO CLAIMS OF FITNESS FOR ANY PURPOSE.
-
-# vim: set ts=4 sw=4 et:

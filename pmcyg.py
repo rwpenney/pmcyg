@@ -512,14 +512,14 @@ class PMbuilder(BuildReporter):
         return io.BytesIO(b'''
 ftp://ucmirror.canterbury.ac.nz/pub/cygwin/;ucmirror.canterbury.ac.nz;Australasia;New Zealand
 http://ucmirror.canterbury.ac.nz/cygwin/;ucmirror.canterbury.ac.nz;Australasia;New Zealand
-ftp://cygwin.mirror.rafal.ca/pub/cygwin/;cygwin.mirror.rafal.ca;Canada;Ontario
-http://cygwin.mirror.rafal.ca/;cygwin.mirror.rafal.ca;Canada;Ontario
+ftp://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
+http://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
 ftp://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
 ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 ftp://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
 http://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
-ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/cygwin/;ftp.mirrorservice.org;Europe;UK
+ftp://ftp.funet.fi/pub/mirrors/cygwin.com/pub/cygwin/;ftp.funet.fi;Europe;Finland
 http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
                 ''')
 
@@ -608,9 +608,9 @@ http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.
         archdir = self._getArchDir(create=True)
         exeURL = self.setup_exe_url
 
-        (inifile, inipure) = self._urlbasename(self.setup_ini_url)
-        inibase = inipure + '.ini'
-        inibz2 = inipure + '.bz2'
+        # Cygwin installer requires fixed filenames for package lists:
+        inibase, inibz2 = 'setup.ini', 'setup.bz2'
+
         (exebase, exepure) = self._urlbasename(exeURL)
 
         # Split package list into normal + specials:
@@ -667,12 +667,14 @@ http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.
                                 +' --local-install\r\n', 'ascii'))
 
         # Generate message-digest of top-level files:
-        with open(os.path.join(archdir, 'md5.sum'), 'wt') as hp:
-            for fl in hashfiles:
-                hshr = hashlib.md5()
-                with open(os.path.join(archdir, fl), 'rb') as fp:
-                    hshr.update(fp.read())
-                hp.write('{0}  {1}\n'.format(hshr.hexdigest(), fl))
+        for algo in ["md5", "sha256", "sha512"]:
+            sumfile = os.path.join(archdir, '{0}.sum'.format(algo))
+            with open(sumfile, 'wt') as hp:
+                for fl in hashfiles:
+                    hshr = hashlib.new(algo)
+                    with open(os.path.join(archdir, fl), 'rb') as fp:
+                        hshr.update(fp.read())
+                    hp.write('{0}  {1}\n'.format(hshr.hexdigest(), fl))
 
     def _doDummyDownloading(self, downloads):
         """Rehearse downloading of files from Cygwin mirror"""

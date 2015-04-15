@@ -491,6 +491,7 @@ class testPackageLists(unittest.TestCase):
 
             arch = builder.GetArch()
             f_ini = os.path.join(tmpdir, arch, os.path.basename(cfg))
+            f_ini = os.path.join(tmpdir, arch, 'setup.ini')
             f_tplt = os.path.join(tmpdir, 'tplt.txt')
 
             self.assertFalse(os.path.isfile(f_ini))

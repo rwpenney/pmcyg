@@ -66,7 +66,7 @@ setup(
         'containing customized collections of Cygwin packages. ' +
         'This avoids having to download the entirety of a Cygwin release, ' +
         'which might occupy many GB, instead allowing installers that ' +
-        'can be as small as 20MB. ' +
+        'can be as small as 25MB. ' +
         'pmcyg will help build a self-contained CD or DVD installer to setup ' +
         'Cygwin on PCs without any internet access.',
     name = 'pmcyg',
