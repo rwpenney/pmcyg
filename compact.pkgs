@@ -69,7 +69,7 @@ vim                             # Vi IMproved - enhanced vi editor
 ##
 gawk                            # GNU awk, a pattern scanning and processing language
 m4                              # GNU implementation of the traditional Unix macro processor
-perl                            # Larry Wall's Practical Extracting and Report Language
+perl                            # Perl programming language interpreter
 python3                         # Py3K language interpreter
 
 

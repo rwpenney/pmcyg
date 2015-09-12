@@ -79,7 +79,7 @@ sqlite3                         # Client program for accessing SQLite 3 database
 ##
 autoconf                        # Wrapper scripts for autoconf commands
 autoconf2.1                     # Stable version of the automatic configure script builder
-autoconf2.5                     # An extensible package of m4 macros that produce shell scripts to automatically configure software source code packages.
+autoconf2.5                     # Current version of the automatic configure script builder
 automake                        # Wrapper scripts for automake and aclocal
 automake1.13                    # (1.13) a tool for generating GNU-compliant Makefiles
 automake1.14                    # (1.14) a tool for generating GNU-compliant Makefiles
@@ -89,7 +89,7 @@ cmake                           # Cross-platform makefile generation system
 colorgcc                        # Colorizer for GCC warning/error messages
 cppunit                         # C++ unit testing framework
 ctags                           # A C programming language indexing and/or cross-reference tool
-cvs                             # Concurrent Version System
+cvs                             # Version control system
 cvs2svn                         # CVS to Subversion/Bazaar/Git repository converter
 cvsps                           # Generates patchset information from a CVS repository
 cvsutils                        # CVS client utilities for offline work
@@ -151,7 +151,6 @@ swig                            # C/C++ wrapper generator
 tailor                          # Migrate changesets between version control systems
 w32api-headers                  # MinGW-w64 Windows API headers for Cygwin
 w32api-runtime                  # MinGW-w64 Windows API import libraries for Cygwin
-xdelta              [arch=x86]  # Computes changes between binary files.
 xorg-cf-files                   # Imake config files
 xproto                          # X.Org X11 core headers
 xtrans                          # X.Org transport code and headers
@@ -160,9 +159,8 @@ xtrans                          # X.Org transport code and headers
 ##
 ## Doc
 ##
-cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
+cygwin-doc                      # Cygwin-specific documentation, including man pages
 cygwin-x-doc                    # Cygwin/X-specific documentation
-texinfo                         # GNU documentation formatter
 xorg-docs                       # X.Org documentation
 xpdf                            # An open source viewer for Portable Document Format (PDF) files
 
@@ -240,10 +238,10 @@ tiff-opengl                     # TIFF image viewer
 ## Interpreters
 ##
 gawk                            # GNU awk, a pattern scanning and processing language
-guile                           # The GNU extension language and Scheme interpreter - executables
-guile-devel                     # The GNU extension language and Scheme interpreter - development
+guile                           # GNU Scheme interpreter library
+guile-devel                     # GNU Scheme interpreter library
 m4                              # GNU implementation of the traditional Unix macro processor
-perl                            # Larry Wall's Practical Extracting and Report Language
+perl                            # Perl programming language interpreter
 python                          # Python language interpreter
 python-tkinter                  # Python Tkinter GUI module
 python3                         # Py3K language interpreter
@@ -254,14 +252,13 @@ xemacs              [arch=x86]  # A powerful, highly customizable open source te
 
 
 
-
 ##
 ## Libs
 ##
 CUnit                           # A Unit Testing Framework for C (src only)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 expat                           # Expat XML parser library (xmlwf, docs)
-fftw3                           # Fast Fourier transforms C library
+fftw3                           # Fast Fourier transforms C library - utility
 gmp                             # Library for arbitrary precision arithmetic
 gsl                             # Runtime
 gsl-apps                        # Application programs
@@ -279,12 +276,10 @@ libaprutil1-devel               # Apache Portable Runtime utility library (devel
 libboost-devel                  # Boost C++ libraries
 libbz2-devel                    # A high-quality block-sorting file compressor (development)
 libexpat-devel                  # Expat XML parser library (development files)
-libfftw3-devel                  # Fast Fourier transforms C library
+libfftw3-devel                  # Fast Fourier transforms C library - devel
 libfreetype-devel               # FreeType font engine
 libfreetype6                    # FreeType font engine
-libgcrypt                       # GnuPG cryptography library
 libgcrypt-devel                 # GnuPG cryptography library
-libgcrypt11                     # GnuPG cryptography library
 libglib2.0-devel                # GNOME core C function library (development)
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
@@ -335,24 +330,24 @@ xmh                             # X.Org frontend to MH mail handler
 ## Math
 ##
 bc                              # Arbitrary precision calculator language
-fftw3                           # Fast Fourier transforms C library
+fftw3                           # Fast Fourier transforms C library - utility
 gmp                             # Library for arbitrary precision arithmetic
 gnuplot                         # A command-line driven interactive function plotting utility
 lapack                          # LAPACK library for linear algebra operations
-libfftw3-devel                  # Fast Fourier transforms C library
+libfftw3-devel                  # Fast Fourier transforms C library - devel
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
 liblapack-devel                 # LAPACK library for linear algebra operations
 mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
 octave                          # GNU Octave language for numerical computations
 octave-devel                    # GNU Octave (development)
 octave-doc                      # Additional docs in html and pdf
-octave-image                    # Contributed functions for GNU Octave from octave.sourceforge.net
-octave-integration              # Contributed functions for GNU Octave from octave.sourceforge.net
-octave-io                       # Contributed functions for GNU Octave from octave.sourceforge.net
-octave-optim                    # Contributed functions for GNU Octave from octave.sourceforge.net
-octave-signal                   # Contributed functions for GNU Octave from octave.sourceforge.net
-octave-specfun                  # Contributed functions for GNU Octave from octave.sourceforge.net
-octave-splines                  # Contributed functions for GNU Octave from octave.sourceforge.net
+octave-image                    # Provides functions for processing images
+octave-integration              # Numerical Integration Toolbox
+octave-io                       # Input/Output in external formats.
+octave-optim                    # Non-linear optimization toolkit.
+octave-signal                   # Signal processing tools
+octave-specfun                  # Special functions including ellipitic
+octave-splines                  # Additional spline functions.
 orpie                           # Fullscreen RPN calculator for the console
 units                           # Console unit converter
 xcalc                           # X scientific calculator
@@ -385,7 +380,7 @@ rsync                           # Fast remote file transfer program (can use exi
 stunnel                         # Universal TLS wrapper
 urlgrabber                      # Python based URL grabber
 whois                           # GNU Whois
-xinetd              [arch=x86]  # The eXtended InterNET Daemon
+xinetd                          # The eXtended InterNET Daemon
 
 
 ##
@@ -394,15 +389,12 @@ xinetd              [arch=x86]  # The eXtended InterNET Daemon
 colorgcc                        # Colorizer for GCC warning/error messages
 grepmail                        # Search mailboxes for mail matching an expression
 patcher                         # Perl script To manage patches
-perl                            # Larry Wall's Practical Extracting and Report Language
-perl-Error                      # Perl module for OO error/exception handling
-perl-ExtUtils-Depends           # Build Perl XS that depend on other XS
-perl-ExtUtils-PkgConfig         # Perl module for using pkg-config
-perl-Image-Magick               # ImageMagick image processing suite ((Perl bindings)
-perl-Locale-gettext             # Perl module for using gettext and libintl
+perl                            # Perl programming language interpreter
+perl-Error                      # Perl distribution Error
+perl-ExtUtils-Depends           # Perl distribution ExtUtils-Depends
+perl-ExtUtils-PkgConfig         # Perl distribution ExtUtils-PkgConfig
 perl-Tk                         # Tk GUI toolkit for Perl
-perl-Win32-GUI      [arch=x86]  # Perl Win32-GUI module
-perl-libwin32       [arch=x86]  # Perl extensions for using the Win32 API
+perl-Win32                      # Perl distribution Win32
 
 
 ##
@@ -454,6 +446,7 @@ python3-numpy                   # Py3K scientific computing module
 python3-setuptools              # Py3K package management tool
 python3-six                     # Python 2 and 3 compatibility library
 python3-tkinter                 # Py3K Tkinter GUI module
+python3-yaml                    # Python3 LibYAML bindings
 spambayes                       # Python-based spam filter using statistical analysis
 stgit                           # Quilt functionality on top of git
 tailor                          # Migrate changesets between version control systems
@@ -482,7 +475,7 @@ bash-completion                 # Bash completion enhancements
 dash                            # Dash shell
 rxvt                [arch=x86]  # VT102 terminal emulator for both X and Windows
 #rxvt-unicode                   # An improved version of rxvt with Unicode support
-tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
+tcsh                            # An enhanced version of csh, the C shell
 xterm                           # X11 terminal emulator
 zsh                             # The Z-Shell
 
@@ -515,7 +508,7 @@ tcl-tk                          # Tcl X11 toolkit
 antiword                        # A free MS Word reader
 aspell                          # A spell checker designed to eventually replace Ispell (program and utilities)
 aspell-en                       # Aspell en dictionary
-catdoc              [arch=x86]  # Dump Word, Excel and Powerpoint files contents
+catdoc                          # Dump Word, Excel and Powerpoint files contents
 enscript                        # A free replacement for the Adobe's enscript program
 flip                            # Convert text file line endings between Unix and DOS formats
 groff                           # GNU roff formatter
@@ -541,7 +534,7 @@ deroff                          # Remove roff and preprocessor constructs
 diffutils                       # A GNU collection of diff utilities
 gdbm                            # GNU dbm database routines (utilities)
 genisoimage                     # Create ISO/Joliet/HFS filesystem images (part of cdrkit)
-git-oodiff          [arch=x86]  # Git diff filter for OpenDocument files
+git-oodiff                      # Git diff filter for OpenDocument files
 gnupg                           # GNU\'s tool for secure communication and data storage.
 hdf5                            # HDF5 Hierarchical Data Format
 keychain                        # Key manager for OpenSSH
@@ -561,14 +554,13 @@ time                            # The GNU time command
 wdiff                           # Compare two files word by word
 which                           # Prints out full path of executables
 wodim                           # Command line CD/DVD writing tool (part of cdrkit)
-xdelta              [arch=x86]  # Computes changes between binary files.
+xdelta                          # Open-source binary diff - lagacy support for prestine-tar
 xman                            # X man page viewer
 
 
 ##
 ## Web
 ##
-#apache2                         # Apache HTTP Server
 dhttpd                          # Minimal secure webserver without cgi-bin support
 links                           # Text mode WWW browser
 lynx                            # Text-based Web browser
@@ -580,26 +572,11 @@ wget                            # Utility to retrieve files from the WWW via HTT
 ##
 ## X11
 ##
-X-start-menu-icons  [arch=x86]  # Start menu icons for Cygwin/X programs
 cygutils-x11                    # A collection of simple utilities (X11 integration)
 cygwin-x-doc                    # Cygwin/X-specific documentation
 ddd                             # DDD, the data display debugger
 editres                         # X resource editor
-font-adobe-dpi100               # X.Org Adobe 100dpi fonts
-font-adobe-dpi75                # X.Org Adobe 75dpi fonts
-font-adobe-utopia-dpi100        # X.Org Adobe Utopia 100dpi fonts
-font-adobe-utopia-dpi75         # X.Org Adobe Utopia 75dpi fonts
-font-adobe-utopia-type1         # X.Org Adobe Utopia Type1 fonts
-font-alias                      # X.Org font aliases
-font-bh-ttf                     # X.Org Bigelow & Holmes TrueType fonts
-font-bh-type1                   # X.Org Bigelow & Holmes Type1 fonts
-font-bitstream-dpi100           # X.Org Bitstream 100dpi fonts
-font-bitstream-dpi75            # X.Org Bitstream 75dpi fonts
-font-bitstream-speedo           # X.Org Bitstream Speedo fonts
-font-bitstream-type1            # X.Org Bitstream Type1 fonts
 font-bitstream-vera-ttf         # Bitstream Vera font family
-font-encodings                  # X.Org font encodings
-font-misc-misc                  # X.Org miscellaneous fonts
 font-util                       # X.Org font utilities and font maps
 fontconfig                      # Font configuration utilities
 fvwm                            # Window manager for X11
@@ -609,7 +586,7 @@ kbproto                         # X.Org XKB extension headers
 libGLU-devel                    # OpenGL utility library (development)
 libGLw-devel                    # OpenGL widget library (development)
 libXaw3d-devel                  # Three-dimensional Athena widget library (development)
-libfltk-devel                   # Fast Light Toolkit (development, for X11)
+libfltk-devel                   # Fast Light Toolkit
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 listres                         # X.Org widget resource lister
 lndir                           # X.Org recursive directory symlink tool
@@ -645,6 +622,10 @@ xmore                           # X.Org plain text browser
 xorg-docs                       # X.Org documentation
 xorg-scripts                    # Xorg miscellaneous scripts
 xorg-server                     # X.Org X servers
+xorg-x11-fonts-Type1            # X11 core fonts
+xorg-x11-fonts-dpi100           # X11 core fonts
+xorg-x11-fonts-dpi75            # X11 core fonts
+xorg-x11-fonts-misc             # X11 core fonts
 xpdf                            # An open source viewer for Portable Document Format (PDF) files
 xpr                             # X.Org X window dump printer
 xprop                           # X.Org X server property displayer
@@ -658,6 +639,7 @@ xsri                [arch=x86]  # X Set Root Image
 xstdcmap                        # X standard colormap utility
 xterm                           # X11 terminal emulator
 xwd                             # X window dumper utility
+xwin-xdg-menu                   # An XDG Desktop Menu Specification menu for the Windows notification area
 xwininfo                        # X window information utility
 xwinwm              [arch=x86]  # Window manager for experimental WindowsWM multi-window mode
 xwud                            # X.Org X window dump displayer

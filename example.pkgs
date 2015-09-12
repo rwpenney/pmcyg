@@ -17,21 +17,21 @@ bzip2                           # A high-quality block-sorting file compressor (
 coreutils                       # GNU core utilities (includes fileutils, sh-utils and textutils)
 cygutils                        # A collection of simple utilities (core collection)
 cygwin                          # The UNIX emulation engine
-cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
+cygwin-doc                      # Cygwin-specific documentation, including man pages
 cygwin-x-doc                    # Cygwin/X-specific documentation
 editrights                      # Alter Windows user rights and privileges from command line
 findutils                       # Utilities for finding files--find, xargs, locate, updatedb
 gzip                            # The GNU compression utility
 less                            # A file pager program, similar to more(1)
 login                           # Sign on to a system
-man-db                          # Man, apropos and whatis commands
+man-db                          # Man page viewer
 patch                           # Applies diff files
-perl                            # Larry Wall's Practical Extracting and Report Language
+perl                            # Perl programming language interpreter
 procps              [arch=x86]  # System and process monitoring utilities
 python                          # Python language interpreter
 sed                             # The GNU sed stream editor
 tar                             # A GNU file archiving program
-tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
+tcsh                            # An enhanced version of csh, the C shell
 texinfo                         # GNU documentation formatter
 util-linux                      # Collection of basic system utilities
 unzip                           # Info-ZIP decompression utility
@@ -57,7 +57,6 @@ octave                          # GNU Octave language for numerical computations
 #
 # X11 packages:
 #
-X-start-menu-icons  [arch=x86]  # Start menu icons for Cygwin/X programs
 cygwin-x-doc                    # Cygwin/X-specific documentation
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 xinit                           # X.Org X server launcher
@@ -67,3 +66,4 @@ xorg-scripts                    # Xorg miscellaneous scripts
 xorg-server                     # X.Org X servers
 xpdf                            # An open source viewer for Portable Document Format (PDF) files
 xterm                           # X11 terminal emulator
+xwin-xdg-menu			# An XDG Desktop Menu Specification menu for the Windows notification area
