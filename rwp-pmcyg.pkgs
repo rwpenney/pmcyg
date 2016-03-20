@@ -7,7 +7,7 @@
 ##
 ## Admin
 ##
-cron                            # Vixie's cron.
+cron                            # Vixie's cron
 cygrunsrv                       # NT/W2K service initiator
 shutdown                        # Shutdown, reboot, hibernate or suspend the machine
 syslog-ng                       # Next generation system logging daemon
@@ -29,7 +29,6 @@ zoo                             # Manipulate zoo archives
 ##
 ## Audio
 ##
-libaudiofile-devel              # Digital audio file library
 sox                             # Sound processing toolkit
 vorbis-tools                    # Several Ogg Vorbis Tools
 
@@ -106,31 +105,31 @@ gdb                             # The GNU Debugger
 gendef                          # Generates exports definitions by analyzing DLLs.
 gettext-devel                   # GNU Internationalization development utilities
 git                             # Distributed version control system
-git-completion                  # Bash completion for Git version control system
 git-gui                         # Graphical interface for Git version control system
 git-svn                         # Subversion compatibility support for Git version control system
 gitk                            # Git repository browser
 gperf                           # Perfect hash function generator
-gsl-apps                        # Application programs
-gsl-devel                       # Developers tools
-gsl-doc                         # Documentation
 guilt                           # Quilt for git; similar to Mercurial queues
 help2man                        # Creates man pages from program output
 imake                           # X Imake legacy build system
 indent                          # C/C++ language source code formatting program
 inputproto                      # X.Org XInput extension headers
 intltool                        # GNOME XML internalization scripts
+kbproto                         # X.Org XKB extension headers
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libgnutls-devel                 # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libreadline-devel               # GNU readline and history libraries (development)
+libsqlite3-devel                # Header and library files for building programs against SQLite
 libtool                         # Generic library support script
 make                            # The GNU version of the 'make' utility
 makedepend                      # X Makefile dependency tool
 mercurial                       # Python based distributed version control system (DVCS)
-mingw-gcc-g++                   # GNU Compiler Collection (C++)
-mingw-w32api                    # MinGW.org Win32 runtime headers and libraries
-mingw-zlib-devel                # Zlib for MinGW.org win32 toolchain (devel)
+mingw64-i686-gcc-g++            # GCC for Win64 toolchain (C++)
+mingw64-i686-libgcrypt          # Libgcrypt for Win32 toolchain
+mingw64-i686-zlib               # Zlib for Win32 toolchain
+mingw64-x86_64-gcc-g++          # GCC for Win64 toolchain (C++)
+mingw64-x86_64-zlib             # Zlib for Win64 toolchain
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
 openssl-devel                   # Files for development of applications which will use OpenSSL
 patch                           # Applies diff files
@@ -255,15 +254,12 @@ xemacs              [arch=x86]  # A powerful, highly customizable open source te
 ##
 ## Libs
 ##
-CUnit                           # A Unit Testing Framework for C (src only)
+CUnit                           # CUnit is a Unit testing framework for C
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 expat                           # Expat XML parser library (xmlwf, docs)
 fftw3                           # Fast Fourier transforms C library - utility
 gmp                             # Library for arbitrary precision arithmetic
-gsl                             # Runtime
-gsl-apps                        # Application programs
-gsl-devel                       # Developers tools
-gsl-doc                         # Documentation
+gsl                             # The GNU Scientific Library
 libGL-devel                     # X11 OpenGL library (development)
 libOSMesa-devel                 # Mesa Off-Screen rendering library (development)
 libX11-devel                    # X.Org X11 core library (development)
@@ -273,10 +269,12 @@ libXmu-devel                    # X.Org miscellaneous utility libraries
 libXt-devel                     # X.Org X Toolkit library
 libapr1-devel                   # Apache Portable Runtime core library (development)
 libaprutil1-devel               # Apache Portable Runtime utility library (development)
+libaudiofile-devel              # Digital audio file library
 libboost-devel                  # Boost C++ libraries
 libbz2-devel                    # A high-quality block-sorting file compressor (development)
 libexpat-devel                  # Expat XML parser library (development files)
 libfftw3-devel                  # Fast Fourier transforms C library - devel
+libfltk-devel                   # Fast Light Toolkit
 libfreetype-devel               # FreeType font engine
 libfreetype6                    # FreeType font engine
 libgcrypt-devel                 # GnuPG cryptography library
@@ -286,6 +284,7 @@ libgmp-devel                    # Library for arbitrary precision arithmetic (de
 libgnutls-devel                 # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 libgtk2.0-devel                 # GTK+ X11 GUI toolkit (development)
 libjpeg-devel                   # JPEG library with SIMD acceleration
+liblapack-devel                 # LAPACK library for linear algebra operations
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libncurses-devel                # Terminal display library
 libpcre-devel                   # Perl Compatible Regular Expressions library development
@@ -323,7 +322,7 @@ mutt                            # A text mode mail user agent (MUA).
 procmail                        # Mail processing program
 spambayes                       # Python-based spam filter using statistical analysis
 ssmtp                           # Extremely simple MTA to get mail off the system to a Mailhub
-xmh                             # X.Org frontend to MH mail handler
+xmh                             # X frontend to MH mail handler
 
 
 ##
@@ -354,13 +353,6 @@ xcalc                           # X scientific calculator
 
 
 ##
-## Mingw
-##
-mingw-libgcrypt-devel       [arch=x86]  # (mingw) A general purpose crypto library based on the code from GnuPG - (development)
-mingw-libgpg-error-devel    [arch=x86]  # (mingw) A library that defines common error values for GnuPG. (development)
-
-
-##
 ## Net
 ##
 bind                            # DNS server
@@ -375,7 +367,7 @@ openldap-devel                  # Lightweight Directory Access Protocol suite (d
 openssh                         # The OpenSSH server and client programs
 openssl                         # Utilities from the general purpose cryptography library with TLS implementation
 ping                            # A basic network tool to test IP network conectivity
-pure-ftpd           [arch=x86]  # Secure production-quality standard-conformant FTP server
+pure-ftpd                       # Secure production-quality standard-conformant FTP server
 rsync                           # Fast remote file transfer program (can use existing data to minimize transfer)
 stunnel                         # Universal TLS wrapper
 urlgrabber                      # Python based URL grabber
@@ -471,7 +463,7 @@ pwgen                           # Automatic Password generation
 ## Shells
 ##
 bash                            # The GNU Bourne Again SHell
-bash-completion                 # Bash completion enhancements
+bash-completion                 # Command auto-completion for Bash shell
 dash                            # Dash shell
 rxvt                [arch=x86]  # VT102 terminal emulator for both X and Windows
 #rxvt-unicode                   # An improved version of rxvt with Unicode support
@@ -554,7 +546,7 @@ time                            # The GNU time command
 wdiff                           # Compare two files word by word
 which                           # Prints out full path of executables
 wodim                           # Command line CD/DVD writing tool (part of cdrkit)
-xdelta                          # Open-source binary diff - lagacy support for prestine-tar
+xdelta                          # Open-source binary diff - legacy support for pristine-tar
 xman                            # X man page viewer
 
 
@@ -572,21 +564,19 @@ wget                            # Utility to retrieve files from the WWW via HTT
 ##
 ## X11
 ##
+bitstream-vera-fonts            # Bitstream Vera font family
 cygutils-x11                    # A collection of simple utilities (X11 integration)
 cygwin-x-doc                    # Cygwin/X-specific documentation
 ddd                             # DDD, the data display debugger
 editres                         # X resource editor
-font-bitstream-vera-ttf         # Bitstream Vera font family
 font-util                       # X.Org font utilities and font maps
 fontconfig                      # Font configuration utilities
 fvwm                            # Window manager for X11
 gtk2.0-engines-pixmap           # Pixmap theme engine for GTK+
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
-kbproto                         # X.Org XKB extension headers
 libGLU-devel                    # OpenGL utility library (development)
 libGLw-devel                    # OpenGL widget library (development)
 libXaw3d-devel                  # Three-dimensional Athena widget library (development)
-libfltk-devel                   # Fast Light Toolkit
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 listres                         # X.Org widget resource lister
 lndir                           # X.Org recursive directory symlink tool
@@ -604,16 +594,16 @@ xhost                           # X server access control utility
 xinit                           # X.Org X server launcher
 xinput                          # X input device tester
 xkbcomp                         # X.Org XKB keymap compiler
-xkbevd                          # X.Org XKB event daemon
+xkbevd                          # X keyboard event daemon
 xkbprint                        # X.Org XKB keyboard description printer
 xkbutils                        # X keyboard utilities
 xkeyboard-config                # X11 keyboard configuration database
 xkill                           # X client connection closer
 xload                           # X system load display
 xlogo                           # X.Org logo
-xlsatoms                        # X.Org interned atoms lister
+xlsatoms                        # X interned atoms lister
 xlsclients                      # Lists clients connected to an X display
-xlsfonts                        # X.Org server font lister
+xlsfonts                        # X server font lister
 xmessage                        # X message displayer
 xmh                             # X.Org frontend to MH mail handler
 xmodmap                         # X.Org keyboard modifier map and keymap table utility
