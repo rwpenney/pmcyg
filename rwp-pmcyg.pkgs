@@ -18,6 +18,7 @@ syslog-ng                       # Next generation system logging daemon
 ##
 cabextract                      # Extract Microsoft cabinet (.CAB) files
 hdf5                            # HDF5 Hierarchical Data Format
+libbz2-devel                    # BZip file de/compressor
 p7zip                           # A file archiver with very high compression ratios
 sharutils                       # The GNU shar utilities including uuencode/uudecode
 unzip                           # Info-ZIP decompression utility
@@ -44,15 +45,15 @@ coreutils                       # GNU core utilities (includes fileutils, sh-uti
 cygwin                          # The UNIX emulation engine
 dash                            # dash shell
 editrights                      # Alter Windows user rights and privileges from command line
-file                            # A utility for determining file types
+file                            # Determines file type using 'magic' numbers
 findutils                       # Utilities for finding files--find, xargs, locate, updatedb
 gawk                            # GNU awk, a pattern scanning and processing language
-grep                            # Search for regular expression matches in text files
+grep                            # search for regular expression matches in text files
 gzip                            # The GNU compression utility
 login                           # Sign on to a system
 man-db                          # Man page viewer
 run                             # Launch cmdline programs with hidden console
-sed                             # The GNU sed stream editor
+sed                             # the GNU sed stream editor
 tar                             # A GNU file archiving program
 terminfo                        # Terminal capability database
 util-linux                      # Collection of basic system utilities
@@ -62,7 +63,6 @@ which                           # Prints out full path of executables
 ##
 ## Database
 ##
-gdbm                            # GNU dbm database routines (utilities)
 libsqlite3-devel                # Header and library files for building programs against SQLite
 postgresql                      # PostgreSQL Data Base Management System
 postgresql-client               # front-end programs for PostgreSQL
@@ -118,7 +118,6 @@ inputproto                      # X.Org XInput extension headers
 intltool                        # GNOME XML internalization scripts
 kbproto                         # X.Org XKB extension headers
 libglut-devel                   # OpenGL Utility Toolkit library (development)
-libgnutls-devel                 # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libreadline-devel               # GNU readline and history libraries (development)
 libsqlite3-devel                # Header and library files for building programs against SQLite
@@ -126,7 +125,7 @@ libtool                         # Generic library support script
 make                            # The GNU version of the 'make' utility
 makedepend                      # X Makefile dependency tool
 mercurial                       # Python based distributed version control system (DVCS)
-mingw64-i686-gcc-g++            # GCC for Win64 toolchain (C++)
+mingw64-i686-gcc-g++            # GCC for Win32 (i686-w64-mingw32) toolchain (C++)
 mingw64-i686-libgcrypt          # libgcrypt for Win32 toolchain
 mingw64-i686-zlib               # zlib for Win32 toolchain
 mingw64-x86_64-gcc-g++          # GCC for Win64 toolchain (C++)
@@ -148,6 +147,7 @@ subversion-ruby                 # A version control system (ruby bindings)
 subversion-tools                # A version control system (miscellaneous tools)
 swig                            # C/C++ wrapper generator
 tailor                          # Migrate changesets between version control systems
+texinfo                         # GNU documentation formatter
 w32api-headers                  # MinGW-w64 Windows API headers for Cygwin
 w32api-runtime                  # MinGW-w64 Windows API import libraries for Cygwin
 xorg-cf-files                   # Imake config files
@@ -201,7 +201,7 @@ fortune             [arch=x86]  # Print a random, perhaps interesting, adage; ma
 ## Graphics
 ##
 GraphicsMagick                  # GraphicsMagick library
-ImageMagick                     # ImageMagick image processing suite (utilities)
+ImageMagick                     # Image processing suite (utilities)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 epstool                         # Edit preview images and fix bounding boxes in EPS files
 exif                            # Command-line EXIF metadata parser
@@ -213,21 +213,22 @@ gnuplot                         # A command-line driven interactive function plo
 graphviz                        # Graph visualization tools
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 hp2xx                           # A HP-GL Converter
-jasper                          # JPEG-2000 codec library (utilities)
+jasper                          # JPEG-2000 codec library
 jbigkit                         # Converts JBIG1 to/from PBM format
 jgraph                          # A Filter for Plotting Graphs in Postscript
 jpeg                            # JPEG utilities
 lcms                            # Little color management engine (utilities)
 #libGraphicsMagick-devel         # GraphicsMagick library (devel)
 libImlib-devel                  # GNOME 1.4 graphics rendering library
-libMagick-devel                 # ImageMagick image processing suite (development)
+libMagick-devel                 # Image processing suite (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
+libproj-devel                   # The PROJ Cartographic Projections Software
 netpbm                          # Toolkit for manipulation of graphic images
 perl-Graphics-Magick            # GraphicsMagick Perl bind (PerlMagick)
-perl-Image-Magick               # ImageMagick image processing suite ((Perl bindings)
+perl-Image-Magick               # Image processing suite ((Perl bindings)
 ploticus                        # Command-line plot and graph generator
 plotutils                       # 2-D scientific data plotting utilities
-potrace                         # Utility to transform bitmaps into vector graphics
+potrace                         # A tool for transforming bitmaps into vector graphics
 python-lcms                     # Little color management engine (Python bindings)
 sxpm                            # X.Org X Pixmap utilities
 tiff                            # TIFF image utilities
@@ -239,11 +240,10 @@ tiff-opengl                     # TIFF image viewer
 ##
 gawk                            # GNU awk, a pattern scanning and processing language
 guile                           # GNU Scheme interpreter library
-guile-devel                     # GNU Scheme interpreter library
 m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Perl programming language interpreter
-python                          # Python language interpreter
-python-tkinter                  # Python Tkinter GUI module
+python2                         # Python 2 language interpreter
+python2-tkinter                 # Python 2 Tkinter GUI module
 python3                         # Py3K language interpreter
 python3-tkinter                 # Py3K Tkinter GUI module
 ruby                            # Interpreted object-oriented scripting language
@@ -260,7 +260,8 @@ autotrace                       # A program for converting bitmap to vector grap
 expat                           # Expat XML parser library (xmlwf, docs)
 fftw3                           # Fast Fourier transforms C library - utility
 gmp                             # Library for arbitrary precision arithmetic
-gsl                             # The GNU Scientific Library
+gnutls                          # Library implementing TLS protocols (utilities)
+gsl                             # the GNU Scientific Library
 libGL-devel                     # X11 OpenGL library (development)
 libOSMesa-devel                 # Mesa Off-Screen rendering library (development)
 libX11-devel                    # X.Org X11 core library (development)
@@ -272,7 +273,6 @@ libapr1-devel                   # Apache Portable Runtime core library (developm
 libaprutil1-devel               # Apache Portable Runtime utility library (development)
 libaudiofile-devel              # Digital audio file library
 libboost-devel                  # Boost C++ libraries
-libbz2-devel                    # A high-quality block-sorting file compressor (development)
 libexpat-devel                  # Expat XML parser library (development files)
 libfftw3-devel                  # Fast Fourier transforms C library - devel
 libfltk-devel                   # Fast Light Toolkit
@@ -282,7 +282,7 @@ libgcrypt-devel                 # GnuPG cryptography library
 libglib2.0-devel                # GNOME core C function library (development)
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
-libgnutls-devel                 # Library implementing TLS 1.0 and SSL 3.0 protocols (development)
+libgnutls-devel                 # Library implementing TLS protocols (development)
 libgtk2.0-devel                 # GTK+ X11 GUI toolkit (development)
 libjpeg-devel                   # JPEG library with SIMD acceleration
 liblapack-devel                 # LAPACK library for linear algebra operations
@@ -302,7 +302,6 @@ openldap-devel                  # Lightweight Directory Access Protocol suite (d
 python-crypto                   # Cryptographic algorithms and protocols for Python
 python-feedparser               # Universal Feed Parser for Python
 python-paramiko                 # Python library for SSH2 connections
-python-wx-tools                 # wxPython development tools
 subversion-perl                 # A version control system (perl bindings)
 subversion-python               # A version control system (python bindings)
 subversion-ruby                 # A version control system (ruby bindings)
@@ -332,21 +331,17 @@ bc                              # Arbitrary precision calculator language
 fftw3                           # Fast Fourier transforms C library - utility
 gmp                             # Library for arbitrary precision arithmetic
 gnuplot                         # A command-line driven interactive function plotting utility
-lapack                          # LAPACK library for linear algebra operations
 libfftw3-devel                  # Fast Fourier transforms C library - devel
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
 liblapack-devel                 # LAPACK library for linear algebra operations
 mpfr                            # A library for multiple-precision floating-point arithmetic with exact rounding
 octave                          # GNU Octave language for numerical computations
 octave-devel                    # GNU Octave (development)
-octave-doc                      # GNU Octave: additional docs in html and pdf
-octave-image                    # Octave-Forge image: provides functions for processing images
-octave-integration              # Octave-Forge integration: Numerical Integration Toolbox
-octave-io                       # Octave-Forge io: Input/Output in external formats
-octave-optim                    # Octave-Forge optim: Non-linear optimization toolkit.
-octave-signal                   # Octave-Forge signal: Signal processing tools
+octave-integration              # Forge: Numerical Integration Toolbox
+octave-io                       # Forge: Input/Output in external formats
+octave-optim                    # Forge:  Non-linear optimization toolkit
+octave-signal                   # Forge: Signal processing tools
 octave-specfun                  # Octave-Forge specfun: Special functions including ellipitic
-octave-splines                  # Octave-Forge splines: Additional spline functions
 orpie                           # Fullscreen RPN calculator for the console
 units                           # Console unit converter
 xcalc                           # X scientific calculator
@@ -357,7 +352,6 @@ xcalc                           # X scientific calculator
 ##
 bind                            # DNS server
 curl                            # Multi-protocol file transfer tool
-gnutls                          # Library implementing TLS 1.0 and SSL 3.0 protocols (utilities)
 inetutils                       # Common networking clients and servers (clients)
 lftp                            # Sophisticated file transfer program
 nc                              # Reads and writes data across network connections using TCP or UDP
@@ -402,15 +396,11 @@ texlive-collection-latex        # TeX Live latex package collection
 ##
 ## Python
 ##
-idle                            # Python Tkinter-based IDE
 idle3                           # Py3K Tkinter_based IDE
 mercurial                       # Python based distributed version control system (DVCS)
-python                          # Python language interpreter
+python2                         # Python language interpreter
 python-crypto                   # Cryptographic algorithms and protocols for Python
-python-feedparser               # Universal Feed Parser for Python
-python-gamin                    # File Alteration Monitor system (Python bindings)
 #python-gdata                   # Python bindings for Google Data APIs
-python-gi                       # Python GObject Introspection bindings
 #python-gi-common               # Python GObject Introspection bindings
 #python-gi-devel                # Python GObject Introspection bindings
 #python-gobject                 # Python GLib/GObject/GIO bindings
@@ -419,25 +409,24 @@ python-gtk2.0                   # Python bindings for GTK+2 and libglade
 python-gtk2.0-demo              # Python bindings for GTK+2 and libglade (demo application)
 python-gtk2.0-devel             # Python bindings for GTK+2 and libglade (development files)
 python-h5py                     # A Pythonic interface to the HDF5 binary data format for Python 2
-python-imaging                  # Python Imaging Library
+python2-imaging                 # Python Imaging Library
 python-lcms                     # Little color management engine (Python bindings)
-python-libxml2                  # GNOME XML library (Python bindings)
 python-libxslt                  # GNOME XSLT library (Python bindings)
-python-lxml                     # Python XML2/XSLT bindings
-python-numpy                    # Python scientific computing module
+python2-lxml                    # Python XML2/XSLT bindings
+python2-numpy                   # Python scientific computing module
 python-paramiko                 # Python library for SSH2 connections
 python-pyrex                    # Python extension language
-python-six                      # Python 2 and 3 compatibility library
-python-tkinter                  # Python Tkinter GUI module
+python2-six                     # Python 2 and 3 compatibility library
+python2-tkinter                 # Python 2 Tkinter GUI module
 python3                         # Py3K language interpreter
 python3-gi                      # Python GObject Introspection bindings
 python3-h5py                    # A Pythonic interface to the HDF5 binary data format for Python 3
-python3-lxml                    # Py3K XML2/XSLT bindings
-python3-numpy                   # Py3K scientific computing module
+python3-lxml                    # Python XML2/XSLT bindings
+python3-numpy                   # Python scientific computing module
 python3-setuptools              # Py3K package management tool
 python3-six                     # Python 2 and 3 compatibility library
 python3-tkinter                 # Py3K Tkinter GUI module
-python3-yaml                    # Python3 LibYAML bindings
+python3-yaml                    # Python LibYAML bindings
 spambayes                       # Python-based spam filter using statistical analysis
 stgit                           # Quilt functionality on top of git
 tailor                          # Migrate changesets between version control systems
@@ -498,7 +487,7 @@ tcl-tk                          # Tcl X11 toolkit
 #a2ps                            # Anything to PostScript converter
 antiword                        # A free MS Word reader
 aspell                          # A spell checker designed to eventually replace Ispell (program and utilities)
-aspell-en                       # Aspell en dictionary
+aspell-en                       # Aspell English dictionaries
 catdoc                          # Dump Word, Excel and Powerpoint files contents
 enscript                        # A free replacement for the Adobe's enscript program
 flip                            # Convert text file line endings between Unix and DOS formats
@@ -510,20 +499,19 @@ source-highlight                # Syntax highlighting utilities
 texi2html                       # A highly customizable texinfo to HTML and other formats translator
 texinfo                         # GNU documentation formatter
 untex                           # Remove LaTeX commands from input
-w3m                             # Text-based web browser and pager
+w3m                             # Text-mode web browser
 
 
 ##
 ## Utils
 ##
-bzip2                           # A high-quality block-sorting file compressor (utilities)
+bzip2                           # BZip file de/compressor
 cdrecord                        # Command line CD/DVD writing tool (symlink to wodim)
 colordiff                       # A tool to colorize diff output
 cpio                            # A backup and archiving utility
 cygutils-extra                  # A collection of simple utilities (other tools)
 deroff                          # Remove roff and preprocessor constructs
 diffutils                       # A GNU collection of diff utilities
-gdbm                            # GNU dbm database routines (utilities)
 genisoimage                     # Create ISO/Joliet/HFS filesystem images (part of cdrkit)
 git-oodiff                      # Git diff filter for OpenDocument files
 gnupg                           # GNU\'s tool for secure communication and data storage
@@ -556,7 +544,7 @@ dhttpd                          # Minimal secure webserver without cgi-bin suppo
 links                           # Text mode WWW browser
 lynx                            # Text-based Web browser
 micro-httpd                     # Extremely small Unix-based HTTP server
-w3m                             # Text-based web browser and pager
+w3m                             # Text-mode web browser
 wget                            # Utility to retrieve files from the WWW via HTTP and FTP
 
 
