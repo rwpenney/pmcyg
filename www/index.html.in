@@ -6,7 +6,7 @@
 <!--
   pmcyg.sourceforge.net project page; written 10th July 2010
   MakefileUUID: @MAKEFILE_UUID@
-  (C) Copyright 2010-2014 RW Penney
+  (C) Copyright 2010-2018 RW Penney
 -->
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>pmcyg.sourceforge.net</title>
@@ -134,7 +134,7 @@ to create a partial mirror of the Cygwin release.
 This avoids having to download many GB of the official Cygwin release,
 e.g. using <a href="http://www.gnu.org/software/wget">wget</a>.
 With pmcyg you can easily create a minimalistic installer
-that can be as small as 25MB.
+that can be as small as 32MB.
 </p>
 
 
@@ -299,7 +299,7 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 
 <p class="lupdate">
 Last updated @DATE@<br/>
-&copy; Copyright RW Penney, 2010-2014
+&copy; Copyright RW Penney, 2010-2018
 </p>
 
 </body>

@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, April 2015
+                        RW Penney, April 2018
 
 
 Introduction
@@ -11,7 +11,7 @@ a self-contained CDROM or DVD that can be used to install or upgrade Cygwin
 on computers that do not have network access to a Cygwin mirror site.
 
 pmcyg avoids having to download the entirety of a Cygwin release
-(about 5GB or more), and can create a minimal Cygwin installation within 25MB.
+(about 5GB or more), and can create a minimal Cygwin installation within 32MB.
 In general, pmcyg will take a user-supplied list of cygwin package names,
 work out which other packages they depend on, and only download those packages
 from a user-selected Cygwin mirror site.  It will then assemble a set of
@@ -27,7 +27,7 @@ Licensing
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2015 RW Penney <rwpenney@users.sourceforge.net>.
+and are Copyright 2009-2018 RW Penney <rwpenney@users.sourceforge.net>.
 
 
 Installation

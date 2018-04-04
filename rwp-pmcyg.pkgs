@@ -79,7 +79,7 @@ sqlite3                         # Client program for accessing SQLite 3 database
 autoconf                        # Wrapper scripts for autoconf commands
 autoconf2.1                     # Stable version of the automatic configure script builder
 autoconf2.5                     # Current version of the automatic configure script builder
-automake                        # Wrapper scripts for automake and aclocal
+automake                        # Wrapper for multiple versions of Automake
 automake1.13                    # (1.13) a tool for generating GNU-compliant Makefiles
 automake1.14                    # (1.14) a tool for generating GNU-compliant Makefiles
 bashdb                          # Debugger for bash scripts
@@ -114,10 +114,9 @@ guilt                           # Quilt for git; similar to Mercurial queues
 help2man                        # Creates man pages from program output
 imake                           # X Imake legacy build system
 indent                          # C/C++ language source code formatting program
-inputproto                      # X.Org XInput extension headers
 intltool                        # GNOME XML internalization scripts
-kbproto                         # X.Org XKB extension headers
 libglut-devel                   # OpenGL Utility Toolkit library (development)
+libhdf5-devel                   # Hierarchical Data Format - (development)
 libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libreadline-devel               # GNU readline and history libraries (development)
 libsqlite3-devel                # Header and library files for building programs against SQLite
@@ -151,7 +150,7 @@ texinfo                         # GNU documentation formatter
 w32api-headers                  # MinGW-w64 Windows API headers for Cygwin
 w32api-runtime                  # MinGW-w64 Windows API import libraries for Cygwin
 xorg-cf-files                   # Imake config files
-xproto                          # X.Org X11 core headers
+xorgproto
 xtrans                          # X.Org transport code and headers
 
 
@@ -207,8 +206,7 @@ epstool                         # Edit preview images and fix bounding boxes in 
 exif                            # Command-line EXIF metadata parser
 ghostscript                     # GPL PostScript interpreter (utilities)
 ghostscript-fonts-other         # Miscellaneous fonts derived from the free Hershey fonts, with improvements for ghostscript
-ghostscript-fonts-std           # 35 commercial-quality Type 1 basic PostScript fonts for ghostscript
-giflib                          # GIF file manipulation library (utilities and docs)
+giflib                          # GIF image manipulation utilities
 gnuplot                         # A command-line driven interactive function plotting utility
 graphviz                        # Graph visualization tools
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
@@ -380,7 +378,7 @@ perl-Error                      # Perl distribution Error
 perl-ExtUtils-Depends           # Perl distribution ExtUtils-Depends
 perl-ExtUtils-PkgConfig         # Perl distribution ExtUtils-PkgConfig
 perl-Tk                         # Tk GUI toolkit for Perl
-perl-Win32                      # Perl distribution Win32
+perl-Win32                      # Perl distribution Win32 (dummy)
 
 
 ##
@@ -398,12 +396,12 @@ texlive-collection-latex        # TeX Live latex package collection
 ##
 idle3                           # Py3K Tkinter_based IDE
 mercurial                       # Python based distributed version control system (DVCS)
-python2                         # Python language interpreter
+python2                         # Python 2 language interpreter
 python-crypto                   # Cryptographic algorithms and protocols for Python
 #python-gdata                   # Python bindings for Google Data APIs
 #python-gi-common               # Python GObject Introspection bindings
 #python-gi-devel                # Python GObject Introspection bindings
-#python-gobject                 # Python GLib/GObject/GIO bindings
+#python-gobject                 # Obsoleted by python2-gobject
 #python-gobject-devel           # Python GLib/GObject/GIO bindings
 python-gtk2.0                   # Python bindings for GTK+2 and libglade
 python-gtk2.0-demo              # Python bindings for GTK+2 and libglade (demo application)
@@ -423,7 +421,7 @@ python3-gi                      # Python GObject Introspection bindings
 python3-h5py                    # A Pythonic interface to the HDF5 binary data format for Python 3
 python3-lxml                    # Python XML2/XSLT bindings
 python3-numpy                   # Python scientific computing module
-python3-setuptools              # Py3K package management tool
+python3-setuptools              # Python package management tool
 python3-six                     # Python 2 and 3 compatibility library
 python3-tkinter                 # Py3K Tkinter GUI module
 python3-yaml                    # Python LibYAML bindings
@@ -588,6 +586,7 @@ xkbprint                        # X keyboard description printer
 xkbutils                        # X keyboard utilities
 xkeyboard-config                # X11 keyboard configuration database
 xkill                           # X client connection closer
+xlaunch                         # GUI tool for configuring and starting the XWin X server
 xload                           # X system load display
 xlogo                           # X.Org logo
 xlsatoms                        # X interned atoms lister

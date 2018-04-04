@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2015, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2018, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '2.2'
+PMCYG_VERSION = '2.3'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -517,8 +517,8 @@ http://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Onta
 ftp://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
 ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
-ftp://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
-http://cygwin.mirrors.pair.com/;mirrors.pair.com;United States;Pennsylvania
+ftp://cygwin.osuosl.org/pub/cygwin/;cygwin.osuosl.org;United States;Oregon
+http://cygwin.osuosl.org/;cygwin.osuosl.org;United States;Oregon
 ftp://ftp.funet.fi/pub/mirrors/cygwin.com/pub/cygwin/;ftp.funet.fi;Europe;Finland
 http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
                 ''')
@@ -1136,18 +1136,19 @@ class PkgSetProcessor(BuildReporter):
 
 class MasterPackageList(BuildReporter):
     """Database of available Cygwin packages built from 'setup.ini' file"""
+
+    RE_DBline = re.compile(r'''
+          ((?P<relinfo>^(release|arch|setup-\S+)) :
+                                \s+ (?P<relParam>\S+) $)
+        | (?P<comment>\# .* $)
+        | (?P<package>^@ \s+ (?P<pkgName>\S+) $)
+        | (?P<epoch>^\[ (?P<epochName>[a-z]+) \] $)
+        | ((?P<field>^[a-zA-Z][-a-zA-Z0-9]+) : \s+ (?P<fieldVal>.*) $)
+        | (?P<blank>^\s* $)
+        ''', re.VERBOSE)
+
     def __init__(self, iniURL=None, Viewer=None):
         BuildReporter.__init__(self, Viewer)
-
-        self.re_dbline = re.compile(r'''
-              ((?P<relinfo>^(release|arch|setup-\S+)) :
-                                    \s+ (?P<relParam>\S+) $)
-            | (?P<comment>\# .* $)
-            | (?P<package>^@ \s+ (?P<pkgName>\S+) $)
-            | (?P<epoch>^\[ (?P<epochName>[a-z]+) \] $)
-            | ((?P<field>^[a-zA-Z]+) : \s+ (?P<fieldVal>.*) $)
-            | (?P<blank>^\s* $)
-            ''', re.VERBOSE)
 
         self._pkgLock = threading.Lock()
         self._iniURL = None
@@ -1265,7 +1266,7 @@ class MasterPackageList(BuildReporter):
 
     def _ingestOrdinaryLine(self, line, lineno=None):
         """Classify current line as package definition/field etc"""
-        matches = self.re_dbline.match(line)
+        matches = self.RE_DBline.match(line)
         if not matches:
             raise SyntaxError("Unrecognized content on line {0:d}" \
                                 .format(lineno))
@@ -1343,9 +1344,10 @@ class PackageSummary:
         self._epochs = set()
 
     def GetAny(self, field, epochset=[]):
-        """Lookup the value of a particular field,
-        for a given set of possible epochs.
-        An empty set of allowed epochs matches current or default epoch"""
+        """Lookup the value of a particular field for a set of possible epochs.
+
+        An empty set of allowed epochs matches current or default epoch
+        """
 
         value = None
         if not epochset:
@@ -1386,13 +1388,15 @@ class PackageSummary:
 
     def HasDependencies(self):
         """Determine whether the package depends on any other packages."""
-        if self.GetAny('requires'):
+        if self.GetAny('depends2') or self.GetAny('requires'):
             return True
         return False
 
     def GetDependencies(self, epochset=[]):
         """Return a list of other packages on which this package depends."""
-        return self.GetAny('requires', epochset).split()
+        return sorted(
+            { x.strip() for x in self.GetAny('depends2', epochset).split(',') }
+            | set(self.GetAny('requires', epochset).split()) )
 
     def Set(self, field, value, epoch=None):
         """Record field=value for a particular epoch (e.g. curr/prev/None)"""

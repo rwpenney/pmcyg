@@ -1,6 +1,12 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## http://pmcyg.sourceforge.net
-## (C)Copyright 2009-2015, RW Penney
+## (C)Copyright 2009-2018, RW Penney
+
+04Apr18 **** pmcyg-2.3 released ****
+
+04Apr18
+    Fixed to support 'depends2' tag within Cygwin package list
+    Updated example package list
 
 15Apr15 **** pmcyg-2.2 released ****
 

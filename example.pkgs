@@ -13,7 +13,7 @@
 alternatives                    # A tool for managing package conflicts
 base-files                      # A set of important system configuration and setup files
 bash                            # The GNU Bourne Again SHell
-bzip2                           # A high-quality block-sorting file compressor (utilities)
+bzip2                           # BZip file de/compressor
 coreutils                       # GNU core utilities (includes fileutils, sh-utils and textutils)
 cygutils                        # A collection of simple utilities (core collection)
 cygwin                          # The UNIX emulation engine
@@ -27,9 +27,9 @@ login                           # Sign on to a system
 man-db                          # Man page viewer
 patch                           # Applies diff files
 perl                            # Perl programming language interpreter
-procps              [arch=x86]  # System and process monitoring utilities
-python                          # Python language interpreter
-sed                             # The GNU sed stream editor
+procps-ng                       # System and process monitoring utilities
+python2                         # Python 2 language interpreter
+sed                             # the GNU sed stream editor
 tar                             # A GNU file archiving program
 tcsh                            # An enhanced version of csh, the C shell
 texinfo                         # GNU documentation formatter
@@ -41,7 +41,7 @@ zip                             # Info-ZIP compression utility
 # Development packages:
 #
 autoconf                        # Wrapper scripts for autoconf commands
-automake                        # Wrapper scripts for automake and aclocal
+automake                        # Wrapper for multiple versions of Automake
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
 gcc-g++     [arch=x86,x86_64]   # GNU Compiler Collection (C++)
 gdb                             # The GNU Debugger
@@ -52,7 +52,8 @@ make                            # The GNU version of the 'make' utility
 # Maths/Scientific packages:
 #
 gnuplot                         # A command-line driven interactive function plotting utility
-octave                          # GNU Octave language for numerical computations
+octave           [arch=x86]     # GNU Octave language for numerical computations
+python3-numpy    [arch=x86_64]
 
 #
 # X11 packages:
