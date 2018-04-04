@@ -32,5 +32,5 @@ clean:
 	rm -f index.html ${TPLTFILE} .makefileUUID
 
 # SHA1-IDs:
-# 0.5	- c7129749b17d1af4c7c65182488b6f277afab191
 # 0.6	- 09fba3019dfde84bf98365e12f64ddb635863e02
+# 0.7	- dc380fb2a3364dd40d0acb7a657af44ca36c230a

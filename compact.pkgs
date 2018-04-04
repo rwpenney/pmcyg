@@ -9,8 +9,8 @@
 ## Archive
 ##
 cabextract                      # Extract Microsoft cabinet (.CAB) files
-p7zip               [arch=x86]  # A file archiver with very high compression ratios.
-sharutils                       # The GNU shar utilities including uuencode/uudecode.
+p7zip                           # A file archiver with very high compression ratios
+sharutils                       # The GNU shar utilities including uuencode/uudecode
 unzip                           # Info-ZIP decompression utility
 xz                              # LZMA de/compressor
 zip                             # Info-ZIP compression utility
@@ -25,7 +25,7 @@ sox                             # Sound processing toolkit
 ##
 ## Base
 ##
-file                            # A utility for determining file types
+file                            # Determines file type using 'magic' numbers
 man-db                          # Man page viewer
 util-linux                      # Collection of basic system utilities
 
@@ -51,7 +51,7 @@ rcs                             # The Revision Control System
 ##
 ## Doc
 ##
-cygwin-doc                      # Cygwin-specific documentation, including man pages and User's Guide
+cygwin-doc                      # Cygwin-specific documentation, including man pages
 
 
 ##
@@ -85,7 +85,7 @@ bc                              # Arbitrary precision calculator language
 curl                            # Multi-protocol file transfer tool
 inetutils                       # Common networking clients and servers (clients)
 openssh                         # The OpenSSH server and client programs
-openssl                         # Utilities from the general purpose cryptography library with TLS implementation
+openssl                         # A general purpose cryptography toolkit with TLS implementation
 ping                            # A basic network tool to test IP network conectivity
 rsh                             # Clients for remote access commands (rsh, rlogin, rcp, rexec)
 tftp                            # Extended version of the BSD TFTP (client)
@@ -101,7 +101,7 @@ python3                         # Py3K language interpreter
 ## Shells
 ##
 bash                            # The GNU Bourne Again SHell
-tcsh                            # TENEX C Shell, an enhanced version of Berkeley csh
+tcsh                            # An enhanced version of csh, the C shell
 
 
 ##
@@ -109,7 +109,7 @@ tcsh                            # TENEX C Shell, an enhanced version of Berkeley
 ##
 e2fsprogs                       # Ext2/3/4 filesystem utilities
 ping                            # A basic network tool to test IP network conectivity
-procps                          # System and process monitoring utilities
+procps-ng                       # System and process monitoring utilities
 psmisc                          # Utilities for managing processes on your system
 
 
@@ -127,7 +127,6 @@ source-highlight                # Syntax highlighting utilities
 ##
 ## Utils
 ##
-bzip2                           # A high-quality block-sorting file compressor (utilities)
 cpio                            # A backup and archiving utility
 cygutils-extra                  # A collection of simple utilities (other tools)
 diffutils                       # A GNU collection of diff utilities
