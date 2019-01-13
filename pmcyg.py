@@ -456,7 +456,8 @@ class PMbuilder(BuildReporter):
                                                             self._mirror))
 
         archdir = self._getArchDir()
-        self._garbage.IndexCurrentFiles(archdir, mindepth=1)
+        noarchdir = os.path.join(archdir, '..', 'noarch')
+        self._garbage.IndexCurrentFiles([archdir, noarchdir], mindepth=1)
 
         if self._optiondict['DummyDownload']:
             self._doDummyDownloading(downloads)
@@ -1471,51 +1472,59 @@ class GarbageCollector(BuildReporter):
     """Mechanism for pruning previous versions of packages
     during an incremental mirror."""
 
-    def __init__(self, topdir=None, Viewer=None):
+    def __init__(self, topdirs=list(), Viewer=None):
         BuildReporter.__init__(self, Viewer)
 
-        self._topdir = None
-        self._topdepth = 0
+        self._topdirs = None
+        self._topdepth = {}
         self._suspicious = True
 
         # Lists of file and directory names that indicate that the user's
         # top-level download directory contains important files
         # unconnected with Cygwin or pmcyg.
-        self._susDirnames = [ 'bin', 'sbin', 'home',
+        self._susDirnames = [ 'bin', 'etc', 'sbin', 'home',
                             'My Documents', 'WINNT', 'system32' ]
-        self._susFilenames = [ '.bashrc', '.bash_profile', '.login', '.tcshrc']
+        self._susFilenames = [ 'initrd.img', 'vmlinuz',
+                                '.bashrc', '.bash_profile',
+                                '.login', '.tcshrc']
 
-        if topdir:
-            self.IndexCurrentFiles(topdir)
+        if topdirs:
+            self.IndexCurrentFiles(topdirs)
 
-    def IndexCurrentFiles(self, topdir, mindepth=0):
+    def IndexCurrentFiles(self, topdirs, mindepth=0):
         """Build list of files and directories likely to be deleted"""
-        self._topdir = topdir
+        if isinstance(topdirs, str):
+            self._topdirs = [ topdirs ]
+        else:
+            self._topdirs = list(topdirs)
         self._directories = []
         self._files = []
-        if os.path.isdir(topdir):
-            self._suspicious = self._checkTopSuspiciousness()
-        else:
-            self._suspicious = False
-            return
 
-        topdir = os.path.normpath(topdir)
-        self._topdepth = self._calcDepth(topdir)
+        self._suspicious = False
+        for topdir in self._topdirs:
+            topdir = os.path.normpath(topdir)
 
-        for dirpath, dirnames, filenames in os.walk(topdir, topdown=False):
-            self._suspicious |= self._checkNodeSuspiciousness(dirnames, filenames)
+            if os.path.isdir(topdir):
+                self._suspicious |= self._checkTopSuspiciousness(topdir)
 
-            dirdepth = self._calcDepth(dirpath)
-            if (dirdepth - self._topdepth) < mindepth:
-                continue
+            topdepth = self._calcDepth(topdir)
+            self._topdepth[topdir] = topdepth
 
-            for subdir in dirnames:
-                self._directories.append(self._canonPath(dirpath, subdir))
-            for fname in filenames:
-                fullname = self._canonPath(dirpath, fname)
-                self._files.append(fullname)
-                if os.path.islink(fullname):
-                    self._suspicious = True
+            for dirpath, dirnames, filenames in os.walk(topdir, topdown=False):
+                self._suspicious |= self._checkNodeSuspiciousness(dirnames,
+                                                                  filenames)
+
+                dirdepth = self._calcDepth(dirpath)
+                if (dirdepth - topdepth) < mindepth:
+                    continue
+
+                for subdir in dirnames:
+                    self._directories.append(self._canonPath(dirpath, subdir))
+                for fname in filenames:
+                    fullname = self._canonPath(dirpath, fname)
+                    self._files.append(fullname)
+                    if os.path.islink(fullname):
+                        self._suspicious = True
 
     def RescueFile(self, filename):
         """Signal that file should not be included in deletions list"""
@@ -1529,13 +1538,10 @@ class GarbageCollector(BuildReporter):
 
         dirsegs = dirname.split(os.sep)
         maxdepth = len(dirsegs)
-        mindepth = max((self._topdepth - 1), 0)
-        for depth in range(maxdepth, mindepth, -1):
+        for depth in range(maxdepth, 0, -1):
             pardir = self._canonPath(os.sep.join(dirsegs[0:depth]))
-            try:
+            if pardir in self._directories:
                 self._directories.remove(pardir)
-            except:
-                pass
 
     def GetNfiles(self):
         return len(self._files)
@@ -1550,8 +1556,9 @@ class GarbageCollector(BuildReporter):
         """Return a human-readable list of files that are considered
         good candidates for deletion, with each entry being
         abbreviated based on the common root directory."""
-        if not self._topdir: return []
-        dirprefix = self._topdir
+        if not self._topdirs: return []
+
+        dirprefix = os.path.commonpath(self._topdirs)
         if not dirprefix.endswith(os.sep):
             dirprefix += os.sep
         prefixlen = len(dirprefix)
@@ -1562,6 +1569,7 @@ class GarbageCollector(BuildReporter):
                 allfiles.append(os.path.join('[.]', fl[prefixlen:]))
             else:
                 allfiles.append(fl)
+
         allfiles.sort()
 
         return allfiles
@@ -1586,15 +1594,15 @@ class GarbageCollector(BuildReporter):
             self._statview('Failed to remove outdated files - ' + str(ex),
                            BuildViewer.SEV_WARNING)
 
-    def _checkTopSuspiciousness(self):
+    def _checkTopSuspiciousness(self, topdir):
         """Try to protect user from accidentally deleting
         anything other than an old Cygwin repository"""
-        toplist = os.listdir(self._topdir)
+        toplist = os.listdir(topdir)
         releasedirs = 0
         subdirs = 0
         topfiles = 0
         for entry in toplist:
-            fullname = os.path.join(self._topdir, entry)
+            fullname = os.path.join(topdir, entry)
             if os.path.isdir(fullname):
                 subdirs += 1
                 if entry.startswith('release'):
@@ -2165,7 +2173,8 @@ class GUItidyState(GUIstate):
 
     def enter(self):
         policy = self._builder.GetOption('RemoveOutdated')
-        self._confirmer = GUIgarbageConfirmer(self._builder.GetGarbage(), default=policy)
+        self._confirmer = GUIgarbageConfirmer(self._builder.GetGarbage(),
+                                              default=policy)
 
     def leave(self):
         pass

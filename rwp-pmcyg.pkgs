@@ -31,7 +31,6 @@ zoo                             # Manipulate zoo archives
 ## Audio
 ##
 sox                             # Sound processing toolkit
-vorbis-tools                    # Several Ogg Vorbis Tools
 
 
 ##
@@ -77,18 +76,12 @@ autoconf2.5                     # Current version of the automatic configure scr
 automake                        # Wrapper for multiple versions of Automake
 automake1.14                    # (1.14) a tool for generating GNU-compliant Makefiles
 automake1.15                    # (1.15) a tool for generating GNU-compliant Makefiles
-bashdb                          # Debugger for bash scripts
 bison                           # GNU yacc-compatible parser generator
 cmake                           # Cross-platform makefile generation system
 colorgcc                        # Colorizer for GCC warning/error messages
 cppunit                         # C++ unit testing framework
 ctags                           # A C programming language indexing and/or cross-reference tool
-cvs                             # Version control system
-cvs2svn                         # CVS to Subversion/Bazaar/Git repository converter
-cvsps                           # Generates patchset information from a CVS repository
-cvsutils                        # CVS client utilities for offline work
 cygport                         # Cygwin source packaging tool
-ddd                             # DDD, the data display debugger
 doxygen                         # A documentation system for C++, C, Java, Objective-C, IDL (Corba and Microsoft flavours) and to some extent PHP, C#, and D
 eigen3                          # C++ template library for linear algebra
 flex                            # A fast lexical analyzer generator
@@ -112,7 +105,6 @@ indent                          # C/C++ language source code formatting program
 intltool                        # GNOME XML internalization scripts
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libhdf5-devel                   # Hierarchical Data Format - (development)
-libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libreadline-devel               # GNU readline and history libraries (development)
 libsqlite3-devel                # Header and library files for building programs against SQLite
 libtool                         # Generic library support script
@@ -133,10 +125,6 @@ rcs                             # The Revision Control System
 splint                          # Check C programs for security vulnerabilities and programming mistakes
 stgit                           # Quilt functionality on top of git
 subversion                      # A version control system
-subversion-devel                # A version control system (C headers and import libraries)
-subversion-perl                 # A version control system (perl bindings)
-subversion-python               # A version control system (python bindings)
-subversion-ruby                 # A version control system (ruby bindings)
 subversion-tools                # A version control system (miscellaneous tools)
 swig                            # C/C++ wrapper generator
 tailor                          # Migrate changesets between version control systems
@@ -162,28 +150,24 @@ xpdf                            # An open source viewer for Portable Document Fo
 ##
 bvi                             # Binary vi-like editor
 ed                              # GNU line-oriented text editor
-emacs-X11                       # Emacs binaries using the X11 GUI
 gvim                            # GUI for the Vim text editor
 hexedit                         # Hexidecimal file viewer and editor
 joe                             # Fast and simple editor which emulates 5 other editors
 nano                            # Enhanced clone of Pico editor
 nedit                           # Motif multi-purpose text editor
 vim                             # Vi IMproved - enhanced vi editor
-zim                             # Desktop Wiki
 
 
 ##
 ## GNOME
 ##
 gnome-keyring                   # GNOME Desktop password management system
-gtk2.0-engines                  # Standard theme engines for gtk+-2.x
 intltool                        # GNOME XML internalization scripts
 
 
 ##
 ## Graphics
 ##
-GraphicsMagick                  # GraphicsMagick library
 ImageMagick                     # Image processing suite (utilities)
 autotrace                       # A program for converting bitmap to vector graphics (utilities)
 epstool                         # Edit preview images and fix bounding boxes in EPS files
@@ -194,7 +178,6 @@ giflib                          # GIF image manipulation utilities
 gnuplot                         # A command-line driven interactive function plotting utility
 graphviz                        # Graph visualization tools
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
-hp2xx                           # A HP-GL Converter
 jasper                          # JPEG-2000 codec library
 jbigkit                         # Converts JBIG1 to/from PBM format
 jgraph                          # A Filter for Plotting Graphs in Postscript
@@ -202,13 +185,8 @@ jpeg                            # JPEG utilities
 lcms                            # Little color management engine (utilities)
 libImlib-devel                  # GNOME 1.4 graphics rendering library
 libMagick-devel                 # Image processing suite (development)
-libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libproj-devel                   # The PROJ Cartographic Projections Software
 netpbm                          # Toolkit for manipulation of graphic images
-perl-Graphics-Magick            # GraphicsMagick Perl bind (PerlMagick)
-perl-Image-Magick               # Image processing suite ((Perl bindings)
-ploticus                        # Command-line plot and graph generator
-plotutils                       # 2-D scientific data plotting utilities
 potrace                         # A tool for transforming bitmaps into vector graphics
 python-lcms                     # Little color management engine (Python bindings)
 sxpm                            # X.Org X Pixmap utilities
@@ -224,7 +202,6 @@ guile                           # GNU Scheme interpreter library
 m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Perl programming language interpreter
 python2                         # Python 2 language interpreter
-python2-tkinter                 # Python 2 Tkinter GUI module
 python3                         # Py3K language interpreter
 python3-tkinter                 # Py3K Tkinter GUI module
 ruby                            # Interpreted object-oriented scripting language
@@ -262,10 +239,8 @@ libglib2.0-devel                # GNOME core C function library (development)
 libglut-devel                   # OpenGL Utility Toolkit library (development)
 libgmp-devel                    # Library for arbitrary precision arithmetic (development)
 libgnutls-devel                 # Library implementing TLS protocols (development)
-libgtk2.0-devel                 # GTK+ X11 GUI toolkit (development)
 libjpeg-devel                   # JPEG library with SIMD acceleration
 liblapack-devel                 # LAPACK library for linear algebra operations
-libmng-devel                    # A library of functions for manipulating MNG format files (development)
 libncurses-devel                # Terminal display library
 libpcre-devel                   # Perl Compatible Regular Expressions library development
 libpng-devel                    # PNG library
@@ -273,6 +248,7 @@ libproj-devel                   # The PROJ Cartographic Projections Software
 libreadline-devel               # GNU readline and history libraries (development)
 libtiff-devel                   # TIFF image library
 libuuid-devel                   # Universally Unique ID library (development)
+libxml++2.6-devel               # C++ bindings for libxml2
 libxml2-devel                   # GNOME XML library (development)
 libxslt                         # GNOME XSLT library (runtime)
 libxslt-devel                   # GNOME XSLT library (development)
@@ -281,7 +257,6 @@ mpfr                            # A library for multiple-precision floating-poin
 openldap-devel                  # Lightweight Directory Access Protocol suite (development)
 python-crypto                   # Cryptographic algorithms and protocols for Python
 python-feedparser               # Universal Feed Parser for Python
-python-paramiko                 # Python library for SSH2 connections
 subversion-perl                 # A version control system (perl bindings)
 subversion-python               # A version control system (python bindings)
 subversion-ruby                 # A version control system (ruby bindings)
@@ -328,7 +303,6 @@ xcalc                           # X scientific calculator
 ##
 ## Net
 ##
-bind                            # DNS server
 curl                            # Multi-protocol file transfer tool
 inetutils                       # Common networking clients and servers (clients)
 lftp                            # Sophisticated file transfer program
@@ -338,12 +312,12 @@ openldap-devel                  # Lightweight Directory Access Protocol suite (d
 openssh                         # The OpenSSH server and client programs
 openssl                         # A general purpose cryptography toolkit with TLS implementation
 openssl-devel                   # A general purpose cryptography toolkit with TLS implementation (development)
-ping                            # A basic network tool to test IP network conectivity
+ping                            # A basic network tool to test IP network connectivity
 pure-ftpd                       # A free (BSD), secure, standard-conformant FTP server
 rsync                           # Fast remote file transfer program (can use existing data to minimize transfer)
 stunnel                         # Universal TLS wrapper
 urlgrabber                      # Python based URL grabber
-whois                           # GNU Whois
+whois                           # Whois client
 xinetd                          # The eXtended InterNET Daemon
 
 
@@ -357,7 +331,6 @@ perl                            # Perl programming language interpreter
 perl-Error                      # Perl distribution Error
 perl-ExtUtils-Depends           # Perl distribution ExtUtils-Depends
 perl-ExtUtils-PkgConfig         # Perl distribution ExtUtils-PkgConfig
-perl-Tk                         # Tk GUI toolkit for Perl
 
 
 ##
@@ -385,18 +358,18 @@ python-gtk2.0-demo              # Python bindings for GTK+2 and libglade (demo a
 python-gtk2.0-devel             # Python bindings for GTK+2 and libglade (development files)
 python-lcms                     # Little color management engine (Python bindings)
 python-libxslt                  # GNOME XSLT library (Python bindings)
-python-paramiko                 # Python library for SSH2 connections
 python-pyrex                    # Python extension language
 python2                         # Python 2 language interpreter
-python2-imaging                 # Python Imaging Library
 python2-lxml                    # Python XML2/XSLT bindings
 python2-six                     # Python 2 and 3 compatibility library
-python2-tkinter                 # Python 2 Tkinter GUI module
 python3                         # Py3K language interpreter
+python3-bs4                     # Python HTML/XML parser
 python3-gi                      # Python GObject Introspection bindings
 python3-h5py                    # A Pythonic interface to the HDF5 binary data format for Python 3
+python3-ipython                 # Interactive Python interpreter
 python3-lxml                    # Python XML2/XSLT bindings
 python3-numpy                   # Python scientific computing module
+python3-requests                # Python HTTP/1.1 request module
 python3-setuptools              # Python package management tool
 python3-six                     # Python 2 and 3 compatibility library
 python3-tkinter                 # Py3K Tkinter GUI module
@@ -441,7 +414,7 @@ e2fsimage                       # Creates ext2 filesystem images
 e2fsprogs                       # Ext2/3/4 filesystem utilities
 initscripts                     # System V Init Clone initscripts
 libext2fs-devel                 # Ext2fs library (development)
-ping                            # A basic network tool to test IP network conectivity
+ping                            # A basic network tool to test IP network connectivity
 procps-ng                       # System and process monitoring utilities
 psmisc                          # Utilities for managing processes on your system
 sysvinit                        # A System-V Init Clone
@@ -495,8 +468,6 @@ mmv                             # Move, copy, append and link multiple files wit
 ncurses-demo                    # Terminal display demos
 patcher                         # Perl script To manage patches
 patchutils                      # Utilities for manipulating patch files
-rpm                             # RPM package management system
-rpm-build                       # Scripts and executable programs used to build RPM packages
 run2                            # An enhanced version of the 'run' application launcher
 screen                          # Run separate screens on a single terminal
 stow                            # Manage local software installations
@@ -562,11 +533,9 @@ xlsatoms                        # X interned atoms lister
 xlsclients                      # Lists clients connected to an X display
 xlsfonts                        # X server font lister
 xmessage                        # X message displayer
-xmh                             # X frontend to MH mail handler
 xmodmap                         # X.Org keyboard modifier map and keymap table utility
 xmon                            # An interactive X protocol monitor
 xmore                           # X.Org plain text browser
-xorg-docs                       # X.Org documentation
 xorg-scripts                    # Xorg miscellaneous scripts
 xorg-server                     # X.Org X server
 xorg-x11-fonts-Type1            # X11 core fonts

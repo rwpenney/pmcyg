@@ -14,7 +14,7 @@ def getSetupURL():
         urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
         return urllib.parse.urljoin(urlprefix, 'setup.ini')
     else:
-        return 'http://ftp.heanet.ie/pub/cygwin/x86/setup.ini'
+        return 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/x86/setup.ini'
 
 
 
@@ -562,7 +562,7 @@ class testGarbageCollector(unittest.TestCase):
             subdir = os.path.join(topdir, 'non-existent')
 
             try:
-                collector = GarbageCollector(subdir)
+                collector = GarbageCollector([ subdir ])
                 collector = GarbageCollector(topdir)
             except:
                 self.fail('GarbageCollector construction failed')
@@ -580,19 +580,21 @@ class testGarbageCollector(unittest.TestCase):
             topdir = tempfile.mkdtemp()
             try:
                 treedict = makeGarbageTree(item, topdir)
-                collector = GarbageCollector(topdir)
+                collector = GarbageCollector([ topdir ])
 
                 rescuedfiles = []
                 deletedfiles = []
                 for file in treedict['files']:
-                    if random.randint(0,1):
+                    if random.randint(0, 1):
                         collector.RescueFile(file)
                         rescuedfiles.append(file)
                     else:
                         deletedfiles.append(file)
 
-                collector.PurgeFiles()
                 self.assertEqual(collector.IsSuspicious(), False)
+                if collector.IsSuspicious():
+                    break
+                collector.PurgeFiles()
 
                 for presence, filelist in [ (True, rescuedfiles),
                                             (False, deletedfiles) ]:

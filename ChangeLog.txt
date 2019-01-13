@@ -4,6 +4,7 @@
 
 13Jan19
     Replaced optparse command-line parsing with argparse
+    Improved purging of old architecture-independent packages
 
 12Jan19
     Replaced default mirror site, heanet.ie, with mirrorservice.org
