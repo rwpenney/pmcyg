@@ -5,6 +5,7 @@
 
 MANIFEST
 
+dist/
 test/legacy/setup*.ini
 
 www/index.html

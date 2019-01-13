@@ -29,7 +29,7 @@ CYGWIN_MIRROR_LIST_URL = 'http://cygwin.com/mirrors.lst'
 SI_TEXT_ENCODING = 'utf-8'
 
 
-import  bz2, codecs, hashlib, io, optparse, os, os.path, re, \
+import  argparse, bz2, codecs, hashlib, io, os, os.path, re, \
         string, subprocess, sys, threading, time, \
         urllib.request, urllib.parse, urllib.error, urllib.parse
 try:
@@ -2577,90 +2577,94 @@ def main():
     builder = PMbuilder()
 
     # Process command-line options:
-    parser = optparse.OptionParser(
-                        usage='usage: %prog [options] [package_file...]',
-                        description='pmcyg is a tool for generating customized Cygwin(TM) installers',
-                        version=PMCYG_VERSION)
+    parser = argparse.ArgumentParser(
+                usage='%(prog)s [options] [package_file...]',
+                description='pmcyg is a tool for generating'
+                            ' customized Cygwin(TM) installers')
+    parser.add_argument('--version', action='version',
+            version=PMCYG_VERSION)
 
-    bscopts = optparse.OptionGroup(parser, 'Basic options')
-    bscopts.add_option('--all', '-a', action='store_true', default=False,
-            help='include all available Cygwin packages (default=%default)')
-    bscopts.add_option('--directory', '-d', type='string',
+    bscopts = parser.add_argument_group('Basic options')
+    bscopts.add_argument('-a', '--all', action='store_true',
+            help='include all available Cygwin packages'
+                 ' (default=%(default)s)')
+    bscopts.add_argument('-d', '--directory', type=str,
             default=os.path.join(os.getcwd(), 'cygwin'),
-            help='where to build local mirror (default=%default)')
-    bscopts.add_option('--dry-run', '-z', action='store_true',
-            dest='dummy', default=False,
+            help='where to build local mirror (default=%(default)s)')
+    bscopts.add_argument('-z', '--dry-run', action='store_true', dest='dummy',
             help='do not actually download packages')
-    bscopts.add_option('--mirror', '-m', type='string',
+    bscopts.add_argument('-m', '--mirror', type=str,
             default=builder.mirror_url,
-            help='URL of Cygwin archive or mirror site (default=%default)')
-    bscopts.add_option('--nogui', '-c', action='store_true', default=False,
+            help='URL of Cygwin archive or mirror site'
+                 ' (default=%(default)s)')
+    bscopts.add_argument('-c', '--nogui', action='store_true',
             help='do not startup graphical user interface (if available)')
-    bscopts.add_option('--generate-template', '-g', type='string',
+    bscopts.add_argument('-g', '--generate-template', type=str,
             dest='pkg_file', default=None,
             help='generate template package-listing')
-    bscopts.add_option('--generate-replica', '-R', type='string',
+    bscopts.add_argument('-R', '--generate-replica', type=str,
             dest='cyg_list', default=None,
             help='generate copy of existing Cygwin installation')
-    parser.add_option_group(bscopts)
+    bscopts.add_argument('package_files', nargs='*',
+            help='Files containins list of Cygwin packages')
 
-    advopts = optparse.OptionGroup(parser, 'Advanced options')
-    advopts.add_option('--cygwin-arch', '-A', type='string',
+    advopts = parser.add_argument_group('Advanced options')
+    advopts.add_argument('-A', '--cygwin-arch', type=str,
             default=builder.GetArch(),
-            help='target system architecture (default=%default)')
-    advopts.add_option('--epochs', '-e', type='string',
+            help='target system architecture (default=%(default)s)')
+    advopts.add_argument('-e', '--epochs', type=str,
             default=','.join(builder.GetEpochs()),
             help='comma-separated list of epochs, e.g. "curr,prev"'
-                ' (default=%default)')
-    advopts.add_option('--exeurl', '-x', type='string',
+                ' (default=%(default)s)')
+    advopts.add_argument('-x', '--exeurl', type=str,
             default=DEFAULT_INSTALLER_URL,
-            help='URL of "setup.exe" Cygwin installer (default=%default)')
-    advopts.add_option('--iniurl', '-i', type='string', default=None,
-            help='URL of "setup.ini" Cygwin database (default=%default)')
-    advopts.add_option('--nobase', '-B', action='store_true', default=False,
+            help='URL of "setup.exe" Cygwin installer (default=%(default)s)')
+    advopts.add_argument('-i', '--iniurl', type=str, default=None,
+            help='URL of "setup.ini" Cygwin database (default=%(default)s)')
+    advopts.add_argument('-B', '--nobase', action='store_true', default=False,
             help='do not automatically include all base packages'
-                '(default=%default)')
-    advopts.add_option('--with-autorun', '-r',
-            action='store_true', default=False,
+                ' (default=%(default)s)')
+    advopts.add_argument('-r', '--with-autorun', action='store_true',
             help='create autorun.inf file in build directory'
-                ' (default=%default)')
-    advopts.add_option('--with-sources', '-s',
+                ' (default=%(default)s)')
+    advopts.add_argument('-s', '--with-sources',
             action='store_true', default=False,
-            help='include source-code for of each package (default=%default)')
-    advopts.add_option('--remove-outdated', '-o', type='string', default='no',
-            help='remove old versions of packages [no/yes/ask]'
-                ' (default=%default)')
-    advopts.add_option('--iso-filename', '-I', type='string', default=None,
+            help='include source-code for of each package'
+                 ' (default=%(default)s)')
+    advopts.add_argument('-o', '--remove-outdated', type=str,
+            choices=('no', 'yes', 'ask'), default='no',
+            help='remove old versions of packages (default=%(default)s)')
+    advopts.add_argument('-I', '--iso-filename', type=str, default=None,
             help='filename for generating ISO image for burning to CD/DVD'
-                ' (default=%default)')
-    parser.add_option_group(advopts)
+                ' (default=%(default)s)')
 
-    opts, remargs = parser.parse_args()
+    args = parser.parse_args()
 
-    builder.SetArch(opts.cygwin_arch)
-    builder.SetTargetDir(opts.directory)
-    builder.mirror_url = opts.mirror
-    builder.setup_ini_url = opts.iniurl
-    builder.setup_exe_url = opts.exeurl
-    builder.SetEpochs(opts.epochs.split(','))
-    builder.SetOption('DummyDownload', opts.dummy)
-    builder.SetOption('AllPackages', opts.all)
-    builder.SetOption('IncludeBase', not opts.nobase)
-    builder.SetOption('MakeAutorun', opts.with_autorun)
-    builder.SetOption('IncludeSources', opts.with_sources)
-    builder.SetOption('RemoveOutdated', opts.remove_outdated)
-    builder.SetOption('ISOfilename', opts.iso_filename)
+    builder.SetArch(args.cygwin_arch)
+    builder.SetTargetDir(args.directory)
+    builder.mirror_url = args.mirror
+    builder.setup_ini_url = args.iniurl
+    builder.setup_exe_url = args.exeurl
+    builder.SetEpochs(args.epochs.split(','))
+    builder.SetOption('DummyDownload', args.dummy)
+    builder.SetOption('AllPackages', args.all)
+    builder.SetOption('IncludeBase', not args.nobase)
+    builder.SetOption('MakeAutorun', args.with_autorun)
+    builder.SetOption('IncludeSources', args.with_sources)
+    builder.SetOption('RemoveOutdated', args.remove_outdated)
+    builder.SetOption('ISOfilename', args.iso_filename)
 
-    if opts.pkg_file:
-        TemplateMain(builder, opts.pkg_file, remargs)
-    elif opts.cyg_list:
+    if args.pkg_file:
+        TemplateMain(builder, args.pkg_file, args.package_files)
+    elif args.cyg_list:
         if not HOST_IS_CYGWIN:
             print('WARNING: pmcyg attempting to create replica of non-Cygwin host', file=sys.stderr)
-        TemplateMain(builder, opts.cyg_list, remargs, cygwinReplica=True)
-    elif HASGUI and not opts.nogui:
-        GUImain(builder, remargs)
+        TemplateMain(builder, args.cyg_list,
+                     args.package_files, cygwinReplica=True)
+    elif HASGUI and not args.nogui:
+        GUImain(builder, args.package_files)
     else:
-        ProcessPackageFiles(builder, remargs)
+        ProcessPackageFiles(builder, args.package_files)
 
 
 if __name__ == "__main__":
