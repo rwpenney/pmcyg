@@ -6,7 +6,7 @@
 <!--
   pmcyg.sourceforge.net project page; written 10th July 2010
   MakefileUUID: @MAKEFILE_UUID@
-  (C) Copyright 2010-2018 RW Penney
+  (C) Copyright 2010-2019 RW Penney
 -->
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>pmcyg.sourceforge.net</title>
@@ -249,9 +249,7 @@ ready for use as an offline installer on any PC without direct internet access.
 pmcyg is hosted on
 <a href="http://www.sourceforge.net/projects/pmcyg">Sourceforge</a>,
 where you can download the latest
-<a href="http://sourceforge.net/projects/pmcyg/files">release</a>,
-and is also listed on
-<a href="http://www.freshmeat.net/projects/pmcyg">FreshMeat</a>.
+<a href="http://sourceforge.net/projects/pmcyg/files">release</a>.
 </p>
 
 
@@ -299,7 +297,7 @@ rwpenney&laquo;AT&raquo;users&laquo;DOT&raquo;sourceforge&laquo;DOT&raquo;net
 
 <p class="lupdate">
 Last updated @DATE@<br/>
-&copy; Copyright RW Penney, 2010-2018
+&copy; Copyright RW Penney, 2010-2019
 </p>
 
 </body>

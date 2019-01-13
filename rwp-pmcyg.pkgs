@@ -532,7 +532,7 @@ gtk2.0-engines-pixmap           # Pixmap theme engine for GTK+
 gv                              # A PostScript and PDF viewer for X using 3d Athena Widgets
 libGLU-devel                    # OpenGL utility library (development)
 libGLw-devel                    # OpenGL widget library (development)
-libglut-devel                   # OpenGL Utility Toolkit library (development)
+libglut-devel                   # OpenGL Utility Toolkit library
 listres                         # X.Org widget resource lister
 lndir                           # X.Org recursive directory symlink tool
 mkcomposecache                  # X.Org Compose file cache creator
@@ -568,7 +568,7 @@ xmon                            # An interactive X protocol monitor
 xmore                           # X.Org plain text browser
 xorg-docs                       # X.Org documentation
 xorg-scripts                    # Xorg miscellaneous scripts
-xorg-server                     # X.Org X servers
+xorg-server                     # X.Org X server
 xorg-x11-fonts-Type1            # X11 core fonts
 xorg-x11-fonts-dpi100           # X11 core fonts
 xorg-x11-fonts-dpi75            # X11 core fonts

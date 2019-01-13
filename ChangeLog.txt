@@ -1,6 +1,9 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## http://pmcyg.sourceforge.net
-## (C)Copyright 2009-2018, RW Penney
+## (C)Copyright 2009-2019, RW Penney
+
+12Jan19
+    Replaced default mirror site, heanet.ie, with mirrorservice.org
 
 04Apr18 **** pmcyg-2.3 released ****
 

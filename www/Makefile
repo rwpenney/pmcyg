@@ -20,8 +20,8 @@ index.html:	index.html.in .makefileUUID
 	sed -e "s%@DATE@%${DATESTR}%" \
 	    -e "s%@MAKEFILE_UUID@%`cat .makefileUUID`%" $< > $@
 
-${TPLTFILE}:
-	${PMCYG} --nogui --mirror http://ftp.heanet.ie/pub/cygwin/ \
+${TPLTFILE}:	Makefile
+	${PMCYG} --nogui --mirror http://mirrors.kernel.org/sourceware/cygwin/ \
 		--generate-template $@
 
 .makefileUUID:	Makefile
@@ -34,3 +34,4 @@ clean:
 # SHA1-IDs:
 # 0.6	- 09fba3019dfde84bf98365e12f64ddb635863e02
 # 0.7	- dc380fb2a3364dd40d0acb7a657af44ca36c230a
+# 0.8	- ab23a7327b5cc66a3de21ee21bed333aab8130cf

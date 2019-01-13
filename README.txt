@@ -1,5 +1,5 @@
         pmcyg - A tool for partially mirroring Cygwin(TM) packages
-                        RW Penney, April 2018
+                        RW Penney, January 2019
 
 
 Introduction
@@ -27,7 +27,7 @@ Licensing
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2018 RW Penney <rwpenney@users.sourceforge.net>.
+and are Copyright 2009-2019 RW Penney <rwpenney@users.sourceforge.net>.
 
 
 Installation
@@ -115,7 +115,9 @@ Other options that may be useful are the '--dry-run' option, which can be used
 to check your package list, and estimate how much space it would require
 to download all the selected packages. If you want to download to a directory
 other than the default location you can choose a different area for the
-local cache with the command-line option '--directory'.
+local cache with the command-line option '--directory'. If you want
+to download 64-bit versions of the Cygwin packages, you can use
+'--cygwin-arch x86_64'.
 
 
   General
@@ -194,5 +196,5 @@ facility, you may need to run Cygwin's "rebaseall" utility.
 Please note
 ===========
     "Cygwin" is a trademark of Red Hat Inc.
-    There is no official connection between pmcyg and the 'Cygwin' product
+    There is no official connection between pmcyg and the 'Cygwin' product.
     pmcyg is supplied with NO WARRANTY and NO CLAIMS OF FITNESS FOR ANY PURPOSE.

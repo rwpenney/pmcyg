@@ -64,7 +64,7 @@ xinit                           # X.Org X server launcher
 xorg-cf-files                   # Imake config files
 xorg-docs                       # X.Org documentation
 xorg-scripts                    # Xorg miscellaneous scripts
-xorg-server                     # X.Org X servers
+xorg-server                     # X.Org X server
 xpdf                            # An open source viewer for Portable Document Format (PDF) files
 xterm                           # X11 terminal emulator
-xwin-xdg-menu			# An XDG Desktop Menu Specification menu for the Windows notification area
+xwin-xdg-menu                   # An XDG Desktop Menu Specification menu for the Windows notification area
