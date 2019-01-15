@@ -2,6 +2,8 @@
 ## http://pmcyg.sourceforge.net
 ## (C)Copyright 2009-2019, RW Penney
 
+15Jan19 **** pmcyg-2.4 released ****
+
 13Jan19
     Replaced optparse command-line parsing with argparse
     Improved purging of old architecture-independent packages

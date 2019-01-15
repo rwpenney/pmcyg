@@ -5,6 +5,7 @@
 
 MANIFEST
 
+build/
 dist/
 test/legacy/setup*.ini
 

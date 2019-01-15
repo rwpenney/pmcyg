@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '2.3.1'
+PMCYG_VERSION = '2.4'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -2607,7 +2607,7 @@ def main():
             help='URL of Cygwin archive or mirror site'
                  ' (default=%(default)s)')
     bscopts.add_argument('-c', '--nogui', action='store_true',
-            help='do not startup graphical user interface (if available)')
+            help='do not startup graphical user interface')
     bscopts.add_argument('-g', '--generate-template', type=str,
             dest='pkg_file', default=None,
             help='generate template package-listing')

@@ -216,7 +216,7 @@ class testPkgSetProcessor(unittest.TestCase):
         self.assertTrue(len(explist) > 20)
         self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel', 'cygwin',
                                     'libattr1', 'libgcc1',
-                                    'libreadline7', 'perl_base', 'terminfo'])
+                                    'libreadline7', 'pkg-config', 'terminfo'])
 
     def testInverse(self):
         """Check that contraction can be inverted by expansion"""
@@ -235,9 +235,10 @@ class testPkgSetProcessor(unittest.TestCase):
             self.assertEqual(full, expanded)
 
     def checkSubset(self, entire, sub):
-        for p in sub:
-            self.assertTrue(p in entire)
-
+        missing = set(sub) - set(entire)
+        if missing:
+            self.fail('Missing packages {{ {} }}'
+                        .format(', '.join(sorted(missing))))
 
 
 class testBuilder(unittest.TestCase):
