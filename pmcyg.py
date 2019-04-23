@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '2.4'
+PMCYG_VERSION = '2.4.1'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -406,6 +406,7 @@ class PMbuilder(BuildReporter):
         if self._cygcheck_list: return self._cygcheck_list
 
         re_colhdr = re.compile(r'^Package\s+Version')
+        re_exclusions = re.compile(r'^ _ .* (?:rebase|update)', re.VERBOSE)
         pkgs = []
 
         try:
@@ -419,7 +420,9 @@ class PMbuilder(BuildReporter):
                     inHeader = False
                     continue
                 if not inHeader:
-                    pkgs.append(line.split()[0])
+                    pkgname = line.split()[0]
+                    if not re_exclusions.match(pkgname):
+                        pkgs.append(pkgname)
             proc.wait()
         except Exception as ex:
             self._statview('Listing installed packages failed - {}' \
@@ -2595,35 +2598,35 @@ def main():
 
     bscopts = parser.add_argument_group('Basic options')
     bscopts.add_argument('-a', '--all', action='store_true',
-            help='include all available Cygwin packages'
+            help='Include all available Cygwin packages'
                  ' (default=%(default)s)')
     bscopts.add_argument('-d', '--directory', type=str,
             default=os.path.join(os.getcwd(), 'cygwin'),
-            help='where to build local mirror (default=%(default)s)')
+            help='Where to build local mirror (default=%(default)s)')
     bscopts.add_argument('-z', '--dry-run', action='store_true', dest='dummy',
-            help='do not actually download packages')
+            help='Do not actually download packages')
     bscopts.add_argument('-m', '--mirror', type=str,
             default=builder.mirror_url,
             help='URL of Cygwin archive or mirror site'
                  ' (default=%(default)s)')
     bscopts.add_argument('-c', '--nogui', action='store_true',
-            help='do not startup graphical user interface')
+            help='Do not startup graphical user interface')
     bscopts.add_argument('-g', '--generate-template', type=str,
             dest='pkg_file', default=None,
-            help='generate template package-listing')
+            help='Generate template package-listing')
     bscopts.add_argument('-R', '--generate-replica', type=str,
             dest='cyg_list', default=None,
-            help='generate copy of existing Cygwin installation')
+            help='Generate copy of existing Cygwin installation')
     bscopts.add_argument('package_files', nargs='*',
             help='Files containins list of Cygwin packages')
 
     advopts = parser.add_argument_group('Advanced options')
     advopts.add_argument('-A', '--cygwin-arch', type=str,
             default=builder.GetArch(),
-            help='target system architecture (default=%(default)s)')
+            help='Target system architecture (default=%(default)s)')
     advopts.add_argument('-e', '--epochs', type=str,
             default=','.join(builder.GetEpochs()),
-            help='comma-separated list of epochs, e.g. "curr,prev"'
+            help='Comma-separated list of epochs, e.g. "curr,prev"'
                 ' (default=%(default)s)')
     advopts.add_argument('-x', '--exeurl', type=str,
             default=DEFAULT_INSTALLER_URL,
@@ -2631,20 +2634,20 @@ def main():
     advopts.add_argument('-i', '--iniurl', type=str, default=None,
             help='URL of "setup.ini" Cygwin database (default=%(default)s)')
     advopts.add_argument('-B', '--nobase', action='store_true', default=False,
-            help='do not automatically include all base packages'
+            help='Do not automatically include all base packages'
                 ' (default=%(default)s)')
     advopts.add_argument('-r', '--with-autorun', action='store_true',
-            help='create autorun.inf file in build directory'
+            help='Create autorun.inf file in build directory'
                 ' (default=%(default)s)')
     advopts.add_argument('-s', '--with-sources',
             action='store_true', default=False,
-            help='include source-code for of each package'
+            help='Include source-code for of each package'
                  ' (default=%(default)s)')
     advopts.add_argument('-o', '--remove-outdated', type=str,
             choices=('no', 'yes', 'ask'), default='no',
-            help='remove old versions of packages (default=%(default)s)')
+            help='Remove old versions of packages (default=%(default)s)')
     advopts.add_argument('-I', '--iso-filename', type=str, default=None,
-            help='filename for generating ISO image for burning to CD/DVD'
+            help='Filename for generating ISO image for burning to CD/DVD'
                 ' (default=%(default)s)')
 
     args = parser.parse_args()

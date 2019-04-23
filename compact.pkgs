@@ -70,7 +70,7 @@ vim                             # Vi IMproved - enhanced vi editor
 gawk                            # GNU awk, a pattern scanning and processing language
 m4                              # GNU implementation of the traditional Unix macro processor
 perl                            # Perl programming language interpreter
-python3                         # Py3K language interpreter
+python3                         # Meta-package for Python 3 default version
 
 
 ##
@@ -86,7 +86,7 @@ curl                            # Multi-protocol file transfer tool
 inetutils                       # Common networking clients and servers (clients)
 openssh                         # The OpenSSH server and client programs
 openssl                         # A general purpose cryptography toolkit with TLS implementation
-ping                            # A basic network tool to test IP network conectivity
+ping                            # A basic network tool to test IP network connectivity
 rsh                             # Clients for remote access commands (rsh, rlogin, rcp, rexec)
 tftp                            # Extended version of the BSD TFTP (client)
 
@@ -94,7 +94,7 @@ tftp                            # Extended version of the BSD TFTP (client)
 ##
 ## Python
 ##
-python3                         # Py3K language interpreter
+python3                         # Meta-package for Python 3 default version
 
 
 ##
@@ -108,7 +108,7 @@ tcsh                            # An enhanced version of csh, the C shell
 ## System
 ##
 e2fsprogs                       # Ext2/3/4 filesystem utilities
-ping                            # A basic network tool to test IP network conectivity
+ping                            # A basic network tool to test IP network connectivity
 procps-ng                       # System and process monitoring utilities
 psmisc                          # Utilities for managing processes on your system
 
