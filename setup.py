@@ -66,13 +66,13 @@ setup(
         'containing customized collections of Cygwin packages. ' +
         'This avoids having to download the entirety of a Cygwin release, ' +
         'which might occupy many GB, instead allowing installers that ' +
-        'can be as small as 32MB. ' +
+        'can be as small as 40MB. ' +
         'pmcyg will help build a self-contained CD or DVD installer to setup ' +
         'Cygwin on PCs without any internet access.',
     name = 'pmcyg',
-    url = 'http://pmcyg.sourceforge.net',
-    download_url = 'http://sourceforge.net/projects/pmcyg/files/pmcyg/pmcyg-' \
-                + PMCYG_VERSION + '/pmcyg-' + PMCYG_VERSION + '.tgz/download',
+    url = 'https://github.com/rwpenney/pmcyg',
+    download_url = 'https://github.com/rwpenney/pmcyg/archive/pmcyg-' \
+                + PMCYG_VERSION + '.tar.gz',
     version = PMCYG_VERSION,
     scripts = pmcyg_scripts,
     cmdclass = { 'build_scripts': pmcyg_build_scripts },

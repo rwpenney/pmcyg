@@ -43,7 +43,7 @@ zip                             # Info-ZIP compression utility
 autoconf                        # Wrapper scripts for autoconf commands
 automake                        # Wrapper for multiple versions of Automake
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
-gcc-g++     [arch=x86,x86_64]   # GNU Compiler Collection (C++)
+gcc-g++                         # GNU Compiler Collection (C++)
 gdb                             # The GNU Debugger
 git                             # Distributed version control system
 make                            # The GNU version of the 'make' utility
@@ -51,9 +51,9 @@ make                            # The GNU version of the 'make' utility
 #
 # Maths/Scientific packages:
 #
-gnuplot                         # A command-line driven interactive function plotting utility
-octave           [arch=x86]     # GNU Octave language for numerical computations
-python3-numpy    [arch=x86_64]
+gnuplot     [arch=x86,x86_64]   # A command-line driven interactive function plotting utility
+octave          [arch=x86]      # GNU Octave language for numerical computations
+python3-numpy   [arch=x86_64]
 
 #
 # X11 packages:

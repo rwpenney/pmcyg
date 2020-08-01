@@ -29,10 +29,6 @@ dist-dir:
 	test -d ${FQNAME} || mkdir ${FQNAME}
 	tar -cf - ${DISTFILES} | tar -C ${FQNAME}/ -xpf -
 
-.PHONY:	epydocs
-epydocs:
-	epydoc -o /tmp/pmcyg-docs --graph classtree pmcyg.py
-
 test:
 	test -d test && ( cd test; ${PYTHON} -t testPMCyg.py )
 
