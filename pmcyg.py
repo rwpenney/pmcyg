@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Partially mirror 'Cygwin' distribution
-# (C)Copyright 2009-2019, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2020, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PMCYG_VERSION = '2.4.1'
+PMCYG_VERSION = '2.4.2'
 
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
@@ -523,7 +523,7 @@ ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
 ftp://cygwin.osuosl.org/pub/cygwin/;cygwin.osuosl.org;United States;Oregon
 http://cygwin.osuosl.org/;cygwin.osuosl.org;United States;Oregon
-ftp://ftp.funet.fi/pub/mirrors/cygwin.com/pub/cygwin/;ftp.funet.fi;Europe;Finland
+http://mirrors.dotsrc.org/cygwin/;mirrors.dotsrc.org;Europe;Denmark
 http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
                 ''')
 
