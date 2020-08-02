@@ -154,26 +154,26 @@ that are no longer needed. By default, pmcyg will simply leave older packages
 in the local mirror directory tree. This is expected to have little adverse
 effect apart from consuming unnecessary storage space.
 
-By using the '--remove-outdated' command-line option (or the corresponding
+By using the `--remove-outdated` command-line option (or the corresponding
 button near the top-right of the GUI), you can arrange for superseded
 versions of packages to be deleted.
-Setting this flag to 'yes' will remove all files in the local mirror that
+Setting this flag to "yes" will remove all files in the local mirror that
 are not needed for the current package list. It is safer to set the flag to
-'ask', which will display a list of files that are to be deleted, and ask for
+"ask", which will display a list of files that are to be deleted, and ask for
 confirmation before deletion.
 
-To reduce the risk of setting 'remove-outdated' to 'yes' and deleting valuable
+To reduce the risk of setting `remove-outdated` to "yes" and deleting valuable
 files that have mistakenly been placed in the local mirror directory,
 pmcyg uses some very simple tests to try to identify when automatic deletion
 would be dangerous. In these circumstances it will behave as though the user
-had selected the 'ask' setting. Naturally, these tests offer no guarantees
-that important files will not be deleted, so setting 'remove-outdated' to 'yes'
+had selected the "ask" setting. Naturally, these tests offer no guarantees
+that important files will not be deleted, so setting `remove-outdated` to "yes"
 is to be used with caution.
 
 
-## Cloning and existing Cygwin installation
+## Cloning an existing Cygwin installation
 
-If you have an existing Cygwin setup that you would like to reproduce,
+If you already have a Cygwin setup that you would like to reproduce,
 pmcyg can construct a package list that can be used to create an off-line
 installer for the same set of packages. When pmcyg is run from within
 your Cygwin environment, you can use the '--generate-replica' command-line

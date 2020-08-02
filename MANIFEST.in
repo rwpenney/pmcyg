@@ -3,5 +3,4 @@ include ChangeLog.txt
 include example.pkgs
 include LICENSE.txt
 include Makefile
-include README.txt
-include ToDo.txt
+include README.md
