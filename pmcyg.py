@@ -21,20 +21,8 @@ import pmcyg, pmcyg.gui
 
 def ProcessPackageFiles(builder, pkgfiles):
     """Subsidiary program entry-point if used as command-line application"""
-
-    pkgset = pmcyg.PackageSet(pkgfiles)
-
     try:
-        builder.BuildMirror(pkgset)
-        garbage = builder.GetGarbage()
-        confirmer = \
-            pmcyg.GarbageConfirmer(garbage,
-                                   default=builder.GetOption('RemoveOutdated'))
-        confirmer.ActionResponse()
-
-        isofile = builder.GetOption('ISOfilename')
-        if isofile:
-            builder.BuildISO(isofile)
+        pmcyg.ProcessPackageFiles(builder, pkgfiles)
     except Exception as ex:
         print('Fatal error during mirroring [{0}]'.format(str(ex)),
               file=sys.stderr)

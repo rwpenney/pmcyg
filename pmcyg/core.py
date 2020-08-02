@@ -24,6 +24,7 @@ import  bz2, codecs, hashlib, io, os, os.path, re, \
 from .version import PMCYG_VERSION
 
 
+DEFAULT_CYGWIN_ARCH = 'x86_64'
 DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
 DEFAULT_CYGWIN_MIRROR = 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
@@ -256,7 +257,7 @@ class PMbuilder(BuildReporter):
         self._iniurl = None
 
         # System architecture that Cygwin should target
-        self._cygarch = 'x86'
+        self._cygarch = DEFAULT_CYGWIN_ARCH
 
         # Set of package age descriptors:
         self._epochs = ['curr']

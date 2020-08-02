@@ -2,9 +2,10 @@
 Graphical user interface components for pmcyg
 """
 
-import threading
+import os.path, sys, threading
 from .core import BuildViewer, GarbageConfirmer, \
                   HOST_IS_CYGWIN, PackageSet, PMbuilder
+from .version import PMCYG_VERSION
 from . import gui_imgs
 
 try:
@@ -14,7 +15,6 @@ try:
 except:
     class Tk: Canvas = object; Button = object
     HASGUI = False
-
 
 
 class TKgui:
@@ -150,7 +150,7 @@ class TKgui:
 
         label = Tk.Label(parampanel, text='Architecture:')
         label.grid(row=rownum, column=0, sticky=Tk.W, pady=margin)
-        combo = Tk.OptionMenu(parampanel, self.arch_var, 'x86', 'x86_64')
+        combo = Tk.OptionMenu(parampanel, self.arch_var, 'x86_64', 'x86')
         combo.grid(row=rownum, column=1, sticky=Tk.W)
         rownum += 1
 
