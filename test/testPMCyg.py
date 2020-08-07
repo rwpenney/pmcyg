@@ -5,7 +5,7 @@
 import codecs, os, random, re, shutil, string, io, sys, \
         tempfile, unittest, urllib.parse
 sys.path.insert(0, '..')
-from pmcyg import *
+from pmcyg.core import *
 
 
 def getSetupURL():

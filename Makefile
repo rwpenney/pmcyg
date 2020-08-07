@@ -5,7 +5,7 @@ PREFIX = /usr/local
 PKGNAME = pmcyg
 PYTHON = python3
 VERSION = $(shell ${PYTHON} -c 'import pmcyg; print(pmcyg.PMCYG_VERSION)')
-DISTFILES = pmcyg.py example.pkgs \
+DISTFILES = pmcyg.py $(shell ls pmcyg/*.py) example.pkgs \
 	Authors.txt ChangeLog.txt LICENSE.txt \
 	Makefile README.md MANIFEST.in setup.py update \
 	test/testPMCyg.py test/setup-awkward.ini $(shell ls test/tree-*)

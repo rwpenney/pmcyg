@@ -2,6 +2,9 @@
 ## https://github.com/rwpenney/pmcyg
 ## (C)Copyright 2009-2020, RW Penney
 
+01Aug20
+    Refactored into Python module and minimalistic driver script
+
 14Apr19
     Excluded pseudo packages (e.g. _rebaseall) from Cygwin-replica package list
 
