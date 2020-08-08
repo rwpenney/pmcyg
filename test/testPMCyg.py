@@ -2,7 +2,7 @@
 # Unit-tests for Cygwin Partial Mirror (pmcyg)
 # RW Penney, August 2009
 
-import codecs, os, random, re, shutil, string, io, sys, \
+import codecs, os, random, re, string, io, sys, \
         tempfile, unittest, urllib.parse
 sys.path.insert(0, '..')
 from pmcyg.core import *
@@ -21,19 +21,18 @@ def getSetupURL():
 class testSetupIniFetcher(unittest.TestCase):
     """Test for opening of optionally compressed setup.ini via URL"""
     def setUp(self):
-        self._tmpdir = tempfile.mkdtemp()
+        self._tmpdir = tempfile.TemporaryDirectory()
 
     def tearDown(self):
-        shutil.rmtree(self._tmpdir)
+        self._tmpdir.cleanup()
 
     def testPlain(self):
         seed = random.randint(0, 1<<31)
         count = 1 << 16
 
-        tmpfile = os.path.join(self._tmpdir, 'raw.txt')
-        fp = open(tmpfile, 'wb')
-        self._generate(fp, seed, count)
-        fp.close()
+        tmpfile = os.path.join(self._tmpdir.name, 'raw.txt')
+        with open(tmpfile, 'wb') as fp:
+            self._generate(fp, seed, count)
 
         self._validate(tmpfile, seed, count)
 
@@ -41,7 +40,7 @@ class testSetupIniFetcher(unittest.TestCase):
         seed = random.randint(0, 1<<31)
         count = 1 << 16
 
-        tmpfile = os.path.join(self._tmpdir, 'comp.bz2')
+        tmpfile = os.path.join(self._tmpdir.name, 'comp.bz2')
         compressor = bz2.BZ2File(tmpfile, 'w')
         self._generate(compressor, seed, count)
         compressor.close()
@@ -223,16 +222,18 @@ class testPkgSetProcessor(unittest.TestCase):
         pkgdict = self.masterList.GetPackageDict()
         pkglist = [p for p in pkgdict.keys()]
 
-        for iterations in range(0, 100):
+        for iterations in range(40):
             pkgProc = PkgSetProcessor(self.masterList)
 
             selected = random.sample(pkglist, random.randint(1, 20))
 
             full = pkgProc.ExpandDependencies(selected)
             contracted = pkgProc.ContractDependencies(full)
-            expanded = pkgProc.ExpandDependencies(contracted)
+            expanded = pkgProc.ExpandDependencies(contracted,
+                                                  ignoreUnresolved=True)
 
-            self.assertEqual(full, expanded)
+            self.assertEqual(set(full).difference(expanded), set())
+            self.assertLess(len(expanded), len(full) * 1.2)
 
     def checkSubset(self, entire, sub):
         missing = set(sub) - set(entire)
@@ -243,13 +244,14 @@ class testPkgSetProcessor(unittest.TestCase):
 
 class testBuilder(unittest.TestCase):
     def setUp(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
         self.builder = PMbuilder(Viewer=SilentBuildViewer())
         self.builder.setup_ini_url = getSetupURL()
-        self.builder.SetTargetDir(tempfile.mkdtemp())
+        self.builder.SetTargetDir(self._tmpdir.name)
         self.makeTemplate = self.builder._pkgProc.MakeTemplate
 
     def tearDown(self):
-        shutil.rmtree(self.builder.GetTargetDir())
+        self._tmpdir.cleanup()
 
     def testBuildSetups(self):
         """Check construction of setup.ini & setup.bz2 files"""
@@ -304,37 +306,27 @@ class testBuilder(unittest.TestCase):
                                 % ( arch, ident, str(ex)))
 
     def testTemplate(self):
-        topdir = tempfile.mkdtemp()
-        try:
+        with tempfile.TemporaryDirectory() as topdir:
             tplt = os.path.join(topdir, 'templates.txt')
-            fp = codecs.open(tplt, 'w', 'utf-8')
-            self.makeTemplate(fp)
-            fp.close()
+            with codecs.open(tplt, 'w', 'utf-8') as fp:
+                self.makeTemplate(fp)
 
             counts = self.templateCounts(tplt)
             self.assertTrue(counts['categories'] >= 20)
             self.assertTrue(counts['categories'] <= 100)
             self.assertTrue(counts['packages'] >= 1000)
 
-        finally:
-            shutil.rmtree(topdir)
-
     def testTerseTemplate(self):
-        topdir = tempfile.mkdtemp()
-        try:
+        with tempfile.TemporaryDirectory() as topdir:
             tplt = os.path.join(topdir, 'terse.txt')
             pkgset = PackageSet()
             pkgset.extend(['bash', 'flex', 'tcsh', 'vim', 'zsh'])
-            fp = codecs.open(tplt, 'w', 'utf-8')
-            self.makeTemplate(fp, pkgset, terse=True)
-            fp.close()
+            with codecs.open(tplt, 'w', 'utf-8') as fp:
+                self.makeTemplate(fp, pkgset, terse=True)
 
             counts = self.templateCounts(tplt)
             self.assertEqual(counts['categories'], 4)
-            self.assertEqual(counts['packages'], 6)
-
-        finally:
-            shutil.rmtree(topdir)
+            self.assertIn(counts['packages'], { 5, 6 })
 
     def templateCounts(self, tplt):
         """Basic sanity checking on template package listing"""
@@ -480,32 +472,29 @@ class testPackageLists(unittest.TestCase):
         can be parsed and rewritten without exceptions or glaring errors"""
         for cfg in self._configs:
             url = urllib.parse.urljoin(self._urlprefix, cfg)
-            tmpdir = tempfile.mkdtemp()
 
-            builder = PMbuilder(Viewer=SilentBuildViewer())
-            builder.setup_ini_url = url
-            builder.SetTargetDir(tmpdir)
+            with tempfile.TemporaryDirectory() as tmpdir:
+                builder = PMbuilder(Viewer=SilentBuildViewer())
+                builder.setup_ini_url = url
+                builder.SetTargetDir(tmpdir)
 
-            builder._optiondict['AllPackages'] = True
-            pkglist = builder._extendPkgSelection()
-            self.assertTrue(len(pkglist) > 4)
+                builder._optiondict['AllPackages'] = True
+                pkglist = builder._extendPkgSelection()
+                self.assertTrue(len(pkglist) > 4)
 
-            arch = builder.GetArch()
-            f_ini = os.path.join(tmpdir, arch, os.path.basename(cfg))
-            f_ini = os.path.join(tmpdir, arch, 'setup.ini')
-            f_tplt = os.path.join(tmpdir, 'tplt.txt')
+                arch = builder.GetArch()
+                f_ini = os.path.join(tmpdir, arch, os.path.basename(cfg))
+                f_ini = os.path.join(tmpdir, arch, 'setup.ini')
+                f_tplt = os.path.join(tmpdir, 'tplt.txt')
 
-            self.assertFalse(os.path.isfile(f_ini))
-            builder._buildSetupFiles(pkglist)
-            self.assertTrue(os.path.isfile(f_ini))
+                self.assertFalse(os.path.isfile(f_ini))
+                builder._buildSetupFiles(pkglist)
+                self.assertTrue(os.path.isfile(f_ini))
 
-            self.assertFalse(os.path.isfile(f_tplt))
-            fp = codecs.open(f_tplt, 'w', 'utf-8')
-            builder._pkgProc.MakeTemplate(fp)
-            self.assertTrue(fp.tell() > 100)
-            fp.close()
-
-            shutil.rmtree(tmpdir)
+                self.assertFalse(os.path.isfile(f_tplt))
+                with codecs.open(f_tplt, 'w', 'utf-8') as fp:
+                    builder._pkgProc.MakeTemplate(fp)
+                    self.assertTrue(fp.tell() > 100)
 
 
 
@@ -558,8 +547,7 @@ class testMirrorLists(unittest.TestCase):
 
 class testGarbageCollector(unittest.TestCase):
     def testAbsentTopdir(self):
-        topdir = tempfile.mkdtemp()
-        try:
+        with tempfile.TemporaryDirectory() as topdir:
             subdir = os.path.join(topdir, 'non-existent')
 
             try:
@@ -568,9 +556,6 @@ class testGarbageCollector(unittest.TestCase):
             except:
                 self.fail('GarbageCollector construction failed')
 
-        finally:
-            shutil.rmtree(topdir)
-
     def testRescuing(self):
         re_tree = re.compile(r'tree-norm-[0-9]*$')
         dirlist = os.listdir('.')
@@ -578,8 +563,7 @@ class testGarbageCollector(unittest.TestCase):
             if not re_tree.match(item):
                 continue
 
-            topdir = tempfile.mkdtemp()
-            try:
+            with tempfile.TemporaryDirectory() as topdir:
                 treedict = makeGarbageTree(item, topdir)
                 collector = GarbageCollector([ topdir ])
 
@@ -602,8 +586,6 @@ class testGarbageCollector(unittest.TestCase):
                     for file in filelist:
                         fullname = os.path.join(topdir, file)
                         self.assertEqual(presence, os.path.isfile(fullname))
-            finally:
-                shutil.rmtree(topdir)
 
     def testSuspiciousTrees(self):
         re_tree = re.compile(r'^tree-([a-z]*)-([0-9]*)$')
@@ -618,14 +600,11 @@ class testGarbageCollector(unittest.TestCase):
                 verdict = False
             index = matches.group(2)
 
-            topdir = tempfile.mkdtemp()
-            try:
+            with tempfile.TemporaryDirectory() as topdir:
                 makeGarbageTree(item, topdir)
                 collector = GarbageCollector(topdir)
                 self.assertEqual(collector.IsSuspicious(), verdict,
                                 msg='Suspiciousness failure on "%s"' % item)
-            finally:
-                shutil.rmtree(topdir)
 
 
 

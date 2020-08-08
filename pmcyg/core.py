@@ -940,7 +940,8 @@ class PkgSetProcessor(BuildReporter):
         BuildReporter.__init__(self, Peer=masterList)
         self._masterList = masterList
 
-    def ExpandDependencies(self, selected, epochs=['curr']):
+    def ExpandDependencies(self, selected, epochs=['curr'],
+                           ignoreUnresolved=False):
         """Expand list of packages to include all their dependencies"""
         pkgdict = self._masterList.GetPackageDict()
 
@@ -974,19 +975,23 @@ class PkgSetProcessor(BuildReporter):
                                         .format(epoch, pkg),
                                        BuildViewer.SEV_WARNING)
 
-        if badpkgnames:
+        if badpkgnames and not ignoreUnresolved:
             badpkgnames.sort()
-            self._statview("The following package names"
-                           " were not recognized:\n\t{0}"
-                            .format('\n\t'.join(badpkgnames)),
+            nBad, nMax = len(badpkgnames), 6
+            truncbad = badpkgnames if nBad <= nMax \
+                                   else badpkgnames[:(nMax-1)] + ['...']
+            self._statview('The following package {n} names'
+                           ' were not recognized:\n\t{p}'
+                            .format(n=nBad, p='\n\t'.join(truncbad)),
                             BuildViewer.SEV_ERROR)
-            raise PMCygException("Invalid package names"
-                                 " in ExpandDependencies()")
+            raise PMCygException('Invalid package names {{ {p} }}[{n}]'
+                                 ' in ExpandDependencies()'
+                                 .format(n=nBad, p=', '.join(truncbad)))
         if badrequires:
             links = [ '{0}->{1}'.format(pkg, dep)
                         for (pkg, dep) in badrequires ]
-            self._statview("Master package list contains spurious"
-                           " dependencies: {0}".format(', '.join(links)),
+            self._statview('Master package list contains spurious'
+                           ' dependencies: {0}'.format(', '.join(links)),
                            BuildViewer.SEV_WARNING)
 
         packages = list(packages)
@@ -999,7 +1004,7 @@ class PkgSetProcessor(BuildReporter):
         such that an initial selection of packages can be reduced to
         a minimal subset that has the same effect after dependency expansion."""
         dependencies = self._buildDependencies()
-        votes = dict([(p, 0) for p in pkglist])
+        votes = { p: 0 for p in pkglist }
 
         # Find number of times each package is cited as a dependency:
         for pkg in pkglist:
@@ -1017,8 +1022,9 @@ class PkgSetProcessor(BuildReporter):
 
         # Preserve any packages not covered by the tree grown from
         # the zero-vote packages, to handle segments of the dependency graph
-        # containing loops:
-        coverage = self.ExpandDependencies(primaries)
+        # containing loops, allowing for packages (e.g. zlib0) that might be
+        # in the process of being declared obsolete:
+        coverage = self.ExpandDependencies(primaries, ignoreUnresolved=True)
         contracted = set(pkglist).difference(coverage)
 
         packages = list(contracted.union(primaries))
@@ -1218,7 +1224,11 @@ class MasterPackageList(BuildReporter):
             self._pkgLock.release()
 
     def _parseSource(self):
-        """Acquire setup.ini file from supplied URL and parse package info"""
+        """Acquire setup.ini file from supplied URL and parse package info
+
+        The format of Cygwin's "setup.ini" files is described at
+        https://sourceware.org/cygwin-apps/setup.ini.html
+        """
         self._ini_header = {}
         self._ini_packages = {}
 
