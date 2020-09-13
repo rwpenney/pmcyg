@@ -1,9 +1,9 @@
 # Cygwin repository partial mirroring tool
 
 'pmcyg' is a tool for creating customized collections of
-[Gygwin](https://www.cygwin.com) packages,
-intended to support construction of a self-contained CDROM or DVD
-that can be used as an off-line Cygwin installer on computers that
+[Cygwin](https://www.cygwin.com) packages,
+intended to support construction of a portable self-contained CDROM or DVD
+that can be used as an offline Cygwin installer on computers that
 do not have network access to a Cygwin mirror site.
 
 pmcyg avoids having to download the entirety of a Cygwin release
@@ -26,7 +26,7 @@ and are Copyright 2009-2020 RW Penney
 
 To run pmcyg, you will need to have a recent version of
 [Python](https://www.python.org) installed
-(note that this must be Python-3.1 or later). This should be available
+(note that this must be Python-3.2 or later). This should be available
 by default on most GNU/Linux systems, or can be obtained from
 https://www.python.org
 

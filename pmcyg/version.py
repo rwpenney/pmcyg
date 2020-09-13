@@ -1,5 +1,5 @@
 """
-Release metadata for pmcyg
+Release metadata for pmcyg (Cygwin offline installer generator)
 """
 
-PMCYG_VERSION = '3.0-beta'
+PMCYG_VERSION = '3.0-rc1'
