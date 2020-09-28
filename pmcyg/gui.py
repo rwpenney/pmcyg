@@ -62,13 +62,15 @@ class TKgui:
         row += 1
 
         self.status_txt = tkinter.scrolledtext.ScrolledText(rootwin, height=24)
-        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W, padx=4, pady=(6,2))
+        self.status_txt.grid(row=row, column=0, sticky=Tk.N+Tk.E+Tk.S+Tk.W,
+                             padx=4, pady=(6,2))
         rootwin.grid_rowconfigure(row, weight=1)
         self.message_queue = queue.Queue()
         row += 1
 
         self.progress_bar = GUIprogressBar(rootwin)
-        self.progress_bar.grid(row=row, column=0, sticky=Tk.E+Tk.W+Tk.S, padx=4, pady=2)
+        self.progress_bar.grid(row=row, column=0, sticky=Tk.E+Tk.W+Tk.S,
+                               padx=4, pady=2)
         row += 1
 
         self.updatePkgSelection(pkgfiles)

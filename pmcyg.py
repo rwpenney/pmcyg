@@ -15,8 +15,21 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse, os.path, sys
+import argparse, os.path, re, sys
 import pmcyg, pmcyg.gui
+
+
+def getDefaultCacheDir():
+    """Attempt to find safe location for local cache of Cygwin downloads"""
+    re_syspath = re.compile(r'^ ( /usr | [a-z]:\\windows\\system )',
+                            re.VERBOSE | re.IGNORECASE)
+
+    topdir = os.getcwd()
+
+    if re_syspath.match(topdir):
+        topdir = os.path.expanduser('~')
+
+    return os.path.join(topdir, 'cygwin')
 
 
 def ProcessPackageFiles(builder, pkgfiles):
@@ -58,7 +71,7 @@ def main():
             help='Include all available Cygwin packages'
                  ' (default=%(default)s)')
     bscopts.add_argument('-d', '--directory', type=str,
-            default=os.path.join(os.getcwd(), 'cygwin'),
+            default=getDefaultCacheDir(),
             help='Where to build local mirror (default=%(default)s)')
     bscopts.add_argument('-z', '--dry-run', action='store_true', dest='dummy',
             help='Do not actually download packages')

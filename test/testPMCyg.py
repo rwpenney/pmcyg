@@ -74,10 +74,14 @@ class testSetupIniFetcher(unittest.TestCase):
 class testHashChecker(unittest.TestCase):
     def testAlgMatch(self):
         HC = HashChecker()
+        def len2alg(n):
+            return HC._guessHashAlg('a' * n).name.lower()
+            # Beware that Python-3.3 may give <alg>.name in upper case
 
-        self.assertEqual(HC._guessHashAlg('a' * 32).name, 'md5')
-        self.assertEqual(HC._guessHashAlg('a' * 64).name, 'sha256')
-        self.assertEqual(HC._guessHashAlg('a' * 128).name, 'sha512')
+        self.assertEqual(len2alg(32), 'md5')
+        self.assertEqual(len2alg(40), 'sha1')
+        self.assertEqual(len2alg(64), 'sha256')
+        self.assertEqual(len2alg(128), 'sha512')
 
 
 
@@ -461,10 +465,13 @@ class testPackageLists(unittest.TestCase):
     def setUp(self):
         re_cfg = re.compile(r'^setup.*\.ini$')
         cwd = os.getcwd()
+        scheme = 'file:'
+        if sys.platform == 'win32' and not cwd.startswith('\\'):
+            scheme += '/'
         dirlist = os.listdir(cwd)
         self._configs = [ f for f in dirlist if re_cfg.match(f)
                                                 and os.path.isfile(f) ]
-        self._urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
+        self._urlprefix = '{s}{d}/'.format(s=scheme, d=cwd.replace('\\', '/'))
 
     def testIO(self):
         """Test that setup.ini files of various generations,

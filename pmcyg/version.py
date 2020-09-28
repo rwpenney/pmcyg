@@ -2,4 +2,4 @@
 Release metadata for pmcyg (Cygwin offline installer generator)
 """
 
-PMCYG_VERSION = '3.0-rc1'
+PMCYG_VERSION = '3.0'

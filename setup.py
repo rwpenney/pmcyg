@@ -25,13 +25,14 @@ setup(
     keywords = 'Cygwin',
     license = 'GPL v3',
     long_description = \
-        'pmcyg is a tool for creating offline Cygwin(TM) installers ' +
-        'containing customized collections of Cygwin packages. ' +
+        'pmcyg is a tool for creating an offline Cygwin installer ' +
+        'containing customized collections of packages. ' +
         'This avoids having to download the entirety of a Cygwin release, ' +
         'which might occupy many GB, instead allowing installers that ' +
         'can be as small as 40MB. ' +
-        'pmcyg will help build a self-contained CD or DVD installer to setup ' +
-        'Cygwin on PCs without any internet access.',
+        'pmcyg enables Cygwin installation from a self-contained ' +
+        'CD/DVD image or USB-flash for use on systems ' +
+        'without internet access.',
     name = 'pmcyg',
     url = 'https://github.com/rwpenney/pmcyg',
     download_url = 'https://github.com/rwpenney/pmcyg/archive/pmcyg-' \

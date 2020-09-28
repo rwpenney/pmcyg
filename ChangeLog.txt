@@ -2,6 +2,11 @@
 ## https://github.com/rwpenney/pmcyg
 ## (C)Copyright 2009-2020, RW Penney
 
+28Sep20 **** pmcyg-3.0 released ****
+
+27Sep20
+    Improved setup of default download directory to avoid system paths
+
 01Aug20
     Refactored into Python module and minimalistic driver script
 
