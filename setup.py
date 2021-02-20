@@ -2,8 +2,7 @@
 # Installation/setup script for Simple Python Fixed-Point Module
 # RW Penney, July 2010
 
-from distutils.core import setup
-import distutils.command.build_scripts as DIB
+from setuptools import setup
 import os, re, shutil
 from pmcyg.version import PMCYG_VERSION
 

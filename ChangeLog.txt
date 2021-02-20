@@ -1,6 +1,6 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## https://github.com/rwpenney/pmcyg
-## (C)Copyright 2009-2020, RW Penney
+## (C)Copyright 2009-2021, RW Penney
 
 28Sep20 **** pmcyg-3.0 released ****
 

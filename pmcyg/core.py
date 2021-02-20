@@ -2,7 +2,7 @@
 Core downloading and package-list management tools for pmcyg
 """
 
-# (C)Copyright 2009-2020, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2021, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -150,7 +150,7 @@ class BuildReporter:
 class SetupIniFetcher:
     """Facade for fetching setup.ini from URL,
     with optional bz2-decompression"""
-    MaxIniFileLength = 1 << 24
+    MaxIniFileLength = 1 << 26
 
     def __init__(self, URL):
         self._buffer = None
@@ -1070,12 +1070,12 @@ class PkgSetProcessor(BuildReporter):
             print('\n\n##\n## {0:s}\n##'.format(cat), file=stream)
 
             for pkg in catgroups[cat]:
-                desc = ConcatShortDescription(pkgdict[pkg].GetAny('sdesc'))
                 if pkgset and pkg in pkgset:
                     prefix = ('', ' ')
                 else:
                     if terse: continue
                     prefix = ('#', '')
+                desc = ConcatShortDescription(pkgdict[pkg].GetAny('sdesc'))
                 stream.write('{0:s}{1:<28s}   {2:s}# {3:s}\n' \
                                 .format(prefix[0], pkg, prefix[1], desc))
 
@@ -1145,9 +1145,9 @@ class MasterPackageList(BuildReporter):
           ((?P<relinfo>^(release|arch|setup-\S+)) :
                                 \s+ (?P<relParam>\S+) $)
         | (?P<comment>\# .* $)
-        | (?P<package>^@ \s+ (?P<pkgName>\S+) $)
+        | (?P<package>^@ \s+ (?P<pkgName> \S+) $)
         | (?P<epoch>^\[ (?P<epochName>[a-z]+) \] $)
-        | ((?P<field>^[a-zA-Z][-a-zA-Z0-9]+) : \s+ (?P<fieldVal>.*) $)
+        | ((?P<field>^[a-zA-Z][-a-zA-Z0-9]+) : \s+ (?P<fieldVal> .*) $)
         | (?P<blank>^\s* $)
         ''', re.VERBOSE)
 
