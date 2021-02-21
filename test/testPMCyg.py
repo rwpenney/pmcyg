@@ -3,19 +3,19 @@
 # RW Penney, August 2009
 
 import codecs, os, random, re, string, io, sys, \
-        tempfile, unittest, urllib.parse
+       tempfile, unittest, urllib.parse
 sys.path.insert(0, '..')
 from pmcyg.core import *
 
 
 def getSetupURL():
-    if os.path.isfile('setup.ini'):
-        cwd = os.getcwd()
-        urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
-        return urllib.parse.urljoin(urlprefix, 'setup.ini')
-    else:
-        return 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/x86/setup.ini'
-
+    cwd = os.getcwd()
+    urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
+    for suffix in ('xz', 'bz2', 'ini'):
+        fname = 'setup.' + suffix
+        if os.path.isfile(fname):
+            return urllib.parse.urljoin(urlprefix, fname)
+    return 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/x86/setup.xz'
 
 
 class testSetupIniFetcher(unittest.TestCase):
@@ -197,6 +197,15 @@ class testMasterPackageList(unittest.TestCase):
                 for pkgname in members:
                     self.assertTrue(pkgname in iter(packages.keys()))
 
+    def testCoverage(self):
+        categories = set(self.pkglist.GetCategories().keys())
+        packages = set(self.pkglist.GetPackageDict().keys())
+
+        self.assertSetEqual({ 'Admin', 'Base', 'Devel', 'Math',
+                              'Python', 'X11' } - categories, set())
+        self.assertSetEqual({ 'aspell', 'bison', 'ed', 'lua', 'swig',
+                              'which', 'xlsfonts', 'zlib',
+                              'zsh' } - packages, set())
 
 
 class testPkgSetProcessor(unittest.TestCase):
@@ -463,7 +472,7 @@ class testPackageSets(unittest.TestCase):
 
 class testPackageLists(unittest.TestCase):
     def setUp(self):
-        re_cfg = re.compile(r'^setup.*\.ini$')
+        re_cfg = re.compile(r'^setup.*\.(?:ini|bz2|xz)$')
         cwd = os.getcwd()
         scheme = 'file:'
         if sys.platform == 'win32' and not cwd.startswith('\\'):

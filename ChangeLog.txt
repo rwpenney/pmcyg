@@ -2,6 +2,12 @@
 ## https://github.com/rwpenney/pmcyg
 ## (C)Copyright 2009-2021, RW Penney
 
+21Feb21
+    Added support for reading XZ-compressed package lists
+
+20Feb21
+    Migrated setup.py from distutils to setuptools
+
 28Sep20 **** pmcyg-3.0 released ****
 
 27Sep20

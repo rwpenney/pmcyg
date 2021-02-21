@@ -18,7 +18,7 @@ Core downloading and package-list management tools for pmcyg
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import  bz2, codecs, hashlib, io, os, os.path, re, \
+import  bz2, codecs, hashlib, io, lzma, os, os.path, re, \
         string, subprocess, sys, threading, time, \
         urllib.request, urllib.parse, urllib.error, urllib.parse
 from .version import PMCYG_VERSION
@@ -148,20 +148,20 @@ class BuildReporter:
 
 
 class SetupIniFetcher:
-    """Facade for fetching setup.ini from URL,
-    with optional bz2-decompression"""
+    """Facade for fetching setup.ini from URL, with optional decompression"""
     MaxIniFileLength = 1 << 26
+
+    Decompressors = { 'bz2':    bz2.decompress,
+                      'xz':     lzma.decompress }
 
     def __init__(self, URL):
         self._buffer = None
+        suffix = URL.rsplit('.', 1)[-1]
+        expander = self.Decompressors.get(suffix, (lambda x: x))
         with urllib.request.urlopen(URL) as stream:
-            expander = lambda x: x
-            if URL.endswith('.bz2'):
-                expander = bz2.decompress
             rawfile = expander(stream.read(self.MaxIniFileLength))
 
-        self._buffer = io.StringIO(rawfile.decode(SI_TEXT_ENCODING,
-                                                        'ignore'))
+        self._buffer = io.StringIO(rawfile.decode(SI_TEXT_ENCODING, 'ignore'))
 
     def __del__(self):
         if self._buffer:
@@ -330,9 +330,9 @@ class PMbuilder(BuildReporter):
         else:
             # Base URL on chosen mirror site, and selected architecture:
             if self._cygarch:
-                basename = '{0}/setup.bz2'.format(self._cygarch)
+                basename = '{0}/setup.xz'.format(self._cygarch)
             else:
-                basename = 'setup.bz2'
+                basename = 'setup.xz'
             return urllib.parse.urljoin(self._mirror, basename)
 
     @setup_ini_url.setter
