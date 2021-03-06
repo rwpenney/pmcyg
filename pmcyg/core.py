@@ -38,7 +38,7 @@ SI_TEXT_ENCODING = 'utf-8'
 HOST_IS_CYGWIN = (sys.platform == 'cygwin')
 
 
-def ConcatShortDescription(desc):
+def ConcatShortDescription(desc: str) -> str:
     """Concatenate multi-line short package description into single line"""
     if desc:
         return desc.replace('\n', ' ').replace('\r', '').rstrip()
@@ -51,7 +51,7 @@ def ConcatShortDescription(desc):
 class PMCygException(Exception):
     """Wrapper for internally generated exceptions"""
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         Exception.__init__(self, *args)
 
 
@@ -69,14 +69,14 @@ class BuildViewer:
     VRB_MEDIUM =    0x10          # Informative messages
     VRB_HIGH =      0x20          # Debugging messages
 
-    def __init__(self, verbosity=VRB_MEDIUM):
+    def __init__(self, verbosity: int=VRB_MEDIUM) -> None:
         self._operation = None
         self._verbThresh = verbosity
 
-    def __call__(self, text, ctrl=SEV_NORMAL | VRB_MEDIUM):
+    def __call__(self, text: str, ctrl: int=SEV_NORMAL | VRB_MEDIUM) -> None:
         self.message(text, ctrl)
 
-    def message(self, text, ctrl=SEV_NORMAL | VRB_MEDIUM):
+    def message(self, text: str, ctrl: int=SEV_NORMAL | VRB_MEDIUM) -> None:
         if self._operation:
             self._emit('  >>>\n', self._operation[1])
         self._emit('{0}\n'.format(text), ctrl)
@@ -84,11 +84,11 @@ class BuildViewer:
             self._emit('  >>> {0}...'.format(self._operation[0]),
                        self._operation[1])
 
-    def startOperation(self, text, ctrl=VRB_MEDIUM):
+    def startOperation(self, text: str, ctrl: int=VRB_MEDIUM) -> None:
         self._operation = (text, ((ctrl & self.VRB_mask) | self.SEV_NORMAL))
         self._emit('{0}...'.format(text), self.SEV_NORMAL)
 
-    def endOperation(self, text, ctrl=SEV_NORMAL):
+    def endOperation(self, text: str, ctrl: int=SEV_NORMAL) -> None:
         if not self._operation:
             return
         opVerbosity = (self._operation[1] & self.VRB_mask)
@@ -96,18 +96,18 @@ class BuildViewer:
                    ((ctrl & self.SEV_mask) | opVerbosity))
         self._operation = None
 
-    def flushOperation(self):
+    def flushOperation(self) -> None:
         if not self._operation:
             return
         self._emit('\n', (self._operation[1] & self.VRB_mask))
         self._operation = None
 
-    def _emit(self, text, ctrl):
+    def _emit(self, text: str, ctrl: int) -> None:
         if (ctrl & self.VRB_mask) > self._verbThresh:
             return
         self._output(text, (ctrl & self.SEV_mask))
 
-    def _output(self, text, severity): pass
+    def _output(self, text: str, severity: int): pass
 
 
 class SilentBuildViewer(BuildViewer):
@@ -134,7 +134,7 @@ class ConsoleBuildViewer(BuildViewer):
 
 class BuildReporter:
     """Mixin class for hosting a BuildViewer object."""
-    def __init__(self, Viewer=None, Peer=None):
+    def __init__(self, Viewer: BuildViewer=None, Peer=None) -> None:
         self._statview = None
         if isinstance(Peer, BuildReporter) and not Viewer:
             Viewer = Peer._statview
@@ -185,7 +185,7 @@ class HashChecker:
     based on the length of a supplied hexadecimal hash code.
     """
 
-    len2alg = {}
+    len2alg: dict = {}
 
     def __call__(self, path, tgthash, blksize=1<<14):
         hasher = self._guessHashAlg(tgthash)
@@ -236,10 +236,10 @@ class PMbuilder(BuildReporter):
     DL_HashError =      4
     DL_Failure =        5
 
-    def __init__(self, BuildDirectory='.',
-                MirrorSite=DEFAULT_CYGWIN_MIRROR,
-                CygwinInstaller=DEFAULT_INSTALLER_URL,
-                Viewer=None, **kwargs):
+    def __init__(self, BuildDirectory: str='.',
+                MirrorSite: str=DEFAULT_CYGWIN_MIRROR,
+                CygwinInstaller: str=DEFAULT_INSTALLER_URL,
+                Viewer: BuildViewer=None, **kwargs) -> None:
 
         BuildReporter.__init__(self, Viewer)
         self._hashCheck = HashChecker()
@@ -278,25 +278,25 @@ class PMbuilder(BuildReporter):
         }
 
         self._fetchStats = FetchStats()
-        self._cygcheck_list = []
+        self._cygcheck_list: list = []
         for (opt, val) in kwargs.items():
             self.SetOption(opt, val)
 
-    def SetViewer(self, Viewer):
+    def SetViewer(self, Viewer: BuildViewer):
         BuildReporter.SetViewer(self, Viewer)
         self._masterList.SetViewer(self._statview)
         self._pkgProc.SetViewer(self._statview)
         self._garbage.SetViewer(self._statview)
 
-    def GetTargetDir(self):
+    def GetTargetDir(self) -> str:
         return self._tgtdir
 
-    def SetTargetDir(self, tgtdir):
+    def SetTargetDir(self, tgtdir: str) -> None:
         """Set the root directory beneath which packages will be downloaded"""
         self._tgtdir = tgtdir
 
     @property
-    def setup_exe_url(self):
+    def setup_exe_url(self) -> str:
         """The URL of the setup.exe Cygwin installer"""
         keywords = { 'arch': self._cygarch,
                      '_arch': '-' + self._cygarch }
@@ -307,22 +307,22 @@ class PMbuilder(BuildReporter):
         return exe_template.substitute(keywords)
 
     @setup_exe_url.setter
-    def setup_exe_url(self, URL):
+    def setup_exe_url(self, URL: str) -> None:
         self._exeurl = URL
 
     @property
-    def mirror_url(self):
+    def mirror_url(self) -> str:
         """The URL of the mirror site from which to download Cygwin packages"""
         return self._mirror
 
     @mirror_url.setter
-    def mirror_url(self, URL):
+    def mirror_url(self, URL: str) -> None:
         if not URL.endswith('/'):
             URL += '/'
         self._mirror = URL
 
     @property
-    def setup_ini_url(self):
+    def setup_ini_url(self) -> str:
         """The (architecture-dependent) URL for the setup.ini package-list."""
         if self._iniurl:
             # Use prescribed URL directly:
@@ -336,26 +336,26 @@ class PMbuilder(BuildReporter):
             return urllib.parse.urljoin(self._mirror, basename)
 
     @setup_ini_url.setter
-    def setup_ini_url(self, URL):
+    def setup_ini_url(self, URL: str) -> None:
         self._iniurl = URL
         self._masterList.SetSourceURL(self.setup_ini_url)
 
-    def GetArch(self):
+    def GetArch(self) -> str:
         return self._cygarch
 
-    def SetArch(self, arch):
+    def SetArch(self, arch: str) -> None:
         self._cygarch = arch
 
-    def GetEpochs(self):
+    def GetEpochs(self) -> list:
         return self._epochs
 
-    def SetEpochs(self, epochs):
+    def SetEpochs(self, epochs: list) -> None:
         self._epochs = epochs
 
-    def GetOption(self, optname):
+    def GetOption(self, optname: str):
         return self._optiondict.get(optname)
 
-    def SetOption(self, optname, value):
+    def SetOption(self, optname: str, value):
         oldval = None
         try:
             oldval = self._optiondict[optname]
@@ -431,7 +431,7 @@ class PMbuilder(BuildReporter):
         self._pkgProc.UpdatePackageLists(filenames, bckp)
 
 
-    def BuildMirror(self, pkgset):
+    def BuildMirror(self, pkgset) -> None:
         """Download and configure packages into local directory
 
         Resolved the dependencies of the supplied PackageSet,
@@ -490,7 +490,8 @@ class PMbuilder(BuildReporter):
         """Signal that downloading should be terminated"""
         self._cancelling = flag
 
-    def TemplateFromLists(self, outfile, pkgfiles, cygwinReplica=False):
+    def TemplateFromLists(self, outfile: str, pkgfiles: list,
+                          cygwinReplica: bool=False) -> None:
         """Wrapper for PkgSetProcessor.MakeTemplate(),
         taking collection of package files"""
         self._masterList.SetSourceURL(self.setup_ini_url)

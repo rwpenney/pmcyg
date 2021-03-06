@@ -17,9 +17,10 @@
 
 import argparse, os.path, re, sys
 import pmcyg, pmcyg.gui
+from pmcyg.core import PMbuilder
 
 
-def getDefaultCacheDir():
+def getDefaultCacheDir() -> str:
     """Attempt to find safe location for local cache of Cygwin downloads"""
     re_syspath = re.compile(r'^ ( /usr | [a-z]:\\windows\\system )',
                             re.VERBOSE | re.IGNORECASE)
@@ -32,7 +33,7 @@ def getDefaultCacheDir():
     return os.path.join(topdir, 'cygwin')
 
 
-def ProcessPackageFiles(builder, pkgfiles):
+def ProcessPackageFiles(builder: PMbuilder, pkgfiles: list) -> None:
     """Subsidiary program entry-point if used as command-line application"""
     try:
         pmcyg.ProcessPackageFiles(builder, pkgfiles)
@@ -42,20 +43,21 @@ def ProcessPackageFiles(builder, pkgfiles):
         #import traceback; traceback.print_exc()
 
 
-def TemplateMain(builder, outfile, pkgfiles, cygwinReplica=False):
+def TemplateMain(builder: PMbuilder, outfile: str,
+                 pkgfiles: list, cygwinReplica: bool=False) -> None:
     """Subsidiary program entry-point for command-line list generation"""
 
     builder.TemplateFromLists(outfile, pkgfiles, cygwinReplica)
 
 
-def GUImain(builder, pkgfiles):
+def GUImain(builder: PMbuilder, pkgfiles: list) -> None:
     """Subsidiary program entry-point if used as GUI application"""
 
     gui = pmcyg.gui.TKgui(builder, pkgfiles=pkgfiles)
     gui.Run()
 
 
-def main():
+def main() -> None:
     builder = pmcyg.PMbuilder()
 
     # Process command-line options:

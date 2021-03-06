@@ -22,7 +22,7 @@ from .core import DEFAULT_INSTALLER_URL, GarbageConfirmer, \
 from .version import PMCYG_VERSION
 
 
-def ProcessPackageFiles(builder, pkgfiles):
+def ProcessPackageFiles(builder: PMbuilder, pkgfiles: list) -> None:
     """Execute downloading and cleaning actions for a set of package-list files"""
 
     pkgset = PackageSet(pkgfiles)
