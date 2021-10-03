@@ -86,7 +86,7 @@ class TKgui:
 
         def tick():
             # Check if list of mirror sites is available yet:
-            if self._renewMirrorMenu and not self.mirrorthread.isAlive():
+            if self._renewMirrorMenu and not self.mirrorthread.is_alive():
                 self.mirror_menu = self.mkMirrorMenu()
                 self.mirror_btn.config(menu=self.mirror_menu)
                 self.mirror_btn.config(state=Tk.NORMAL)
@@ -474,7 +474,7 @@ class GUIbuildState(GUIstate):
 
     def tick(self):
         self._parent.updateProgress()
-        if self._buildthread and not self._buildthread.isAlive():
+        if self._buildthread and not self._buildthread.is_alive():
             return GUItidyState(self._parent)
         return self
 
