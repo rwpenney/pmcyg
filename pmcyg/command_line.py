@@ -1,42 +1,17 @@
-#!/usr/bin/python3
-# Partially mirror 'Cygwin' distribution for offline installation
-# (C)Copyright 2009-2021, RW Penney <rwpenney@users.sourceforge.net>
+"""
+Application entry-point for "pmcyg" tool
+"""
 
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-import argparse, os.path, re, sys
-import pmcyg, pmcyg.gui
-from pmcyg.core import PMbuilder
-
-
-def getDefaultCacheDir() -> str:
-    """Attempt to find safe location for local cache of Cygwin downloads"""
-    re_syspath = re.compile(r'^ ( /usr | [a-z]:\\windows\\system )',
-                            re.VERBOSE | re.IGNORECASE)
-
-    topdir = os.getcwd()
-
-    if re_syspath.match(topdir):
-        topdir = os.path.expanduser('~')
-
-    return os.path.join(topdir, 'cygwin')
+import argparse, sys
+from . import apptools, core, gui, version
+from .core import PMbuilder
+from .version import PMCYG_VERSION
 
 
 def ProcessPackageFiles(builder: PMbuilder, pkgfiles: list) -> None:
     """Subsidiary program entry-point if used as command-line application"""
     try:
-        pmcyg.ProcessPackageFiles(builder, pkgfiles)
+        apptools.ProcessPackageFiles(builder, pkgfiles)
     except Exception as ex:
         print('Fatal error during mirroring [{0}]'.format(str(ex)),
               file=sys.stderr)
@@ -53,12 +28,12 @@ def TemplateMain(builder: PMbuilder, outfile: str,
 def GUImain(builder: PMbuilder, pkgfiles: list) -> None:
     """Subsidiary program entry-point if used as GUI application"""
 
-    gui = pmcyg.gui.TKgui(builder, pkgfiles=pkgfiles)
-    gui.Run()
+    pgui = gui.TKgui(builder, pkgfiles=pkgfiles)
+    pgui.Run()
 
 
 def main() -> None:
-    builder = pmcyg.PMbuilder()
+    builder = PMbuilder()
 
     # Process command-line options:
     parser = argparse.ArgumentParser(
@@ -66,14 +41,14 @@ def main() -> None:
                 description='pmcyg is a tool for generating'
                             ' customized Cygwin(TM) installers')
     parser.add_argument('--version', action='version',
-            version=pmcyg.PMCYG_VERSION)
+            version=PMCYG_VERSION)
 
     bscopts = parser.add_argument_group('Basic options')
     bscopts.add_argument('-a', '--all', action='store_true',
             help='Include all available Cygwin packages'
                  ' (default=%(default)s)')
     bscopts.add_argument('-d', '--directory', type=str,
-            default=getDefaultCacheDir(),
+            default=apptools.getDefaultCacheDir(),
             help='Where to build local mirror (default=%(default)s)')
     bscopts.add_argument('-z', '--dry-run', action='store_true', dest='dummy',
             help='Do not actually download packages')
@@ -101,7 +76,7 @@ def main() -> None:
             help='Comma-separated list of epochs, e.g. "curr,prev"'
                 ' (default=%(default)s)')
     advopts.add_argument('-x', '--exeurl', type=str,
-            default=pmcyg.DEFAULT_INSTALLER_URL,
+            default=core.DEFAULT_INSTALLER_URL,
             help='URL of "setup.exe" Cygwin installer (default=%(default)s)')
     advopts.add_argument('-i', '--iniurl', type=str, default=None,
             help='URL of "setup.ini" Cygwin database (default=%(default)s)')
@@ -145,7 +120,7 @@ def main() -> None:
             print('WARNING: pmcyg attempting to create replica of non-Cygwin host', file=sys.stderr)
         TemplateMain(builder, args.cyg_list,
                      args.package_files, cygwinReplica=True)
-    elif pmcyg.gui.HASGUI and not args.nogui:
+    elif gui.HASGUI and not args.nogui:
         GUImain(builder, args.package_files)
     else:
         ProcessPackageFiles(builder, args.package_files)

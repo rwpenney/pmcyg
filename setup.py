@@ -7,15 +7,6 @@ import os, re, shutil
 from pmcyg.version import PMCYG_VERSION
 
 
-if os.name == 'posix':
-    if not os.path.exists('build/scripts'):
-        os.makedirs('build/scripts')
-    shutil.copyfile('pmcyg.py', 'build/scripts/pmcyg')
-    pmcyg_scripts = [ 'build/scripts/pmcyg' ]
-else:
-    pmcyg_scripts = [ 'pmcyg.py' ]
-
-
 setup(
     author = 'RW Penney',
     author_email = 'rwpenney@users.sourceforge.net',
@@ -38,7 +29,8 @@ setup(
                 + PMCYG_VERSION + '.tar.gz',
     version = PMCYG_VERSION,
     packages = [ 'pmcyg' ],
-    scripts = pmcyg_scripts,
+    entry_points = {
+        'console_scripts': [ 'pmcyg=pmcyg.command_line:main' ] },
     classifiers = [ 'Programming Language :: Python :: 3',
                     'Topic :: Utilities' ]
 )
