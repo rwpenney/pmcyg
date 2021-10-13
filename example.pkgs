@@ -29,7 +29,7 @@ patch                           # Applies diff files
 perl                            # Perl programming language interpreter
 procps-ng                       # System and process monitoring utilities
 python2                         # Python 2 language interpreter
-sed                             # the GNU sed stream editor
+sed                             # the GNU stream editor
 tar                             # A GNU file archiving program
 tcsh                            # An enhanced version of csh, the C shell
 texinfo                         # GNU documentation formatter
@@ -51,7 +51,7 @@ make                            # The GNU version of the 'make' utility
 #
 # Maths/Scientific packages:
 #
-gnuplot     [arch=x86,x86_64]   # A command-line driven interactive function plotting utility
+gnuplot-X11 [arch=x86,x86_64]   # A command-line driven interactive function plotting utility
 octave          [arch=x86]      # GNU Octave language for numerical computations
 python3-numpy   [arch=x86_64]
 

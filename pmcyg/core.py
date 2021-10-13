@@ -990,7 +990,7 @@ class PkgSetProcessor(BuildReporter):
         if badrequires:
             links = [ '{0}->{1}'.format(pkg, dep)
                         for (pkg, dep) in badrequires ]
-            self._statview('Master package list contains spurious'
+            self._statview('Master package list contains unresolvable'
                            ' dependencies: {0}'.format(', '.join(links)),
                            BuildViewer.SEV_WARNING)
 

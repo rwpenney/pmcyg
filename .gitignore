@@ -7,7 +7,10 @@ MANIFEST
 
 build/
 dist/
-test/legacy/setup*.ini
+pmcyg.egg-info/
+pmcyg-template.pkgs
+test/setup*.xz
+test/legacy/setup*.ini*
 
 www/index.html
 www/pmcyg-template.txt
