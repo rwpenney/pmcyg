@@ -40,7 +40,7 @@ zip                             # Info-ZIP compression utility
 #
 # Development packages:
 #
-autoconf                        # Wrapper scripts for autoconf commands
+autoconf                        # Wrapper script for autoconf commands
 automake                        # Wrapper for multiple versions of Automake
 gcc-core                        # GNU Compiler Collection (C, OpenMP)
 gcc-g++                         # GNU Compiler Collection (C++)

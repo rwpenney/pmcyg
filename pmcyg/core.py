@@ -25,10 +25,10 @@ from .version import PMCYG_VERSION
 
 
 DEFAULT_CYGWIN_ARCH = 'x86_64'
-DEFAULT_INSTALLER_URL = 'http://cygwin.com/setup${_arch}.exe'
+DEFAULT_INSTALLER_URL = 'https://www.cygwin.com/setup${_arch}.exe'
 #DEFAULT_CYGWIN_MIRROR = 'ftp://cygwin.com/pub/cygwin/'
-DEFAULT_CYGWIN_MIRROR = 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
-CYGWIN_MIRROR_LIST_URL = 'http://cygwin.com/mirrors.lst'
+DEFAULT_CYGWIN_MIRROR = 'https://www.mirrorservice.org/sites/sourceware.org/pub/cygwin'
+CYGWIN_MIRROR_LIST_URL = 'https://www.cygwin.com/mirrors.lst'
 
 # Character encoding used by the setup.ini file.
 # This should probably by 'ascii', but occasional unicode characters
