@@ -2,7 +2,7 @@
 Core downloading and package-list management tools for pmcyg
 """
 
-# (C)Copyright 2009-2021, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2022, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -385,7 +385,14 @@ class PMbuilder(BuildReporter):
         for line in fp:
             line = line.decode('ascii', 'ignore').strip()
             if not line: continue
-            (url, ident, region, country) = line.split(';')
+
+            fields = line.split(';')
+            n_fields = len(fields)
+            if n_fields < 4 or (n_fields > 4 and fields[4] == 'noshow'):
+                continue
+            else:
+                (url, ident, region, country) = fields[:4]
+
             regdict = self._mirrordict.setdefault(region, {})
             regdict.setdefault(country, []).append((ident, url))
 
@@ -510,15 +517,12 @@ class PMbuilder(BuildReporter):
         be downloaded."""
         return io.BytesIO(b'''
 http://ucmirror.canterbury.ac.nz/cygwin/;ucmirror.canterbury.ac.nz;Australasia;New Zealand
-ftp://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
-http://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
-ftp://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
-ftp://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
-http://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
-ftp://cygwin.osuosl.org/pub/cygwin/;cygwin.osuosl.org;United States;Oregon
-http://cygwin.osuosl.org/;cygwin.osuosl.org;United States;Oregon
-http://mirrors.dotsrc.org/cygwin/;mirrors.dotsrc.org;Europe;Denmark
-http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
+https://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
+https://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
+https://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
+https://cygwin.osuosl.org/;cygwin.osuosl.org;United States;Oregon
+https://mirrors.dotsrc.org/cygwin/;mirrors.dotsrc.org;Europe;Denmark
+https://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
                 ''')
 
     def _resolveDependencies(self, usrpkgs=None):

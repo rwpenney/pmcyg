@@ -19,7 +19,7 @@ the locally created repository.
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2021 RW Penney
+and are Copyright 2009-2022 RW Penney
 
 
 ## Installation

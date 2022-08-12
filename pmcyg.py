@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Partially mirror 'Cygwin' distribution for offline installation
-# (C)Copyright 2009-2021, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2022, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,4 +16,5 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from pmcyg.command_line import main
+
 main()

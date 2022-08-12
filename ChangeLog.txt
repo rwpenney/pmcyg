@@ -1,6 +1,10 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## https://github.com/rwpenney/pmcyg
-## (C)Copyright 2009-2021, RW Penney
+## (C)Copyright 2009-2022, RW Penney
+
+12Aug22
+    Updated fallback list of Cygwin mirror sites
+    Improved parsing of official 'mirrors.lst' to support 'noshow' flag
 
 09Oct21 **** pmcyg-3.1 released ****
 
