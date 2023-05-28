@@ -1,6 +1,11 @@
 ## ChangeLog for 'pmcyg' - a tool for partial mirroring of Cygwin(TM) archives
 ## https://github.com/rwpenney/pmcyg
-## (C)Copyright 2009-2022, RW Penney
+## (C)Copyright 2009-2023, RW Penney
+
+28May23
+    Fixed outdated assumptions about 'requires' field in setup.ini
+    Updated fallback list of Cygwin mirror sites
+    Updated various unit-tests to escape Python-2.7 and x86 constraints
 
 12Aug22
     Updated fallback list of Cygwin mirror sites

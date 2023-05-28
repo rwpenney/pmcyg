@@ -2,7 +2,7 @@
 Core downloading and package-list management tools for pmcyg
 """
 
-# (C)Copyright 2009-2022, RW Penney <rwpenney@users.sourceforge.net>
+# (C)Copyright 2009-2023, RW Penney <rwpenney@users.sourceforge.net>
 
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -517,10 +517,10 @@ class PMbuilder(BuildReporter):
         be downloaded."""
         return io.BytesIO(b'''
 http://ucmirror.canterbury.ac.nz/cygwin/;ucmirror.canterbury.ac.nz;Australasia;New Zealand
-https://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;Canada;Ontario
+https://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;North America;Canada
 https://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
 https://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
-https://cygwin.osuosl.org/;cygwin.osuosl.org;United States;Oregon
+https://cygwin.osuosl.org/;cygwin.osuosl.org;North America;United States
 https://mirrors.dotsrc.org/cygwin/;mirrors.dotsrc.org;Europe;Denmark
 https://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
                 ''')
@@ -1155,6 +1155,8 @@ class MasterPackageList(BuildReporter):
         | (?P<blank>^\s* $)
         ''', re.VERBOSE)
 
+    RE_RSTRIP = re.compile(r'\s+$')
+
     def __init__(self, iniURL=None, Viewer=None):
         BuildReporter.__init__(self, Viewer)
 
@@ -1335,10 +1337,7 @@ class MasterPackageList(BuildReporter):
         if not self._pkgname:
             return
 
-        pkgtxt = self._pkgtxt
-        while pkgtxt and pkgtxt[-1].isspace():
-            pkgtxt.pop()
-        self._pkgdict.Set('TEXT', "".join(pkgtxt))
+        self._pkgdict.Set('TEXT', self.RE_RSTRIP.sub('', ''.join(self._pkgtxt)))
         self._ini_packages[self._pkgname] = self._pkgdict
 
         self._pkgname = None
@@ -1406,9 +1405,13 @@ class PackageSummary:
 
     def GetDependencies(self, epochset=[]):
         """Return a list of other packages on which this package depends."""
-        return sorted(
-            { x.strip() for x in self.GetAny('depends2', epochset).split(',') }
-            | set(self.GetAny('requires', epochset).split()) )
+        all_deps = []
+        deps, reqs = ( self.GetAny(f) for f in ('depends2', 'requires') )
+        if deps:
+            all_deps.extend(x.strip() for x in deps.split(','))
+        if reqs:
+            all_deps.extend(x.split())
+        return sorted(set(all_deps))
 
     def Set(self, field, value, epoch=None):
         """Record field=value for a particular epoch (e.g. curr/prev/None)"""

@@ -8,14 +8,16 @@ sys.path.insert(0, '..')
 from pmcyg.core import *
 
 
+TESTDIR = os.path.dirname(__file__)
+
+
 def getSetupURL():
-    cwd = os.getcwd()
-    urlprefix = 'file://' + cwd.replace('\\', '/') + '/'
+    urlprefix = 'file://' + TESTDIR.replace('\\', '/') + '/'
     for suffix in ('xz', 'bz2', 'ini'):
         fname = 'setup.' + suffix
         if os.path.isfile(fname):
             return urllib.parse.urljoin(urlprefix, fname)
-    return 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/x86/setup.xz'
+    return 'http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/x86_64/setup.xz'
 
 
 class testSetupIniFetcher(unittest.TestCase):
@@ -113,13 +115,13 @@ class testMasterPackageList(unittest.TestCase):
         self.assertFalse(header.get('setup-version') == None)
         try:
             ts = int(header['setup-timestamp'])
-            self.assertTrue(ts > (1 << 30))
-            self.assertTrue(ts < (1 << 31))
+            self.assertGreater(ts, (1 << 30))
+            self.assertLess(ts, (1 << 31))
         except:
             self.fail()
 
         self.assertFalse(packages == None)
-        self.assertTrue(len(packages) >= 1000)
+        self.assertGreaterEqual(len(packages), 1000)
 
     def testFieldPresence(self):
         fields = [ ('sdesc', 'curr'), ('category', None),
@@ -141,12 +143,12 @@ class testMasterPackageList(unittest.TestCase):
                 except:
                     pass
 
-        self.assertTrue(scores[('sdesc', 'curr')] == numpkgs)
-        self.assertTrue(scores[('category', None)] == numpkgs)
-        self.assertTrue(scores[('version', 'curr')] >= 0.8 * numpkgs)
-        self.assertTrue(scores[('install', 'curr')] >= 0.8 * numpkgs)
-        self.assertTrue(scores[('source', 'curr')] >= 0.75 * numpkgs)
-        self.assertTrue(scores[('install', 'prev')] >= 0.3 * numpkgs)
+        self.assertEqual(scores[('sdesc', 'curr')], numpkgs)
+        self.assertEqual(scores[('category', None)], numpkgs)
+        self.assertGreaterEqual(scores[('version', 'curr')], 0.8 * numpkgs)
+        self.assertGreaterEqual(scores[('install', 'curr')], 0.8 * numpkgs)
+        self.assertGreaterEqual(scores[('source', 'curr')], 0.75 * numpkgs)
+        self.assertGreaterEqual(scores[('install', 'prev')], 0.3 * numpkgs)
 
     def testLongDescriptions(self):
         (header, packages) = self.pkglist.GetHeaderAndPackages()
@@ -170,10 +172,10 @@ class testMasterPackageList(unittest.TestCase):
                 if not line.strip():
                     blanks += 1
 
-            self.assertFalse(blanks > (desclen + 2) / 3)
+            self.assertLessEqual(blanks, (desclen + 2) / 3)
 
-        self.assertTrue(numldesc >= 0.7 * numpkgs)
-        self.assertTrue(totlines > 2 * numldesc)
+        self.assertGreaterEqual(numldesc, 0.7 * numpkgs)
+        self.assertGreater(totlines, 2 * numldesc)
 
     def testCategories(self):
         packages = self.pkglist.GetPackageDict()
@@ -220,14 +222,14 @@ class testPkgSetProcessor(unittest.TestCase):
         self.assertEqual(len(explist), 0)
 
         explist = pkgProc.ExpandDependencies(['make'])
-        self.assertTrue(len(explist) > 6)
-        self.checkSubset(explist, ['make', 'bash', 'coreutils', 'cygwin',
-                                    'libgcc1', 'terminfo'])
+        self.assertGreater(len(explist), 6)
+        self.checkSubset(explist, ['make', 'cygwin', 'libgcc1',
+                                   'libiconv2', 'terminfo'])
 
         explist = pkgProc.ExpandDependencies(['bash', 'libboost-devel', 'bvi'])
-        self.assertTrue(len(explist) > 20)
+        self.assertGreater(len(explist), 20)
         self.checkSubset(explist, ['bash', 'bvi', 'libboost-devel', 'cygwin',
-                                    'libattr1', 'libgcc1',
+                                    'libgcc1', 'libicu-devel',
                                     'libreadline7', 'pkg-config', 'terminfo'])
 
     def testInverse(self):
@@ -281,9 +283,9 @@ class testBuilder(unittest.TestCase):
         self.assertTrue(os.path.isfile(f_bz2))
         self.assertTrue(os.path.isfile(f_exe))
 
-        self.assertTrue(os.path.getsize(f_ini) > (1 << 10))
-        self.assertTrue(os.path.getsize(f_bz2) > (1 << 9))
-        self.assertTrue(os.path.getsize(f_exe) > (1 << 18))
+        self.assertGreater(os.path.getsize(f_ini), (1 << 10))
+        self.assertGreater(os.path.getsize(f_bz2), (1 << 9))
+        self.assertGreater(os.path.getsize(f_exe), (1 << 18))
 
         pkgs = []
         re_pkg = re.compile(r'^@\s+(\S*)$')
@@ -298,7 +300,7 @@ class testBuilder(unittest.TestCase):
             self.assertTrue(pkg in pkgs)
 
     def testDummyDownloads(self):
-        for arch in [ 'x86', 'x86_64' ]:
+        for arch in [ 'x86_64' ]:
             builder = PMbuilder(Viewer=SilentBuildViewer())
             builder.SetOption('DummyDownload', True)
             builder.SetArch(arch)
@@ -325,9 +327,9 @@ class testBuilder(unittest.TestCase):
                 self.makeTemplate(fp)
 
             counts = self.templateCounts(tplt)
-            self.assertTrue(counts['categories'] >= 20)
-            self.assertTrue(counts['categories'] <= 100)
-            self.assertTrue(counts['packages'] >= 1000)
+            self.assertGreaterEqual(counts['categories'], 20)
+            self.assertLessEqual(counts['categories'], 100)
+            self.assertGreaterEqual(counts['packages'], 1000)
 
     def testTerseTemplate(self):
         with tempfile.TemporaryDirectory() as topdir:
@@ -473,14 +475,16 @@ class testPackageSets(unittest.TestCase):
 class testPackageLists(unittest.TestCase):
     def setUp(self):
         re_cfg = re.compile(r'^setup.*\.(?:ini|bz2|xz)$')
-        cwd = os.getcwd()
         scheme = 'file:'
-        if sys.platform == 'win32' and not cwd.startswith('\\'):
+        if sys.platform == 'win32' and not TESTDIR.startswith('\\'):
             scheme += '/'
-        dirlist = os.listdir(cwd)
-        self._configs = [ f for f in dirlist if re_cfg.match(f)
-                                                and os.path.isfile(f) ]
-        self._urlprefix = '{s}{d}/'.format(s=scheme, d=cwd.replace('\\', '/'))
+        self._configs = []
+        for d in [ TESTDIR, os.path.join(TESTDIR, 'legacy') ]:
+            fls = [ os.path.join(d, f)
+                        for f in os.listdir(d)
+                        if re_cfg.match(f) ]
+            self._configs.extend(f for f in fls if os.path.isfile(f))
+        self._urlprefix = '{s}{d}/'.format(s=scheme, d=TESTDIR.replace('\\', '/'))
 
     def testIO(self):
         """Test that setup.ini files of various generations,
@@ -496,7 +500,7 @@ class testPackageLists(unittest.TestCase):
 
                 builder._optiondict['AllPackages'] = True
                 pkglist = builder._extendPkgSelection()
-                self.assertTrue(len(pkglist) > 4)
+                self.assertGreater(len(pkglist), 4)
 
                 arch = builder.GetArch()
                 f_ini = os.path.join(tmpdir, arch, os.path.basename(cfg))
@@ -510,7 +514,7 @@ class testPackageLists(unittest.TestCase):
                 self.assertFalse(os.path.isfile(f_tplt))
                 with codecs.open(f_tplt, 'w', 'utf-8') as fp:
                     builder._pkgProc.MakeTemplate(fp)
-                    self.assertTrue(fp.tell() > 100)
+                    self.assertGreater(fp.tell(), 100)
 
 
 
@@ -519,8 +523,8 @@ class testMirrorLists(unittest.TestCase):
         fp = PMbuilder._makeFallbackMirrorList()
         (regionDict, urlDict) = self.mkSets(fp)
         fp.close()
-        self.assertTrue(len(regionDict) > 3)
-        self.assertTrue(len(urlDict) > 4)
+        self.assertGreater(len(regionDict), 3)
+        self.assertGreater(len(urlDict), 4)
         self.assertTrue(('Asia', 'Japan') in regionDict)
         self.assertTrue(('Europe', 'UK') in regionDict)
 
@@ -532,8 +536,8 @@ class testMirrorLists(unittest.TestCase):
         (cyg_regions, cyg_urls) = self.mkSets(fp1)
         fp1.close()
 
-        self.assertTrue(len(cyg_regions) > 8)
-        self.assertTrue(len(cyg_urls) > 12)
+        self.assertGreater(len(cyg_regions), 8)
+        self.assertGreater(len(cyg_urls), 12)
 
         for reg in fb_regions:
             if not reg in cyg_regions:
