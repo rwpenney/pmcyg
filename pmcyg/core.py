@@ -1238,11 +1238,15 @@ class MasterPackageList(BuildReporter):
         self._ini_header = {}
         self._ini_packages = {}
 
-        try:
-            fp = SetupIniFetcher(self._iniURL)
-        except Exception as ex:
-            raise PMCygException("Failed to open {0:s} - {1:s}" \
-                                    .format(self._iniURL, str(ex)))
+        fp = None
+        if (os.path.isfile(self._iniURL)):
+            fp = open(self._iniURL, "r")
+        else:
+            try:
+                fp = SetupIniFetcher(self._iniURL)
+            except Exception as ex:
+                raise PMCygException("Failed to open {0:s} - {1:s}" \
+                                        .format(self._iniURL, str(ex)))
 
         lineno = 0
         self._pkgname = None
