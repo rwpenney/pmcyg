@@ -7,7 +7,7 @@ that can be used as an offline Cygwin installer on computers that
 do not have network access to a Cygwin mirror site.
 
 pmcyg avoids having to download the entirety of a Cygwin release
-(about 5GB or more), and can create a minimal Cygwin installation within 40MB.
+(about 20GB or more), and can create a minimal Cygwin installation within 40MB.
 In general, pmcyg will take a user-supplied list of cygwin package names,
 work out which other packages they depend on, and only download those packages
 from a user-selected Cygwin mirror site.  It will then assemble a set of
@@ -19,14 +19,14 @@ the locally created repository.
 
 All files forming part of pmcyg are released under
 the GNU General Public License (v3) (see http://www.gnu.org/licenses)
-and are Copyright 2009-2022 RW Penney
+and are Copyright 2009-2023 RW Penney
 
 
 ## Installation
 
 To run pmcyg, you will need to have a recent version of
 [Python](https://www.python.org) installed
-(note that this must be Python-3.3 or later). This should be available
+(note that this should be Python-3.6 or later). This should be available
 by default on most GNU/Linux systems, or can be obtained from
 https://www.python.org
 

@@ -8,7 +8,7 @@ sys.path.insert(0, '..')
 from pmcyg.core import *
 
 
-TESTDIR = os.path.dirname(__file__)
+TESTDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def getSetupURL():
@@ -289,7 +289,7 @@ class testBuilder(unittest.TestCase):
 
         pkgs = []
         re_pkg = re.compile(r'^@\s+(\S*)$')
-        fp = open(f_ini, 'rt')
+        fp = open(f_ini, 'rt', encoding='utf-8')
         for line in fp:
             match = re_pkg.match(line)
             if not match: continue
@@ -349,7 +349,7 @@ class testBuilder(unittest.TestCase):
         re_package = re.compile(r'^#?[a-zA-Z][^ ]*\s+#[^#]*$')
         counts = { 'categories':0, 'packages':0 }
 
-        fp = open(tplt, 'rt')
+        fp = open(tplt, 'rt', encoding='utf-8')
         for line in fp:
             if re_category.match(line):
                 counts['categories'] += 1
@@ -498,6 +498,10 @@ class testPackageLists(unittest.TestCase):
                 builder.setup_ini_url = url
                 builder.SetTargetDir(tmpdir)
 
+                if 'make' in builder._masterList.GetPackageDict():
+                    deps = builder._resolveDependencies(['make'])
+                    self.assertGreater(len(deps), 20, msg='src={}'.format(cfg))
+
                 builder._optiondict['AllPackages'] = True
                 pkglist = builder._extendPkgSelection()
                 self.assertGreater(len(pkglist), 4)
@@ -633,7 +637,7 @@ def makeGarbageTree(treefile, topdir='.'):
 
     treedict = { 'directories':[], 'files':[] }
 
-    fp = open(treefile, 'rt')
+    fp = open(treefile, 'rt', encoding='utf-8')
     for line in fp:
         idx = line.find('#')
         if idx >= 0:
@@ -654,7 +658,7 @@ def makeGarbageTree(treefile, topdir='.'):
             except OSError:
                 pass
         elif ftype == 'F':
-            fp2 = open(fname, 'wt')
+            fp2 = open(fname, 'wt', encoding='utf-8')
             flen = random.randint(0, 512)
             print((chr(0x5a) * flen), file=fp2)
             fp2.close()

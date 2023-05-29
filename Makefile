@@ -12,7 +12,9 @@ DISTFILES = pmcyg.py $(shell ls pmcyg/*.py) example.pkgs \
 
 FQNAME = ${PKGNAME}-${VERSION}
 
-.PHONY:	install dist-gzip dist-zip dist-dir test clean
+.PHONY:	default install dist-gzip dist-zip dist-dir test clean
+
+default:	test
 
 install:	pmcyg.py
 	install -m 755 pmcyg.py ${PREFIX}/bin/pmcyg

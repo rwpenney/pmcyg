@@ -305,7 +305,7 @@ class TKgui:
 - a tool for creating Cygwin\N{REGISTERED SIGN} partial mirrors
 Version {0:s}
 
-\N{COPYRIGHT SIGN}Copyright 2009-2022 RW Penney
+\N{COPYRIGHT SIGN}Copyright 2009-2023 RW Penney
 
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under

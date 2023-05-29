@@ -25,7 +25,7 @@ gzip                            # The GNU compression utility
 less                            # A file pager program, similar to more(1)
 login                           # Sign on to a system
 man-db                          # Man page viewer
-patch                           # Applies diff files
+patch                           # Utility for modifying/upgrading files
 perl                            # Perl programming language interpreter
 procps-ng                       # System and process monitoring utilities
 python2                         # Python 2 language interpreter

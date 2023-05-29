@@ -2,6 +2,12 @@
 ## https://github.com/rwpenney/pmcyg
 ## (C)Copyright 2009-2023, RW Penney
 
+29May23 **** pmcyg-3.2 released ****
+
+29May23
+    Fixed missing line-ending on output setup.ini
+    Added explicit text encodings on textfile read/write operations
+
 28May23
     Fixed outdated assumptions about 'requires' field in setup.ini
     Updated fallback list of Cygwin mirror sites
