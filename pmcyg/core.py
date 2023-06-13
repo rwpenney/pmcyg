@@ -519,7 +519,7 @@ http://ucmirror.canterbury.ac.nz/cygwin/;ucmirror.canterbury.ac.nz;Australasia;N
 https://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;North America;Canada
 https://ftp.fsn.hu/pub/cygwin/;ftp.fsn.hu;Europe;Hungary
 https://ftp.iij.ad.jp/pub/cygwin/;ftp.iij.ad.jp;Asia;Japan
-https://cygwin.osuosl.org/;cygwin.osuosl.org;North America;United States
+https://mirror.csclub.uwaterloo.ca/cygwin/;mirror.csclub.uwaterloo.ca;North America;Canada
 https://mirrors.dotsrc.org/cygwin/;mirrors.dotsrc.org;Europe;Denmark
 https://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/;www.mirrorservice.org;Europe;UK
                 ''')

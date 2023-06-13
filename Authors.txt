@@ -6,4 +6,5 @@ very helpful in testing and improving pmcyg:
     Steve Etchelecu     (finding issue with _rebaseall in replica listing)
     Michael Hanselmann  (patches to support SHA512 checksums etc.)
     Ken Poole           (testing of utf-8 support)
+    Richie B2B          (patching to support pip-23.1)
     John Windle         (use of 'cygcheck' for mirroring existing installation)

@@ -3,7 +3,7 @@
 # RW Penney, July 2010
 
 from setuptools import setup
-import os, sys, re, shutil
+import os, re, sys, shutil
 base_path = os.path.dirname(__file__)
 sys.path.insert(0, base_path)
 from pmcyg.version import PMCYG_VERSION
