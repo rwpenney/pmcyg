@@ -1050,7 +1050,7 @@ class PkgSetProcessor(BuildReporter):
         if pkgset:
             userpkgs = set(pkgset.extract())
         else:
-            userpkgs = None
+            userpkgs = set()
 
         lines = [ \
             '# Package listing for pmcyg (Cygwin(TM) Partial Mirror)',

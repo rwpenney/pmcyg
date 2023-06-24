@@ -2,6 +2,12 @@
 ## https://github.com/rwpenney/pmcyg
 ## (C)Copyright 2009-2023, RW Penney
 
+24Jun23
+    Fixed missing import for --generate-replica option
+
+13Jun23
+    Fixed local-import issue affecting pip-23.1
+
 29May23 **** pmcyg-3.2 released ****
 
 29May23

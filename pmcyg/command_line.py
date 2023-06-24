@@ -4,7 +4,7 @@ Application entry-point for "pmcyg" tool
 
 import argparse, sys
 from . import apptools, core, gui, version
-from .core import PMbuilder
+from .core import HOST_IS_CYGWIN, PMbuilder
 from .version import PMCYG_VERSION
 
 
@@ -22,6 +22,9 @@ def TemplateMain(builder: PMbuilder, outfile: str,
                  pkgfiles: list, cygwinReplica: bool=False) -> None:
     """Subsidiary program entry-point for command-line list generation"""
 
+    if cygwinReplica and not HOST_IS_CYGWIN:
+        print('WARNING: pmcyg attempting to create replica of non-Cygwin host',
+              file=sys.stderr)
     builder.TemplateFromLists(outfile, pkgfiles, cygwinReplica)
 
 
@@ -116,8 +119,6 @@ def main() -> None:
     if args.pkg_file:
         TemplateMain(builder, args.pkg_file, args.package_files)
     elif args.cyg_list:
-        if not HOST_IS_CYGWIN:
-            print('WARNING: pmcyg attempting to create replica of non-Cygwin host', file=sys.stderr)
         TemplateMain(builder, args.cyg_list,
                      args.package_files, cygwinReplica=True)
     elif gui.HASGUI and not args.nogui:
