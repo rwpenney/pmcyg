@@ -2,6 +2,9 @@
 ## https://github.com/rwpenney/pmcyg
 ## (C)Copyright 2009-2023, RW Penney
 
+01Jul23
+    Patched handling of libssl3 required by installer while only in 'test' epoch
+
 24Jun23
     Fixed missing import for --generate-replica option
 

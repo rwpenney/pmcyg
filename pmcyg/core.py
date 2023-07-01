@@ -1354,18 +1354,21 @@ class PackageSummary:
         self._pkginfo = {}
         self._epochs = set()
 
-    def GetAny(self, field, epochset=[]):
+    def GetAny(self, field, epochset=[], allow_test=True):
         """Lookup the value of a particular field for a set of possible epochs.
 
         An empty set of allowed epochs matches current or default epoch
         """
 
         value = None
+        epochset = list(epochset)
         if not epochset:
-            epochset = ( None, 'curr' )
+            epochset.extend(( None, 'curr' ))
         if not None in epochset:
-            epochset = list(epochset)
             epochset.append(None)
+        if not 'test' in epochset and allow_test:
+            epochset.append('test')
+            # libssl3 has been observed around 01Jul23 being required by installer, but only available in the "test" epoch
         for epoch in epochset:
             value = self._pkginfo.get((field, epoch), None)
             if value: break
